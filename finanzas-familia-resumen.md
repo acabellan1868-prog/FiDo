@@ -79,17 +79,17 @@ El contenedor `api` solo expone el API REST. **No incluye lógica de Telegram.**
 Telegram no vive dentro de FiDo. Se reutiliza la misma arquitectura que ya funciona en el proyecto Kryptonite:
 
 ```
-Telegram Bot → Node-RED (polling) → n8n (parseo de comando + parámetros) → API de FiDo
-                                                                          ← respuesta
-                                  ← n8n (monta texto de respuesta)
-Telegram Bot ← Node-RED (envía mensaje de confirmación)
+Entrada:   Telegram Bot → Node-RED (polling) → n8n (parseo + parámetros) → API de FiDo
+Respuesta:                                      n8n (monta respuesta)     → Telegram Bot
 ```
+
+Node-RED solo interviene en la entrada (polling). La respuesta la envía n8n directamente a Telegram.
 
 | Componente | Responsabilidad |
 |------------|-----------------|
 | **Telegram Bot** | Recibe mensajes del usuario (comandos y texto libre) |
 | **Node-RED** | Polling automático de Telegram. Enruta mensajes a n8n |
-| **n8n** | Parsea el comando/texto, extrae parámetros, llama al API de FiDo, monta la respuesta |
+| **n8n** | Parsea el comando/texto, extrae parámetros, llama al API de FiDo, monta y envía la respuesta a Telegram |
 | **API de FiDo** | Recibe la petición HTTP y registra el movimiento |
 
 **Ventaja:** toda la lógica de Telegram se gestiona visualmente desde Node-RED y n8n, sin tocar código de la aplicación. Solo hay JavaScript ligero para parsear comandos y montar textos de respuesta.
@@ -128,7 +128,7 @@ Esto garantiza que los datos sobreviven a `docker-compose down`, actualizaciones
 
 El método principal para gastos pequeños y cotidianos. Sin necesidad de VPN, sin abrir el navegador.
 
-**Flujo:** el usuario escribe al bot → Node-RED captura el mensaje → n8n parsea y llama al API de FiDo → n8n monta la respuesta → Node-RED la envía al usuario por Telegram. La lógica de Telegram está completamente fuera del código de FiDo (ver sección 4).
+**Flujo:** el usuario escribe al bot → Node-RED captura el mensaje (polling) → n8n parsea y llama al API de FiDo → n8n monta y envía la respuesta directamente a Telegram. La lógica de Telegram está completamente fuera del código de FiDo (ver sección 4).
 
 **Sintaxis:**
 
