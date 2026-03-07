@@ -66,11 +66,33 @@ Aplicación web para gestionar las finanzas domésticas de una familia entera. L
 
 ```
 finanzas-familia/
-  ├── api        → FastAPI + SQLite + Bot Telegram  (un solo contenedor)
+  ├── api        → FastAPI + SQLite  (un solo contenedor)
   └── frontend   → Nginx sirviendo HTML/JS estático (Alpine.js + Chart.js)
 ```
 
 **Solo dos contenedores.** Sin Traefik, sin AdGuard, sin Redis, sin Celery.
+
+El contenedor `api` solo expone el API REST. **No incluye lógica de Telegram.** La integración con Telegram se gestiona fuera del código de FiDo, mediante la infraestructura de automatización ya existente (ver sección 5).
+
+### Integración con Telegram (infraestructura externa)
+
+Telegram no vive dentro de FiDo. Se reutiliza la misma arquitectura que ya funciona en el proyecto Kryptonite:
+
+```
+Telegram Bot → Node-RED (polling) → n8n (parseo de comando + parámetros) → API de FiDo
+                                                                          ← respuesta
+                                  ← n8n (monta texto de respuesta)
+Telegram Bot ← Node-RED (envía mensaje de confirmación)
+```
+
+| Componente | Responsabilidad |
+|------------|-----------------|
+| **Telegram Bot** | Recibe mensajes del usuario (comandos y texto libre) |
+| **Node-RED** | Polling automático de Telegram. Enruta mensajes a n8n |
+| **n8n** | Parsea el comando/texto, extrae parámetros, llama al API de FiDo, monta la respuesta |
+| **API de FiDo** | Recibe la petición HTTP y registra el movimiento |
+
+**Ventaja:** toda la lógica de Telegram se gestiona visualmente desde Node-RED y n8n, sin tocar código de la aplicación. Solo hay JavaScript ligero para parsear comandos y montar textos de respuesta.
 
 ### Persistencia de datos
 
@@ -106,6 +128,8 @@ Esto garantiza que los datos sobreviven a `docker-compose down`, actualizaciones
 
 El método principal para gastos pequeños y cotidianos. Sin necesidad de VPN, sin abrir el navegador.
 
+**Flujo:** el usuario escribe al bot → Node-RED captura el mensaje → n8n parsea y llama al API de FiDo → n8n monta la respuesta → Node-RED la envía al usuario por Telegram. La lógica de Telegram está completamente fuera del código de FiDo (ver sección 4).
+
 **Sintaxis:**
 
 ```
@@ -132,7 +156,7 @@ El método principal para gastos pequeños y cotidianos. Sin necesidad de VPN, s
 - La fecha es **hoy** por defecto.
 - El concepto ayuda a la categorización automática y a la deduplicación.
 - Con el tiempo, las **reglas automáticas** categorizan solos los gastos habituales ("mercadona" → Supermercado, "gasolina" → Transporte...).
-- El bot ya existe como infraestructura en el proyecto Kryptonite, por lo que hay experiencia previa.
+- El `chat_id` del mensaje identifica al usuario (mismo mecanismo que en Kryptonite).
 
 **Respuesta del bot:** confirma lo que ha entendido para verificar visualmente:
 
@@ -364,8 +388,8 @@ Las reglas se definen una vez y se aplican en cada importación CSV y en cada me
 
 ### Imprescindibles
 - [ ] Gestión de cuentas bancarias (alta, asociación a titular)
-- [ ] Bot Telegram para entrada rápida de gastos e ingresos
-- [ ] Respuesta del bot confirmando el movimiento registrado
+- [ ] Integración Telegram vía Node-RED + n8n (entrada rápida de gastos e ingresos)
+- [ ] Flujo n8n: parseo de mensaje, llamada al API, respuesta de confirmación
 - [ ] App Android Wallet Listener (captura automática de pagos con tarjeta)
 - [ ] Importación CSV Santander, CaixaBank, Revolut
 - [ ] Categorías editables en dos niveles (configurables desde la web)
@@ -422,3 +446,4 @@ Las reglas se definen una vez y se aplican en cada importación CSV y en cada me
 *Revisado el 06/03/2026 — segunda sesión de revisión.*
 *Revisado el 07/03/2026 — añadido canal Wallet Listener (app Android).*
 *Revisado el 07/03/2026 — estrategia de sync por capas (local → API directo). Supabase aplazado a v2.*
+*Revisado el 07/03/2026 — Telegram fuera del contenedor Docker. Integración vía Node-RED + n8n (patrón Kryptonite).*
