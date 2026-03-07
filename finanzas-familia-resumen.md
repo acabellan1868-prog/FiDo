@@ -20,7 +20,7 @@ Aplicación web para gestionar las finanzas domésticas de una familia entera. L
 | Tipo de app | Web responsive (funciona en PC y móvil) + App Android ligera (listener) |
 | Usuarios | Familia entera (varios miembros, identificados por `chat_id` de Telegram) |
 | Backend | Python + FastAPI |
-| Frontend | HTML/JS estático (Alpine.js + Chart.js), servido por Nginx |
+| Frontend | HTML/JS estático (Alpine.js + Chart.js), servido por FastAPI (StaticFiles) |
 | Base de datos | SQLite (fichero propio, separado del SQLite de JupyterLab) |
 | Despliegue | Docker, en servidor Debian con Proxmox |
 | Acceso remoto | Tailscale (VPN privada, sin puertos abiertos) |
@@ -66,13 +66,12 @@ Aplicación web para gestionar las finanzas domésticas de una familia entera. L
 
 ```
 finanzas-familia/
-  ├── api        → FastAPI + SQLite  (un solo contenedor)
-  └── frontend   → Nginx sirviendo HTML/JS estático (Alpine.js + Chart.js)
+  └── app  → FastAPI (API REST + frontend estático) + SQLite
 ```
 
-**Solo dos contenedores.** Sin Traefik, sin AdGuard, sin Redis, sin Celery.
+**Un solo contenedor.** FastAPI sirve tanto el API REST como los ficheros estáticos del frontend (HTML/JS/CSS) mediante `StaticFiles`. Sin Nginx, sin Traefik, sin Redis, sin Celery.
 
-El contenedor `api` solo expone el API REST. **No incluye lógica de Telegram.** La integración con Telegram se gestiona fuera del código de FiDo, mediante la infraestructura de automatización ya existente (ver sección 5).
+**No incluye lógica de Telegram.** La integración con Telegram se gestiona fuera del código de FiDo, mediante la infraestructura de automatización ya existente (ver sección 5).
 
 ### Integración con Telegram (infraestructura externa)
 
@@ -419,7 +418,7 @@ Las reglas se definen una vez y se aplican en cada importación CSV y en cada me
 > **"El uso dará pistas de qué necesito y dónde volcar los esfuerzos."**
 
 - Empezar simple. Añadir complejidad solo si el uso real lo justifica.
-- Dos contenedores Docker, no ocho.
+- Un solo contenedor Docker, no ocho.
 - La app tiene que ser útil antes de ser perfecta.
 - Si meter un gasto es tedioso, la app se abandona. La facilidad de entrada de datos es la prioridad número uno.
 - **Tres canales de entrada, cada uno con su rol:**

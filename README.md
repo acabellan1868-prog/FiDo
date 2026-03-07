@@ -24,10 +24,11 @@ La **web** es para consultar, analizar, importar y corregir.
 | Componente | Tecnología |
 |------------|------------|
 | Backend | Python + FastAPI |
-| Frontend | HTML/JS (Alpine.js + Chart.js) servido por Nginx |
+| Frontend | HTML/JS (Alpine.js + Chart.js) servido por FastAPI (StaticFiles) |
 | Base de datos | SQLite |
 | App Android | Kotlin (NotificationListenerService + Room + WorkManager) |
-| Despliegue | Docker (2 contenedores) en servidor Debian con Proxmox |
+| Integración Telegram | Node-RED (polling) + n8n (parseo y respuesta) — externa a FiDo |
+| Despliegue | Docker (1 contenedor) en servidor Debian con Proxmox |
 | Acceso remoto | Tailscale (VPN privada) |
 
 ## Funcionalidades principales
