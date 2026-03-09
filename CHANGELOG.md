@@ -6,6 +6,11 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ## 2026-03-10
 
+### 01:15 — Fix seed parcial: cada tabla se siembra independientemente
+- **Corregido:** La función `sembrar_si_vacio()` solo comprobaba si había categorías. Si categorías se insertaban pero miembros/cuentas fallaban, nunca se reintentaba.
+- **Solución:** Ahora cada sección (categorías, reglas, miembros, cuentas) comprueba su propia tabla por separado. Si una ya tiene datos y otra no, solo siembra la vacía.
+- Ficheros modificados: `app/datos_iniciales.py`
+
 ### 00:08 — Fix bug importación: dropdown cuenta vacío + CSV de prueba
 - **Corregido:** El desplegable "Cuenta destino" en la pestaña Importar aparecía vacío porque `<template x-for>` dentro de `<select>` con `id` estático no renderizaba las opciones.
 - **Solución:** Cambiar los `<select>` de importar a `x-model` de Alpine.js (`importarCuentaId`, `importarBanco`) y añadir las variables reactivas correspondientes en `app.js`.

@@ -7,15 +7,22 @@ from app import bd
 
 
 def sembrar_si_vacio():
-    """Si no hay categorías en la BD, inserta todos los datos iniciales."""
-    existentes = bd.consultar_uno("SELECT COUNT(*) as total FROM categorias")
-    if existentes and existentes["total"] > 0:
-        return  # Ya tiene datos, no hacer nada
+    """Inserta datos iniciales en cada tabla que esté vacía (independientemente)."""
+    total_cat = bd.consultar_uno("SELECT COUNT(*) as total FROM categorias")
+    if not total_cat or total_cat["total"] == 0:
+        _sembrar_categorias()
 
-    _sembrar_categorias()
-    _sembrar_reglas()
-    _sembrar_miembros()
-    _sembrar_cuentas()
+    total_reglas = bd.consultar_uno("SELECT COUNT(*) as total FROM reglas")
+    if not total_reglas or total_reglas["total"] == 0:
+        _sembrar_reglas()
+
+    total_miembros = bd.consultar_uno("SELECT COUNT(*) as total FROM miembros")
+    if not total_miembros or total_miembros["total"] == 0:
+        _sembrar_miembros()
+
+    total_cuentas = bd.consultar_uno("SELECT COUNT(*) as total FROM cuentas")
+    if not total_cuentas or total_cuentas["total"] == 0:
+        _sembrar_cuentas()
 
 
 def _sembrar_categorias():
