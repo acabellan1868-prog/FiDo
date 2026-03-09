@@ -1,3 +1,18 @@
+# FiDo — datos locales
+data/*.db
+data/*.db-wal
+data/*.db-shm
+
+# Extractos bancarios (datos personales)
+*.xls
+*.xlsx
+export*.pdf
+
+# Node (temporal)
+node_modules/
+package.json
+package-lock.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

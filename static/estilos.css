@@ -1,0 +1,15 @@
+/* FiDo — Estilos adicionales mínimos */
+
+/* Ocultar elementos Alpine.js hasta que se inicialicen */
+[x-cloak] {
+    display: none !important;
+}
+
+/* Scrollbar más fina en tablas */
+.overflow-x-auto::-webkit-scrollbar {
+    height: 6px;
+}
+.overflow-x-auto::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}

@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+  fido:
+    build: .
+    container_name: fido
+    ports:
+      - "8080:8080"
+    volumes:
+      - /mnt/datos/fido:/app/data
+    environment:
+      - TZ=Europe/Madrid
+      - FIDO_DB_PATH=/app/data/fido.db
+    restart: always
