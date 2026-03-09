@@ -2,10 +2,9 @@
  * FiDo — Cliente API (wrappers sobre fetch).
  */
 const API = {
-    /** Asegura que la URL termina en / para evitar 307 redirects con POST/PUT/DELETE. */
+    /** Construye la URL completa de la API. */
     _url(ruta) {
-        const url = `/api${ruta}`;
-        return url.endsWith('/') ? url : url + '/';
+        return `/api${ruta}`;
     },
 
     async obtener(ruta) {

@@ -8,7 +8,7 @@ from app import bd
 ruta = APIRouter()
 
 
-@ruta.get("/", response_model=list[MovimientoRespuesta])
+@ruta.get("", response_model=list[MovimientoRespuesta])
 def listar_movimientos(
     mes: Optional[str] = Query(None, description="Filtrar por mes: YYYY-MM"),
     cuenta_id: Optional[int] = Query(None),
@@ -104,7 +104,7 @@ def obtener_movimiento(movimiento_id: int):
     return fila
 
 
-@ruta.post("/", response_model=MovimientoRespuesta, status_code=201)
+@ruta.post("", response_model=MovimientoRespuesta, status_code=201)
 def crear_movimiento(datos: MovimientoCrear):
     # Auto-categorizar si no viene categoría
     categoria_id = datos.categoria_id

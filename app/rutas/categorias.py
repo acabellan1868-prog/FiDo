@@ -7,7 +7,7 @@ from app import bd
 ruta = APIRouter()
 
 
-@ruta.get("/", response_model=list[CategoriaArbol])
+@ruta.get("", response_model=list[CategoriaArbol])
 def listar_categorias():
     """Devuelve el árbol completo: padres con sus hijas anidadas."""
     todas = bd.consultar_todos("SELECT * FROM categorias ORDER BY orden, nombre")
@@ -44,7 +44,7 @@ def obtener_categoria(categoria_id: int):
     return fila
 
 
-@ruta.post("/", response_model=CategoriaRespuesta, status_code=201)
+@ruta.post("", response_model=CategoriaRespuesta, status_code=201)
 def crear_categoria(datos: CategoriaCrear):
     try:
         nuevo_id = bd.ejecutar(

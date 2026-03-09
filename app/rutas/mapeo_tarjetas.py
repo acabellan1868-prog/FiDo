@@ -7,7 +7,7 @@ from app import bd
 ruta = APIRouter()
 
 
-@ruta.get("/", response_model=list[dict])
+@ruta.get("", response_model=list[dict])
 def listar_mapeos():
     """Lista todos los mapeos con nombre de cuenta."""
     return bd.consultar_todos("""
@@ -26,7 +26,7 @@ def obtener_mapeo(mapeo_id: int):
     return fila
 
 
-@ruta.post("/", response_model=MapeoTarjetaRespuesta, status_code=201)
+@ruta.post("", response_model=MapeoTarjetaRespuesta, status_code=201)
 def crear_mapeo(datos: MapeoTarjetaCrear):
     try:
         nuevo_id = bd.ejecutar(

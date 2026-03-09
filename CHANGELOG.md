@@ -6,10 +6,11 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ## 2026-03-10
 
-### 01:35 — Fix 405 Method Not Allowed en POST/PUT/DELETE
-- **Corregido:** Las llamadas POST/PUT/DELETE a la API fallaban con "Method Not Allowed" porque la URL sin barra final (`/api/cuentas`) no coincidía con la ruta FastAPI (`/api/cuentas/`), y la petición caía en el mount de StaticFiles que solo acepta GET.
-- **Solución:** Añadido método `_url()` en `api.js` que normaliza todas las URLs añadiendo `/` al final. Aplicado a todos los métodos: `obtener`, `crear`, `actualizar`, `borrar` y `subirCSV`.
-- Ficheros modificados: `static/api.js`
+### 02:00 — Fix definitivo 405 Method Not Allowed en todas las rutas API
+- **Corregido:** POST/PUT/DELETE fallaban con 405 porque las rutas FastAPI usaban `@ruta.get("/")` generando paths como `/api/cuentas/` (con barra final), pero el JS llamaba a `/api/cuentas` (sin barra). La petición no coincidía y caía en el mount de StaticFiles (solo GET → 405).
+- **Solución server-side:** Cambiar `@ruta.get("/")` → `@ruta.get("")` y `@ruta.post("/")` → `@ruta.post("")` en los 6 routers CRUD (miembros, cuentas, categorías, reglas, movimientos, mapeo_tarjetas). Así las rutas coinciden directamente sin necesidad de trailing slash.
+- **Revertido** el workaround del cliente (`_url()` ya no añade `/` al final) que rompía rutas como `/api/importar/csv`.
+- Ficheros modificados: `app/rutas/miembros.py`, `app/rutas/cuentas.py`, `app/rutas/categorias.py`, `app/rutas/reglas.py`, `app/rutas/movimientos.py`, `app/rutas/mapeo_tarjetas.py`, `static/api.js`
 
 ### 01:15 — Fix seed parcial: cada tabla se siembra independientemente
 - **Corregido:** La función `sembrar_si_vacio()` solo comprobaba si había categorías. Si categorías se insertaban pero miembros/cuentas fallaban, nunca se reintentaba.

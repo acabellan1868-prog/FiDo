@@ -7,7 +7,7 @@ from app import bd
 ruta = APIRouter()
 
 
-@ruta.get("/", response_model=list[CuentaRespuesta])
+@ruta.get("", response_model=list[CuentaRespuesta])
 def listar_cuentas():
     return bd.consultar_todos("SELECT * FROM cuentas ORDER BY nombre")
 
@@ -20,7 +20,7 @@ def obtener_cuenta(cuenta_id: int):
     return fila
 
 
-@ruta.post("/", response_model=CuentaRespuesta, status_code=201)
+@ruta.post("", response_model=CuentaRespuesta, status_code=201)
 def crear_cuenta(datos: CuentaCrear):
     nuevo_id = bd.ejecutar(
         """INSERT INTO cuentas (nombre, banco, iban, miembro_id, es_compartida)

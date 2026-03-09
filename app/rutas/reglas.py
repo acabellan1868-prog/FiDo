@@ -7,7 +7,7 @@ from app import bd
 ruta = APIRouter()
 
 
-@ruta.get("/", response_model=list[dict])
+@ruta.get("", response_model=list[dict])
 def listar_reglas():
     """Lista todas las reglas con nombre de categoría padre > hija."""
     return bd.consultar_todos("""
@@ -29,7 +29,7 @@ def obtener_regla(regla_id: int):
     return fila
 
 
-@ruta.post("/", response_model=ReglaRespuesta, status_code=201)
+@ruta.post("", response_model=ReglaRespuesta, status_code=201)
 def crear_regla(datos: ReglaCrear):
     nuevo_id = bd.ejecutar(
         "INSERT INTO reglas (patron, categoria_id, prioridad) VALUES (?, ?, ?)",

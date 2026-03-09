@@ -7,7 +7,7 @@ from app import bd
 ruta = APIRouter()
 
 
-@ruta.get("/", response_model=list[MiembroRespuesta])
+@ruta.get("", response_model=list[MiembroRespuesta])
 def listar_miembros():
     return bd.consultar_todos("SELECT * FROM miembros ORDER BY nombre")
 
@@ -20,7 +20,7 @@ def obtener_miembro(miembro_id: int):
     return fila
 
 
-@ruta.post("/", response_model=MiembroRespuesta, status_code=201)
+@ruta.post("", response_model=MiembroRespuesta, status_code=201)
 def crear_miembro(datos: MiembroCrear):
     try:
         nuevo_id = bd.ejecutar(
