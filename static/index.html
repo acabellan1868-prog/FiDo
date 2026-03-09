@@ -231,7 +231,8 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-1">Cuenta destino</label>
-                        <select id="cuentaImportar" class="border rounded-lg px-3 py-2 text-sm w-full">
+                        <select x-model="importarCuentaId" class="border rounded-lg px-3 py-2 text-sm w-full">
+                            <option value="">Seleccionar cuenta...</option>
                             <template x-for="c in cuentas" :key="c.id">
                                 <option :value="c.id" x-text="c.nombre"></option>
                             </template>
@@ -239,7 +240,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium mb-1">Banco</label>
-                        <select id="bancoImportar" class="border rounded-lg px-3 py-2 text-sm w-full">
+                        <select x-model="importarBanco" class="border rounded-lg px-3 py-2 text-sm w-full">
                             <option value="santander">Santander</option>
                             <option value="caixabank" disabled>CaixaBank (próximamente)</option>
                             <option value="revolut" disabled>Revolut (próximamente)</option>

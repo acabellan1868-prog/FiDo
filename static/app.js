@@ -27,6 +27,8 @@ function fidoApp() {
         // Estado de importación
         resultadoImportacion: null,
         importando: false,
+        importarCuentaId: '',
+        importarBanco: 'santander',
 
         // Datos maestros
         categorias: [],
@@ -231,8 +233,8 @@ function fidoApp() {
         // ---- IMPORTAR ----
         async importarCSV() {
             const ficheroInput = document.getElementById('ficheroCSV');
-            const cuentaId = document.getElementById('cuentaImportar').value;
-            const banco = document.getElementById('bancoImportar').value;
+            const cuentaId = this.importarCuentaId;
+            const banco = this.importarBanco;
 
             if (!ficheroInput.files.length || !cuentaId) {
                 this.mostrarError('Selecciona un fichero y una cuenta');
