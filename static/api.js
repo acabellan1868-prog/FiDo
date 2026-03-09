@@ -2,14 +2,20 @@
  * FiDo — Cliente API (wrappers sobre fetch).
  */
 const API = {
+    /** Asegura que la URL termina en / para evitar 307 redirects con POST/PUT/DELETE. */
+    _url(ruta) {
+        const url = `/api${ruta}`;
+        return url.endsWith('/') ? url : url + '/';
+    },
+
     async obtener(ruta) {
-        const resp = await fetch(`/api${ruta}`);
+        const resp = await fetch(this._url(ruta));
         if (!resp.ok) throw new Error(await resp.text());
         return resp.json();
     },
 
     async crear(ruta, datos) {
-        const resp = await fetch(`/api${ruta}`, {
+        const resp = await fetch(this._url(ruta), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(datos),
@@ -19,7 +25,7 @@ const API = {
     },
 
     async actualizar(ruta, datos) {
-        const resp = await fetch(`/api${ruta}`, {
+        const resp = await fetch(this._url(ruta), {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(datos),
@@ -29,7 +35,7 @@ const API = {
     },
 
     async borrar(ruta) {
-        const resp = await fetch(`/api${ruta}`, { method: 'DELETE' });
+        const resp = await fetch(this._url(ruta), { method: 'DELETE' });
         if (!resp.ok && resp.status !== 204) throw new Error(await resp.text());
         return true;
     },
@@ -39,7 +45,7 @@ const API = {
         formulario.append('fichero', fichero);
         formulario.append('cuenta_id', cuentaId);
         formulario.append('banco', banco);
-        const resp = await fetch('/api/importar/csv', {
+        const resp = await fetch(this._url('/importar/csv'), {
             method: 'POST',
             body: formulario,
         });

@@ -6,6 +6,11 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ## 2026-03-10
 
+### 01:35 — Fix 405 Method Not Allowed en POST/PUT/DELETE
+- **Corregido:** Las llamadas POST/PUT/DELETE a la API fallaban con "Method Not Allowed" porque la URL sin barra final (`/api/cuentas`) no coincidía con la ruta FastAPI (`/api/cuentas/`), y la petición caía en el mount de StaticFiles que solo acepta GET.
+- **Solución:** Añadido método `_url()` en `api.js` que normaliza todas las URLs añadiendo `/` al final. Aplicado a todos los métodos: `obtener`, `crear`, `actualizar`, `borrar` y `subirCSV`.
+- Ficheros modificados: `static/api.js`
+
 ### 01:15 — Fix seed parcial: cada tabla se siembra independientemente
 - **Corregido:** La función `sembrar_si_vacio()` solo comprobaba si había categorías. Si categorías se insertaban pero miembros/cuentas fallaban, nunca se reintentaba.
 - **Solución:** Ahora cada sección (categorías, reglas, miembros, cuentas) comprueba su propia tabla por separado. Si una ya tiene datos y otra no, solo siembra la vacía.
