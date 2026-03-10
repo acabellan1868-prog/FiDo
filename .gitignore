@@ -3,12 +3,13 @@ data/*.db
 data/*.db-wal
 data/*.db-shm
 
-# Extractos bancarios (datos personales)
+# Extractos bancarios y datos personales
 *.xls
 *.xlsx
 /*.csv
 export*.pdf
 nul
+temporal/
 
 # Node (temporal)
 node_modules/

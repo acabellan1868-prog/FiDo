@@ -1,18 +1,19 @@
 """FiDo — Parser para extractos de Revolut.
 
-Formato típico del CSV exportado desde Revolut:
+Formato del CSV exportado desde Revolut (app en español):
 - Delimitador: coma (,) — campos entrecomillados si contienen comas
-- Columnas: Type,Product,Started Date,Completed Date,Description,Amount,Fee,Currency,State,Balance
-- Fechas: YYYY-MM-DD HH:MM:SS o similar
+- Columnas (ES): Tipo,Producto,Fecha de inicio,Fecha de finalización,Descripción,Importe,Comisión,Divisa,State,Saldo
+- Columnas (EN): Type,Product,Started Date,Completed Date,Description,Amount,Fee,Currency,State,Balance
+- Fechas: YYYY-MM-DD HH:MM:SS
 - Importes: punto decimal, sin separador de miles
   Ejemplos: -13.00 | 1200.50 | -4.95
-- Solo se importan movimientos con State = Completed
+- Solo se importan movimientos con State = COMPLETADO / COMPLETED
 - Tipos de operación:
-  - CARD_PAYMENT — Pago con tarjeta
-  - TOPUP — Recarga desde otra cuenta
-  - TRANSFER — Transferencia entre cuentas/personas
-  - EXCHANGE — Cambio de divisa
-  - ATM — Retirada de cajero
+  - Pago con tarjeta / CARD_PAYMENT
+  - Recargas / TOPUP
+  - Transferir / TRANSFER
+  - Reembolso de tarjeta / CARD_REFUND
+  - REVX_TRANSFER — transferencia a/desde Revolut X (ahorro)
 """
 
 import csv
@@ -22,22 +23,47 @@ from typing import Iterator
 from app.modelos import MovimientoCrear
 from app.parsers.base import ParserBase
 
+# Mapeo de cabeceras ES → EN para normalizar
+_MAPEO_CABECERAS = {
+    "Tipo": "Type",
+    "Producto": "Product",
+    "Fecha de inicio": "Started Date",
+    "Fecha de finalización": "Completed Date",
+    "Descripción": "Description",
+    "Importe": "Amount",
+    "Comisión": "Fee",
+    "Divisa": "Currency",
+    "Saldo": "Balance",
+    # State ya viene en inglés en ambos formatos
+}
+
 
 class ParserRevolut(ParserBase):
-    """Parser para ficheros CSV exportados desde Revolut."""
+    """Parser para ficheros CSV exportados desde Revolut (ES o EN)."""
+
+    def _normalizar_fila(self, fila: dict) -> dict:
+        """Normaliza las claves de una fila al formato EN."""
+        normalizada = {}
+        for clave, valor in fila.items():
+            clave_limpia = clave.strip()
+            clave_en = _MAPEO_CABECERAS.get(clave_limpia, clave_limpia)
+            normalizada[clave_en] = valor
+        return normalizada
 
     def parsear(self, contenido: str, cuenta_id: int) -> Iterator[MovimientoCrear]:
         """Parsea el contenido CSV de Revolut."""
         lector = csv.DictReader(io.StringIO(contenido))
 
-        for fila in lector:
+        for fila_raw in lector:
             try:
+                fila = self._normalizar_fila(fila_raw)
+
                 # Solo importar movimientos completados
-                estado = fila.get("State", "").strip()
-                if estado.lower() != "completed":
+                estado = fila.get("State", "").strip().lower()
+                if estado not in ("completed", "completado"):
                     continue
 
-                # Solo importar EUR (o la moneda principal)
+                # Moneda
                 moneda = fila.get("Currency", "").strip()
 
                 # Parsear fechas

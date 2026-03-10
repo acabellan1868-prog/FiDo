@@ -6,6 +6,13 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ## 2026-03-10
 
+### 13:45 — Fix parser Revolut: soporte cabeceras en español + .gitignore temporal/
+- **Corregido:** Parser Revolut ahora soporta cabeceras en español (Tipo, Importe, Descripción...) además de inglés.
+- **Corregido:** Estado `COMPLETADO` aceptado además de `COMPLETED`.
+- **Añadido:** Normalización automática de cabeceras ES→EN con mapeo interno.
+- **Añadido:** Carpeta `temporal/` excluida de git (.gitignore).
+- Ficheros modificados: `app/parsers/revolut.py`, `.gitignore`
+
 ### 13:15 — Parsers CaixaBank y Revolut para importación CSV
 - **Añadido:** `app/parsers/caixabank.py` — parser para extractos CaixaBank (CSV con `;`, formato español).
 - **Añadido:** `app/parsers/revolut.py` — parser para extractos Revolut (CSV con `,`, formato inglés, filtra solo Completed).
