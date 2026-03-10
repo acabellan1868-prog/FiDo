@@ -6,6 +6,12 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ## 2026-03-10
 
+### 14:00 — Fix gráficas del panel no se renderizan
+- **Corregido:** URL CDN de Chart.js apuntaba al paquete genérico, ahora apunta al UMD bundle específico.
+- **Corregido:** `toFixed(2)` devolvía string en vez de número para datos del doughnut chart.
+- **Corregido:** Protección contra `icono` null en etiquetas de categoría.
+- Ficheros modificados: `static/index.html`, `static/app.js`
+
 ### 13:45 — Fix parser Revolut: soporte cabeceras en español + .gitignore temporal/
 - **Corregido:** Parser Revolut ahora soporta cabeceras en español (Tipo, Importe, Descripción...) además de inglés.
 - **Corregido:** Estado `COMPLETADO` aceptado además de `COMPLETED`.

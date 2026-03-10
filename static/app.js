@@ -99,7 +99,7 @@ function fidoApp() {
 
         renderizarGraficaCategoria() {
             const canvas = document.getElementById('graficaCategoria');
-            if (!canvas) return;
+            if (!canvas || !this.datosPorCategoria.length) return;
             if (this.graficaCategoria) this.graficaCategoria.destroy();
 
             const colores = [
@@ -111,9 +111,9 @@ function fidoApp() {
             this.graficaCategoria = new Chart(canvas, {
                 type: 'doughnut',
                 data: {
-                    labels: this.datosPorCategoria.map(c => c.icono + ' ' + c.nombre),
+                    labels: this.datosPorCategoria.map(c => (c.icono || '') + ' ' + c.nombre),
                     datasets: [{
-                        data: this.datosPorCategoria.map(c => c.total.toFixed(2)),
+                        data: this.datosPorCategoria.map(c => Math.round(c.total * 100) / 100),
                         backgroundColor: colores,
                     }],
                 },
