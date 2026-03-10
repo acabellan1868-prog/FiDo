@@ -6,6 +6,12 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ## 2026-03-10
 
+### 12:30 — Gestión completa de cuentas en Ajustes (editar y borrar)
+- **Añadido:** Botones "Editar" y "Borrar" en cada cuenta de la lista de Ajustes.
+- **Añadido:** Formulario inline de edición (nombre, banco, titular, compartida) con Guardar/Cancelar.
+- **Añadido:** Confirmación antes de borrar cuenta.
+- Ficheros modificados: `static/index.html`, `static/app.js`
+
 ### 02:00 — Fix definitivo 405 Method Not Allowed en todas las rutas API
 - **Corregido:** POST/PUT/DELETE fallaban con 405 porque las rutas FastAPI usaban `@ruta.get("/")` generando paths como `/api/cuentas/` (con barra final), pero el JS llamaba a `/api/cuentas` (sin barra). La petición no coincidía y caía en el mount de StaticFiles (solo GET → 405).
 - **Solución server-side:** Cambiar `@ruta.get("/")` → `@ruta.get("")` y `@ruta.post("/")` → `@ruta.post("")` en los 6 routers CRUD (miembros, cuentas, categorías, reglas, movimientos, mapeo_tarjetas). Así las rutas coinciden directamente sin necesidad de trailing slash.

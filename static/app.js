@@ -42,6 +42,7 @@ function fidoApp() {
         nuevaRegla: { patron: '', categoria_id: '', prioridad: 0 },
         nuevoMiembro: { nombre: '', telegram_chat_id: '' },
         nuevaCuenta: { nombre: '', banco: '', miembro_id: '', es_compartida: false },
+        editandoCuenta: null,
         nuevoMapeo: { ultimos4: '', cuenta_id: '', etiqueta: '' },
 
         // Mensajes
@@ -353,6 +354,42 @@ function fidoApp() {
                 await API.crear('/cuentas', datos);
                 this.nuevaCuenta = { nombre: '', banco: '', miembro_id: '', es_compartida: false };
                 this.mostrarOk('Cuenta creada');
+                await this.cargarAjustes();
+                await this.cargarDatosMaestros();
+            } catch (e) {
+                this.mostrarError('Error: ' + e.message);
+            }
+        },
+
+        editarCuenta(cuenta) {
+            this.editandoCuenta = { ...cuenta, miembro_id: cuenta.miembro_id || '' };
+        },
+
+        cancelarEdicionCuenta() {
+            this.editandoCuenta = null;
+        },
+
+        async actualizarCuenta() {
+            try {
+                const datos = { ...this.editandoCuenta };
+                datos.miembro_id = datos.miembro_id ? parseInt(datos.miembro_id) : null;
+                delete datos.id;
+                delete datos.creado_en;
+                await API.actualizar(`/cuentas/${this.editandoCuenta.id}`, datos);
+                this.editandoCuenta = null;
+                this.mostrarOk('Cuenta actualizada');
+                await this.cargarAjustes();
+                await this.cargarDatosMaestros();
+            } catch (e) {
+                this.mostrarError('Error: ' + e.message);
+            }
+        },
+
+        async borrarCuenta(cuenta) {
+            if (!confirm(`¿Eliminar la cuenta "${cuenta.nombre}"? Los movimientos asociados quedarán sin cuenta.`)) return;
+            try {
+                await API.borrar(`/cuentas/${cuenta.id}`);
+                this.mostrarOk('Cuenta eliminada');
                 await this.cargarAjustes();
                 await this.cargarDatosMaestros();
             } catch (e) {

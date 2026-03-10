@@ -6,7 +6,9 @@ data/*.db-shm
 # Extractos bancarios (datos personales)
 *.xls
 *.xlsx
+/*.csv
 export*.pdf
+nul
 
 # Node (temporal)
 node_modules/
