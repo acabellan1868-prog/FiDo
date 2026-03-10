@@ -242,8 +242,8 @@
                         <label class="block text-sm font-medium mb-1">Banco</label>
                         <select x-model="importarBanco" class="border rounded-lg px-3 py-2 text-sm w-full">
                             <option value="santander">Santander</option>
-                            <option value="caixabank" disabled>CaixaBank (próximamente)</option>
-                            <option value="revolut" disabled>Revolut (próximamente)</option>
+                            <option value="caixabank">CaixaBank</option>
+                            <option value="revolut">Revolut</option>
                         </select>
                     </div>
                     <button @click="importarCSV()" :disabled="importando"

@@ -6,6 +6,13 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ## 2026-03-10
 
+### 13:15 — Parsers CaixaBank y Revolut para importación CSV
+- **Añadido:** `app/parsers/caixabank.py` — parser para extractos CaixaBank (CSV con `;`, formato español).
+- **Añadido:** `app/parsers/revolut.py` — parser para extractos Revolut (CSV con `,`, formato inglés, filtra solo Completed).
+- **Añadido:** Registrar ambos parsers en `app/rutas/importar.py`.
+- **Corregido:** Opciones CaixaBank y Revolut habilitadas en el selector de banco de importación (ya no dicen "próximamente").
+- Ficheros modificados: `app/parsers/caixabank.py`, `app/parsers/revolut.py`, `app/rutas/importar.py`, `static/index.html`
+
 ### 12:30 — Gestión completa de cuentas en Ajustes (editar y borrar)
 - **Añadido:** Botones "Editar" y "Borrar" en cada cuenta de la lista de Ajustes.
 - **Añadido:** Formulario inline de edición (nombre, banco, titular, compartida) con Guardar/Cancelar.

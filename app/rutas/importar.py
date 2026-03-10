@@ -2,6 +2,8 @@
 
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from app.parsers.santander import ParserSantander
+from app.parsers.caixabank import ParserCaixaBank
+from app.parsers.revolut import ParserRevolut
 from app.servicios.categorizador import categorizar
 from app.servicios.deduplicador import calcular_huella, buscar_duplicados
 from app import bd
@@ -10,6 +12,8 @@ ruta = APIRouter()
 
 PARSERS = {
     "santander": ParserSantander(),
+    "caixabank": ParserCaixaBank(),
+    "revolut": ParserRevolut(),
 }
 
 
