@@ -119,6 +119,7 @@ function fidoApp() {
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: { position: 'right', labels: { font: { size: 11 } } },
                     },
@@ -128,7 +129,7 @@ function fidoApp() {
 
         renderizarGraficaMes() {
             const canvas = document.getElementById('graficaMes');
-            if (!canvas) return;
+            if (!canvas || !this.datosPorMes.length) return;
             if (this.graficaMes) this.graficaMes.destroy();
 
             this.graficaMes = new Chart(canvas, {
@@ -150,6 +151,7 @@ function fidoApp() {
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     scales: { y: { beginAtZero: true } },
                     plugins: { legend: { position: 'top' } },
                 },
@@ -251,6 +253,16 @@ function fidoApp() {
                 this.mostrarError('Error importando: ' + e.message);
             } finally {
                 this.importando = false;
+            }
+        },
+
+        async recategorizar() {
+            try {
+                const resp = await API.crear('/movimientos/recategorizar', {});
+                this.mostrarOk(`Recategorizados: ${resp.recategorizados} de ${resp.total_sin_categoria} sin categoría`);
+                await this.cargarPanel();
+            } catch (e) {
+                this.mostrarError('Error: ' + e.message);
             }
         },
 

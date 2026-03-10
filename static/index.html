@@ -87,12 +87,16 @@
             <div class="grid md:grid-cols-2 gap-6">
                 <div class="bg-white rounded-xl shadow p-4">
                     <h3 class="font-semibold mb-2">Gastos por categoría</h3>
-                    <canvas id="graficaCategoria"></canvas>
+                    <div style="position:relative; height:300px;">
+                        <canvas id="graficaCategoria"></canvas>
+                    </div>
                     <p x-show="datosPorCategoria.length === 0" class="text-gray-400 text-center py-8">Sin datos</p>
                 </div>
                 <div class="bg-white rounded-xl shadow p-4">
                     <h3 class="font-semibold mb-2">Evolución mensual</h3>
-                    <canvas id="graficaMes"></canvas>
+                    <div style="position:relative; height:300px;">
+                        <canvas id="graficaMes"></canvas>
+                    </div>
                     <p x-show="datosPorMes.length === 0" class="text-gray-400 text-center py-8">Sin datos</p>
                 </div>
             </div>
@@ -250,6 +254,11 @@
                             class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50">
                         <span x-show="!importando">Importar</span>
                         <span x-show="importando">Importando...</span>
+                    </button>
+                    <button @click="recategorizar()"
+                            class="bg-yellow-500 text-white px-6 py-2 rounded-lg text-sm hover:bg-yellow-600"
+                            title="Aplica las reglas de categorización a movimientos sin categoría">
+                        Recategorizar
                     </button>
                 </div>
 

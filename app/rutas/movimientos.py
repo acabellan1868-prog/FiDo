@@ -153,6 +153,27 @@ def actualizar_movimiento(movimiento_id: int, datos: MovimientoActualizar):
     return obtener_movimiento(movimiento_id)
 
 
+@ruta.post("/recategorizar")
+def recategorizar_sin_categoria():
+    """Recategoriza todos los movimientos que no tienen categoría asignada."""
+    from app.servicios.categorizador import categorizar
+
+    sin_cat = bd.consultar_todos(
+        "SELECT id, descripcion FROM movimientos WHERE categoria_id IS NULL"
+    )
+    actualizados = 0
+    for mov in sin_cat:
+        cat_id = categorizar(mov["descripcion"])
+        if cat_id:
+            bd.ejecutar(
+                "UPDATE movimientos SET categoria_id = ? WHERE id = ?",
+                (cat_id, mov["id"])
+            )
+            actualizados += 1
+
+    return {"total_sin_categoria": len(sin_cat), "recategorizados": actualizados}
+
+
 @ruta.delete("/{movimiento_id}", status_code=204)
 def borrar_movimiento(movimiento_id: int):
     existente = bd.consultar_uno("SELECT * FROM movimientos WHERE id = ?", (movimiento_id,))

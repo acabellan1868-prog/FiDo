@@ -6,6 +6,14 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ## 2026-03-10
 
+### 14:30 — Fix gráficas pantalla completa + reglas categorización CaixaBank/Revolut
+- **Corregido:** Gráficas no se mostraban en pantalla completa. Añadido contenedor con altura fija (300px) y `maintainAspectRatio: false`.
+- **Añadido:** ~60 reglas de categorización nuevas para comercios habituales de CaixaBank y Revolut (Bk Hue, parkinglibre, Granier, Amazon, Claude.ai, etc.).
+- **Añadido:** Las reglas nuevas se insertan automáticamente en cada arranque si no existen (idempotente).
+- **Añadido:** Endpoint `POST /api/movimientos/recategorizar` para aplicar reglas a movimientos sin categoría.
+- **Añadido:** Botón "Recategorizar" en la sección de importación.
+- Ficheros modificados: `static/index.html`, `static/app.js`, `app/datos_iniciales.py`, `app/rutas/movimientos.py`
+
 ### 14:00 — Fix gráficas del panel no se renderizan
 - **Corregido:** URL CDN de Chart.js apuntaba al paquete genérico, ahora apunta al UMD bundle específico.
 - **Corregido:** `toFixed(2)` devolvía string en vez de número para datos del doughnut chart.
