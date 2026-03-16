@@ -12,7 +12,7 @@ from app.bd import inicializar_bd, RUTA_BD
 from app.datos_iniciales import sembrar_si_vacio
 from app.rutas import (
     miembros, cuentas, categorias, reglas,
-    movimientos, mapeo_tarjetas, importar, sincronizar, panel
+    movimientos, mapeo_tarjetas, importar, sincronizar, panel, resumen
 )
 
 
@@ -46,6 +46,7 @@ app.include_router(mapeo_tarjetas.ruta, prefix="/api/mapeo-tarjetas", tags=["Map
 app.include_router(importar.ruta, prefix="/api/importar", tags=["Importar"])
 app.include_router(sincronizar.ruta, prefix="/api/sincronizar", tags=["Sincronizar"])
 app.include_router(panel.ruta, prefix="/api/panel", tags=["Panel"])
+app.include_router(resumen.ruta, prefix="/api/resumen", tags=["Resumen"])
 
 # ---- Servir frontend estático (DEBE ir al final, es catch-all) ----
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
