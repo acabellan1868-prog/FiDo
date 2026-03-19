@@ -48,6 +48,12 @@ async def importar_csv(
     errores = 0
     detalles = []
 
+    # Contador de huellas dentro del lote actual:
+    # si hay dos movimientos idénticos (mismo día, importe y descripción)
+    # se distinguen añadiendo el índice de ocurrencia (_0, _1, ...)
+    # para evitar que el segundo sea detectado como duplicado del primero.
+    contador_huellas: dict[str, int] = {}
+
     for movimiento in parser.parsear(contenido, cuenta_id):
         try:
             # Auto-categorizar si no tiene categoría
@@ -55,11 +61,16 @@ async def importar_csv(
             if not categoria_id:
                 categoria_id = categorizar(movimiento.descripcion)
 
-            # Calcular huella
-            huella = calcular_huella(movimiento.fecha, movimiento.importe, movimiento.descripcion)
+            # Calcular huella base y ajustar según ocurrencias en el lote
+            huella_base = calcular_huella(movimiento.fecha, movimiento.importe, movimiento.descripcion)
+            ocurrencia  = contador_huellas.get(huella_base, 0)
+            huella      = huella_base if ocurrencia == 0 else f"{huella_base}_{ocurrencia}"
+            contador_huellas[huella_base] = ocurrencia + 1
 
-            # Buscar duplicados
-            existentes = buscar_duplicados(movimiento.fecha, movimiento.importe, movimiento.descripcion)
+            # Buscar duplicados en BD usando la huella ajustada
+            existentes = bd.consultar_todos(
+                "SELECT * FROM movimientos WHERE huella = ?", (huella,)
+            )
             if existentes:
                 duplicados += 1
                 detalles.append({
