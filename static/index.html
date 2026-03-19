@@ -25,6 +25,7 @@
                         {id:'categorias', label:'Categorías', icono:'🏷️'},
                         {id:'reglas', label:'Reglas', icono:'⚙️'},
                         {id:'ajustes', label:'Ajustes', icono:'🔧'},
+                        {id:'crypto', label:'Crypto', icono:'₿'},
                     ]">
                         <button @click="irA(p.id)"
                                 :class="pestana === p.id ? 'bg-blue-100 text-blue-700' : 'text-gray-500 hover:text-gray-700'"
@@ -503,6 +504,62 @@
                         <button @click="guardarMapeo()"
                                 class="bg-green-600 text-white px-3 py-1 rounded text-sm">Añadir</button>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== CRYPTO ===== -->
+        <div x-show="pestana === 'crypto'" x-cloak>
+            <div x-show="cargandoCrypto" class="text-center py-8 text-gray-400">Cargando...</div>
+            <div x-show="!cargandoCrypto">
+
+                <!-- Portfolio -->
+                <div class="bg-white rounded-xl shadow overflow-x-auto mb-6">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50 border-b">
+                            <tr>
+                                <th class="text-left px-4 py-3"></th>
+                                <th class="text-left px-4 py-3">Símbolo</th>
+                                <th class="text-right px-4 py-3">Inv. €</th>
+                                <th class="text-right px-4 py-3">Valor €</th>
+                                <th class="text-right px-4 py-3">%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="c in portafolioCrypto" :key="c.simbolo">
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="px-4 py-2" x-text="emojiCrypto(c.simbolo)"></td>
+                                    <td class="px-4 py-2 font-medium" x-text="c.simbolo"></td>
+                                    <td class="px-4 py-2 text-right font-mono" x-text="fmtNum(c.coste_total_inversion)"></td>
+                                    <td class="px-4 py-2 text-right font-mono" x-text="fmtNum(c.valor_actual_inversion)"></td>
+                                    <td class="px-4 py-2 text-right font-mono font-semibold"
+                                        :class="c.rentabilidad_porcentaje >= 0 ? 'text-green-600' : 'text-red-600'"
+                                        x-text="(c.rentabilidad_porcentaje >= 0 ? '▲' : '▼') + Math.abs(c.rentabilidad_porcentaje).toFixed(1) + '%'"></td>
+                                </tr>
+                            </template>
+                            <tr x-show="portafolioCrypto.length === 0">
+                                <td colspan="5" class="text-center py-8 text-gray-400">Sin datos</td>
+                            </tr>
+                        </tbody>
+                        <tfoot x-show="portafolioCrypto.length > 0" class="border-t bg-gray-50">
+                            <tr>
+                                <td colspan="2" class="px-4 py-2 font-semibold">Total</td>
+                                <td class="px-4 py-2 text-right font-mono font-semibold" x-text="fmtNum(totalCryptoInvertido())"></td>
+                                <td class="px-4 py-2 text-right font-mono font-semibold" x-text="fmtNum(totalCryptoValor())"></td>
+                                <td class="px-4 py-2 text-right font-mono font-bold"
+                                    :class="totalCryptoPct() >= 0 ? 'text-green-600' : 'text-red-600'"
+                                    x-text="(totalCryptoPct() >= 0 ? '▲' : '▼') + Math.abs(totalCryptoPct()).toFixed(1) + '%'"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Gráfica comparativa 24h -->
+                <div class="bg-white rounded-xl shadow p-4">
+                    <h3 class="font-semibold mb-3">Comparativa 24h</h3>
+                    <img x-show="grafica24" :src="'data:image/png;base64,' + grafica24"
+                         alt="Comparativa 24h" class="w-full h-auto rounded">
+                    <p x-show="!grafica24" class="text-gray-400 text-center py-8">Sin datos de gráfica</p>
                 </div>
             </div>
         </div>

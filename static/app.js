@@ -45,6 +45,11 @@ function fidoApp() {
         editandoCuenta: null,
         nuevoMapeo: { ultimos4: '', cuenta_id: '', etiqueta: '' },
 
+        // Crypto
+        portafolioCrypto: [],
+        grafica24: null,
+        cargandoCrypto: false,
+
         // Mensajes
         mensaje: '',
         tipoMensaje: 'ok',
@@ -424,6 +429,45 @@ function fidoApp() {
             }
         },
 
+        // ---- CRYPTO ----
+        async cargarCrypto() {
+            this.cargandoCrypto = true;
+            try {
+                const [portafolio, grafica] = await Promise.all([
+                    fetch('/crypto/api/portafolio').then(r => r.json()),
+                    fetch('/crypto/api/grafica24h').then(r => r.json()),
+                ]);
+                this.portafolioCrypto = portafolio || [];
+                this.grafica24 = grafica?.chart || null;
+            } catch (e) {
+                this.mostrarError('Error cargando crypto: ' + e.message);
+            } finally {
+                this.cargandoCrypto = false;
+            }
+        },
+
+        totalCryptoInvertido() {
+            return this.portafolioCrypto.reduce((s, c) => s + c.coste_total_inversion, 0);
+        },
+
+        totalCryptoValor() {
+            return this.portafolioCrypto.reduce((s, c) => s + c.valor_actual_inversion, 0);
+        },
+
+        totalCryptoPct() {
+            const inv = this.totalCryptoInvertido();
+            return inv > 0 ? ((this.totalCryptoValor() - inv) / inv * 100) : 0;
+        },
+
+        fmtNum(n) {
+            return Math.round(n).toLocaleString('es-ES');
+        },
+
+        emojiCrypto(simbolo) {
+            const emojis = { BTC: '₿', ETH: 'Ξ', ADA: '💠', DOT: '⚫', SHIB: '🐶', SOL: '☀️', XRP: '💧' };
+            return emojis[simbolo] || '🪙';
+        },
+
         // ---- UTILIDADES ----
         formatoImporte(valor) {
             return new Intl.NumberFormat('es-ES', {
@@ -468,6 +512,7 @@ function fidoApp() {
             if (pestana === 'categorias') await this.cargarCategorias();
             if (pestana === 'reglas') await this.cargarReglas();
             if (pestana === 'ajustes') await this.cargarAjustes();
+            if (pestana === 'crypto') await this.cargarCrypto();
         },
     };
 }
