@@ -510,7 +510,8 @@
 
         <!-- ===== CRYPTO ===== -->
         <div x-show="pestana === 'crypto'" x-cloak>
-            <div x-show="cargandoCrypto" class="text-center py-8 text-gray-400">Cargando...</div>
+            <div x-show="cargandoCrypto" class="text-center py-8 text-gray-400">⏳ Cargando datos crypto...</div>
+            <div x-show="errorCrypto" class="bg-red-50 border border-red-200 rounded-xl p-4 mb-4 text-red-700 text-sm" x-text="errorCrypto"></div>
             <div x-show="!cargandoCrypto">
 
                 <!-- Portfolio -->

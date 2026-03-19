@@ -48,7 +48,8 @@ function fidoApp() {
         // Crypto
         portafolioCrypto: [],
         grafica24: null,
-        cargandoCrypto: false,
+        cargandoCrypto: true,
+        errorCrypto: '',
 
         // Mensajes
         mensaje: '',
@@ -432,18 +433,20 @@ function fidoApp() {
         // ---- CRYPTO ----
         async cargarCrypto() {
             this.cargandoCrypto = true;
+            this.errorCrypto = '';
             this.grafica24 = null;
-            // Cargar portfolio primero — muestra la tabla sin esperar la gráfica
+            // Cargar portfolio — muestra la tabla en cuanto llegue
             try {
-                const portafolio = await fetch('/crypto/api/portafolio').then(r => r.json());
-                this.portafolioCrypto = portafolio || [];
+                const resp = await fetch('/crypto/api/portafolio');
+                if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                this.portafolioCrypto = await resp.json() || [];
             } catch (e) {
-                this.mostrarError('Error cargando portfolio: ' + e.message);
+                this.errorCrypto = 'No se pudo conectar con Kryptonite (' + e.message + ')';
                 this.portafolioCrypto = [];
             } finally {
                 this.cargandoCrypto = false;
             }
-            // Cargar gráfica en segundo plano — puede tardar
+            // Cargar gráfica en segundo plano — puede tardar varios segundos
             fetch('/crypto/api/grafica24h')
                 .then(r => r.json())
                 .then(datos => { this.grafica24 = datos?.chart || null; })
