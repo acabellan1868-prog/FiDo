@@ -432,18 +432,22 @@ function fidoApp() {
         // ---- CRYPTO ----
         async cargarCrypto() {
             this.cargandoCrypto = true;
+            this.grafica24 = null;
+            // Cargar portfolio primero — muestra la tabla sin esperar la gráfica
             try {
-                const [portafolio, grafica] = await Promise.all([
-                    fetch('/crypto/api/portafolio').then(r => r.json()),
-                    fetch('/crypto/api/grafica24h').then(r => r.json()),
-                ]);
+                const portafolio = await fetch('/crypto/api/portafolio').then(r => r.json());
                 this.portafolioCrypto = portafolio || [];
-                this.grafica24 = grafica?.chart || null;
             } catch (e) {
-                this.mostrarError('Error cargando crypto: ' + e.message);
+                this.mostrarError('Error cargando portfolio: ' + e.message);
+                this.portafolioCrypto = [];
             } finally {
                 this.cargandoCrypto = false;
             }
+            // Cargar gráfica en segundo plano — puede tardar
+            fetch('/crypto/api/grafica24h')
+                .then(r => r.json())
+                .then(datos => { this.grafica24 = datos?.chart || null; })
+                .catch(() => {});
         },
 
         totalCryptoInvertido() {
