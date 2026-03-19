@@ -4,6 +4,32 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-03-19
+
+### Pestaña "₿ Crypto" — integración con Kryptonite
+- **Añadido:** Nueva pestaña "₿ Crypto" en la navegación.
+- **Añadido:** Tabla de portfolio con símbolo, inversión, valor actual y rentabilidad por moneda, con totales en pie de tabla.
+- **Añadido:** Gráfica comparativa 24h cargada en segundo plano (no bloquea la tabla).
+- **Añadido:** Estado "⏳ Cargando..." visible al entrar en la pestaña (`cargandoCrypto: true` por defecto).
+- **Añadido:** Mensaje de error en rojo si Kryptonite no responde, con el motivo exacto.
+- **Añadido:** Cache-busting en `api.js` y `app.js` (`?v=2`) para forzar recarga tras despliegue.
+- Los datos se consumen de `/crypto/api/portafolio` y `/crypto/api/grafica24h` (proxy nginx en hogarOS).
+- Ficheros modificados: `static/index.html`, `static/app.js`
+
+### Parser CaixaBank — reescritura flexible
+- **Corregido:** El parser antiguo usaba `;` como delimitador y esperaba 4 columnas fijas. El extracto real usa `,` con 6 columnas y campos entrecomillados.
+- **Mejorado:** Nuevo diseño basado en cabeceras: detecta el delimitador automáticamente (`,`, `;`, tabulador) y localiza las columnas por nombre, no por posición.
+- **Mejorado:** Compatible con cualquier número de columnas y orden arbitrario (exportación directa del banco o convertida desde Excel).
+- **Mejorado:** Descripción construida combinando "Movimiento" + "Más datos" si existe.
+- Ficheros modificados: `app/parsers/caixabank.py`
+
+### Deduplicación — fix para movimientos idénticos en el mismo lote
+- **Corregido:** Dos transacciones legítimas con misma fecha, importe y descripción dentro del mismo fichero (ej. dos recargas de 100€ el mismo día) eran incorrectamente marcadas: la segunda como duplicado de la primera.
+- **Solución:** Contador de ocurrencias por huella dentro del lote. La primera ocurrencia usa la huella base; la segunda añade sufijo `_1`, la tercera `_2`, etc. Al reimportar el mismo fichero los sufijos coinciden y se detectan como duplicados correctamente.
+- Ficheros modificados: `app/rutas/importar.py`
+
+---
+
 ## 2026-03-10
 
 ### 14:30 — Fix gráficas pantalla completa + reglas categorización CaixaBank/Revolut
