@@ -43,29 +43,45 @@
                     <div class="hogar-header__subtitulo">Finanzas Domesticas</div>
                 </div>
             </a>
-            <nav class="hogar-header__nav">
-                <template x-for="p in [
-                    {id:'panel', label:'Panel', icono:'bar_chart'},
-                    {id:'movimientos', label:'Movimientos', icono:'receipt_long'},
-                    {id:'importar', label:'Importar', icono:'upload_file'},
-                    {id:'categorias', label:'Categorias', icono:'category'},
-                    {id:'reglas', label:'Reglas', icono:'tune'},
-                    {id:'ajustes', label:'Ajustes', icono:'settings'},
-                    {id:'crypto', label:'Crypto', icono:'currency_bitcoin'},
-                ]">
-                    <button @click="irA(p.id)"
-                            :class="pestana === p.id ? 'hogar-header__enlace hogar-header__enlace--activo' : 'hogar-header__enlace'"
-                            class="hogar-header__enlace">
-                        <span class="material-symbols-outlined" style="font-size:1.1rem" x-text="p.icono"></span>
-                        <span class="hidden sm:inline" x-text="p.label"></span>
-                    </button>
-                </template>
-                <a href="/" class="hogar-header__enlace" title="Volver al portal">
-                    <span class="material-symbols-outlined" style="font-size:1.1rem">roofing</span>
-                </a>
-            </nav>
+            <button class="hogar-header__menu-btn" @click="drawerAbierto = !drawerAbierto">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
         </div>
     </header>
+
+    <!-- ===== DRAWER DE NAVEGACIÓN ===== -->
+    <div class="hogar-drawer-overlay" :class="drawerAbierto ? '' : 'oculto'" @click="drawerAbierto = false"></div>
+    <nav class="hogar-drawer" :class="drawerAbierto ? '' : 'oculto'" @keydown.escape.window="drawerAbierto = false">
+        <button class="hogar-drawer__cerrar" @click="drawerAbierto = false">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+        <span class="hogar-drawer__titulo">Secciones</span>
+        <template x-for="p in [
+            {id:'panel', label:'Panel', icono:'bar_chart'},
+            {id:'movimientos', label:'Movimientos', icono:'receipt_long'},
+            {id:'importar', label:'Importar', icono:'upload_file'},
+            {id:'categorias', label:'Categorias', icono:'category'},
+            {id:'reglas', label:'Reglas', icono:'tune'},
+            {id:'ajustes', label:'Ajustes', icono:'settings'},
+            {id:'crypto', label:'Crypto', icono:'currency_bitcoin'},
+        ]">
+            <button @click="irA(p.id); drawerAbierto = false"
+                    :class="pestana === p.id ? 'hogar-drawer__enlace hogar-drawer__enlace--activo' : 'hogar-drawer__enlace'">
+                <span class="material-symbols-outlined" x-text="p.icono"></span>
+                <span x-text="p.label"></span>
+            </button>
+        </template>
+        <div class="hogar-drawer__separador"></div>
+        <a href="/" class="hogar-drawer__enlace">
+            <span class="material-symbols-outlined">roofing</span>
+            <span>Ir al Portal</span>
+        </a>
+        <div class="hogar-drawer__separador"></div>
+        <button class="hogar-drawer__enlace" id="btnTemaFido">
+            <span class="material-symbols-outlined" id="iconoTema">dark_mode</span>
+            <span>Cambiar tema</span>
+        </button>
+    </nav>
 
     <!-- ===== MENSAJE TOAST ===== -->
     <div x-show="mensaje" x-transition
@@ -647,5 +663,31 @@
 
 <script src="api.js?v=2"></script>
 <script src="app.js?v=2"></script>
+<script>
+    /* Toggle tema claro/oscuro */
+    (function initTema() {
+        if (localStorage.getItem("hogar-tema") === "oscuro") {
+            document.documentElement.setAttribute("data-tema", "oscuro");
+        }
+        actualizarIconoTema();
+    })();
+
+    document.getElementById("btnTemaFido").addEventListener("click", function() {
+        var oscuro = document.documentElement.getAttribute("data-tema") === "oscuro";
+        if (oscuro) {
+            document.documentElement.removeAttribute("data-tema");
+            localStorage.setItem("hogar-tema", "claro");
+        } else {
+            document.documentElement.setAttribute("data-tema", "oscuro");
+            localStorage.setItem("hogar-tema", "oscuro");
+        }
+        actualizarIconoTema();
+    });
+
+    function actualizarIconoTema() {
+        var oscuro = document.documentElement.getAttribute("data-tema") === "oscuro";
+        document.getElementById("iconoTema").textContent = oscuro ? "light_mode" : "dark_mode";
+    }
+</script>
 </body>
 </html>

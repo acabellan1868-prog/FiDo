@@ -6,6 +6,7 @@ function fidoApp() {
     return {
         // Navegación
         pestana: 'panel',
+        drawerAbierto: false,
 
         // Estado del panel
         resumen: { ingresos: 0, gastos: 0, balance: 0, total_movimientos: 0 },
