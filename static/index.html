@@ -123,16 +123,16 @@
 
             <!-- Gráficas -->
             <div class="grid md:grid-cols-2 gap-6">
-                <div class="hogar-tarjeta">
+                <div class="hogar-tarjeta" style="min-width:0;">
                     <h3 class="font-semibold mb-3" style="font-family: var(--fuente-titular);">Gastos por categoria</h3>
-                    <div style="position:relative; height:300px;">
+                    <div style="position:relative; height:300px; width:100%;">
                         <canvas id="graficaCategoria"></canvas>
                     </div>
                     <p x-show="datosPorCategoria.length === 0" class="text-center py-8" style="color: var(--on-surface-variant);">Sin datos</p>
                 </div>
-                <div class="hogar-tarjeta">
+                <div class="hogar-tarjeta" style="min-width:0;">
                     <h3 class="font-semibold mb-3" style="font-family: var(--fuente-titular);">Evolucion mensual</h3>
-                    <div style="position:relative; height:300px;">
+                    <div style="position:relative; height:300px; width:100%;">
                         <canvas id="graficaMes"></canvas>
                     </div>
                     <p x-show="datosPorMes.length === 0" class="text-center py-8" style="color: var(--on-surface-variant);">Sin datos</p>
