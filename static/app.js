@@ -94,12 +94,10 @@ function fidoApp() {
                     API.obtener('/panel/por-mes' + (this.filtroPanelCuenta ? '?cuenta_id=' + this.filtroPanelCuenta : '')),
                 ]);
 
-                this.$nextTick(() => {
-                    requestAnimationFrame(() => {
-                        this.renderizarGraficaCategoria();
-                        this.renderizarGraficaMes();
-                    });
-                });
+                setTimeout(() => {
+                    this.renderizarGraficaCategoria();
+                    this.renderizarGraficaMes();
+                }, 100);
             } catch (e) {
                 this.mostrarError('Error cargando panel: ' + e.message);
             }
@@ -133,6 +131,7 @@ function fidoApp() {
                     },
                 },
             });
+            this.graficaCategoria.resize();
         },
 
         renderizarGraficaMes() {
@@ -164,6 +163,7 @@ function fidoApp() {
                     plugins: { legend: { position: 'top' } },
                 },
             });
+            this.graficaMes.resize();
         },
 
         // ---- MOVIMIENTOS ----
