@@ -95,8 +95,10 @@ function fidoApp() {
                 ]);
 
                 this.$nextTick(() => {
-                    this.renderizarGraficaCategoria();
-                    this.renderizarGraficaMes();
+                    requestAnimationFrame(() => {
+                        this.renderizarGraficaCategoria();
+                        this.renderizarGraficaMes();
+                    });
                 });
             } catch (e) {
                 this.mostrarError('Error cargando panel: ' + e.message);
