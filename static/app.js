@@ -94,18 +94,18 @@ function fidoApp() {
                     API.obtener('/panel/por-mes' + (this.filtroPanelCuenta ? '?cuenta_id=' + this.filtroPanelCuenta : '')),
                 ]);
 
-                setTimeout(() => {
+                this.$nextTick(() => {
                     this.renderizarGraficaCategoria();
                     this.renderizarGraficaMes();
-                }, 100);
+                });
             } catch (e) {
                 this.mostrarError('Error cargando panel: ' + e.message);
             }
         },
 
         renderizarGraficaCategoria() {
-            const canvas = document.getElementById('graficaCategoria');
-            if (!canvas || !this.datosPorCategoria.length) return;
+            const el = document.getElementById('graficaCategoria');
+            if (!el || !this.datosPorCategoria.length) return;
             if (this.graficaCategoria) this.graficaCategoria.destroy();
 
             const colores = [
@@ -114,56 +114,34 @@ function fidoApp() {
                 '#14B8A6', '#E11D48', '#A855F7',
             ];
 
-            this.graficaCategoria = new Chart(canvas, {
-                type: 'doughnut',
-                data: {
-                    labels: this.datosPorCategoria.map(c => (c.icono || '') + ' ' + c.nombre),
-                    datasets: [{
-                        data: this.datosPorCategoria.map(c => Math.round(c.total * 100) / 100),
-                        backgroundColor: colores,
-                    }],
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'right', labels: { font: { size: 11 } } },
-                    },
-                },
+            this.graficaCategoria = new ApexCharts(el, {
+                chart: { type: 'donut', height: 300 },
+                series: this.datosPorCategoria.map(c => Math.round(c.total * 100) / 100),
+                labels: this.datosPorCategoria.map(c => (c.icono || '') + ' ' + c.nombre),
+                colors: colores.slice(0, this.datosPorCategoria.length),
+                legend: { position: 'right', fontSize: '11px' },
+                dataLabels: { enabled: false },
             });
-            this.graficaCategoria.resize();
+            this.graficaCategoria.render();
         },
 
         renderizarGraficaMes() {
-            const canvas = document.getElementById('graficaMes');
-            if (!canvas || !this.datosPorMes.length) return;
+            const el = document.getElementById('graficaMes');
+            if (!el || !this.datosPorMes.length) return;
             if (this.graficaMes) this.graficaMes.destroy();
 
-            this.graficaMes = new Chart(canvas, {
-                type: 'bar',
-                data: {
-                    labels: this.datosPorMes.map(m => m.mes),
-                    datasets: [
-                        {
-                            label: 'Ingresos',
-                            data: this.datosPorMes.map(m => m.ingresos),
-                            backgroundColor: '#10B981',
-                        },
-                        {
-                            label: 'Gastos',
-                            data: this.datosPorMes.map(m => m.gastos),
-                            backgroundColor: '#EF4444',
-                        },
-                    ],
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true } },
-                    plugins: { legend: { position: 'top' } },
-                },
+            this.graficaMes = new ApexCharts(el, {
+                chart: { type: 'bar', height: 300 },
+                series: [
+                    { name: 'Ingresos', data: this.datosPorMes.map(m => m.ingresos) },
+                    { name: 'Gastos', data: this.datosPorMes.map(m => m.gastos) },
+                ],
+                xaxis: { categories: this.datosPorMes.map(m => m.mes) },
+                colors: ['#10B981', '#EF4444'],
+                legend: { position: 'top' },
+                dataLabels: { enabled: false },
             });
-            this.graficaMes.resize();
+            this.graficaMes.render();
         },
 
         // ---- MOVIMIENTOS ----
