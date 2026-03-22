@@ -480,6 +480,23 @@ function fidoApp() {
             return this.categoriasPlanas.filter(c => c.padre_id !== null);
         },
 
+        /**
+         * Categorías agrupadas por padre con hijas ordenadas alfabéticamente.
+         * Devuelve el array jerárquico (this.categorias) con las hijas
+         * ordenadas por nombre para usar en <optgroup>.
+         */
+        categoriasAgrupadas() {
+            return this.categorias
+                .slice()
+                .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'))
+                .map(padre => ({
+                    ...padre,
+                    hijas: padre.hijas
+                        .slice()
+                        .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'))
+                }));
+        },
+
         mostrarOk(texto) {
             this.mensaje = texto;
             this.tipoMensaje = 'ok';

@@ -171,8 +171,12 @@
                         class="px-3 py-2 text-sm outline-none"
                         style="background: var(--surface-container-lowest); border: none; border-radius: var(--radio-full); color: var(--on-surface);">
                     <option value="">Todas las categorias</option>
-                    <template x-for="cat in subcategorias()" :key="cat.id">
-                        <option :value="cat.id" x-text="nombreCategoria(cat.id)"></option>
+                    <template x-for="grupo in categoriasAgrupadas()" :key="grupo.id">
+                        <optgroup :label="(grupo.icono || '') + ' ' + grupo.nombre">
+                            <template x-for="hija in grupo.hijas" :key="hija.id">
+                                <option :value="hija.id" x-text="hija.nombre"></option>
+                            </template>
+                        </optgroup>
                     </template>
                 </select>
                 <input type="text" x-model="filtros.buscar" @input.debounce.300ms="filtros.offset=0; cargarMovimientos()"
@@ -212,8 +216,12 @@
                             class="px-3 py-2 text-sm outline-none"
                             style="background: var(--surface-container); border: none; border-radius: var(--radio-md); color: var(--on-surface);">
                         <option value="">Auto-categorizar</option>
-                        <template x-for="cat in subcategorias()" :key="cat.id">
-                            <option :value="cat.id" x-text="nombreCategoria(cat.id)"></option>
+                        <template x-for="grupo in categoriasAgrupadas()" :key="grupo.id">
+                            <optgroup :label="(grupo.icono || '') + ' ' + grupo.nombre">
+                                <template x-for="hija in grupo.hijas" :key="hija.id">
+                                    <option :value="hija.id" x-text="hija.nombre"></option>
+                                </template>
+                            </optgroup>
                         </template>
                     </select>
                     <input type="text" x-model="nuevoMovimiento.notas"
@@ -414,8 +422,12 @@
                             class="px-3 py-2 text-sm outline-none"
                             style="background: var(--surface-container); border: none; border-radius: var(--radio-md); color: var(--on-surface);">
                         <option value="">Categoria...</option>
-                        <template x-for="cat in subcategorias()" :key="cat.id">
-                            <option :value="cat.id" x-text="nombreCategoria(cat.id)"></option>
+                        <template x-for="grupo in categoriasAgrupadas()" :key="grupo.id">
+                            <optgroup :label="(grupo.icono || '') + ' ' + grupo.nombre">
+                                <template x-for="hija in grupo.hijas" :key="hija.id">
+                                    <option :value="hija.id" x-text="hija.nombre"></option>
+                                </template>
+                            </optgroup>
                         </template>
                     </select>
                     <input type="number" x-model="nuevaRegla.prioridad" placeholder="Prioridad"
