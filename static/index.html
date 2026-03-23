@@ -198,8 +198,8 @@
                  x-transition:leave-start="opacity-100"
                  x-transition:leave-end="opacity-0"
                  @keydown.escape.window="if(mostrarFormularioMovimiento) cancelarEdicionMovimiento()"
-                 style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:200; align-items:center; justify-content:center; padding:1rem;"
-                 :style="mostrarFormularioMovimiento && 'display:flex'">
+                 class="flex items-center justify-center"
+                 style="position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:200; padding:1rem;">
                 <div @click.outside="cancelarEdicionMovimiento()"
                      style="background: var(--surface-container-low); border-radius: var(--radio-lg); box-shadow: var(--sombra-lg); width:100%; max-width:480px; padding: var(--gap-xl);">
                     <h3 class="font-semibold mb-4" style="font-family: var(--fuente-titular); font-size:1.1rem;"
