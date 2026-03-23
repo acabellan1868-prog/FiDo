@@ -2,16 +2,14 @@
 
 ## Estado actual
 
-**Fecha:** 2026-03-22
+**Fecha:** 2026-03-23
 
-El proyecto está funcional y desplegado. En esta sesión se han agrupado los
-desplegables de categorías (movimientos, formulario nuevo/editar y reglas)
-usando `<optgroup>` por categoría padre con subcategorías ordenadas
-alfabéticamente. Commit `4dc4036` subido a GitHub.
+El proyecto está funcional y desplegado. En esta sesión se ha convertido
+el formulario de movimientos (nuevo/editar) en un modal emergente para
+no perder la posición en la tabla al editar. Commits `f572c5c` y `cbdc81e`.
 
-**Próximo paso:** Desplegar en la VM 101 y verificar que los desplegables
-agrupados funcionan correctamente. Pendiente migración al design system
-Living Sanctuary (hogar.css).
+**Próximo paso:** Pendiente migración al design system Living Sanctuary
+(hogar.css).
 
 ---
 
@@ -37,6 +35,7 @@ Living Sanctuary (hogar.css).
 ### Fase 3 — Mejoras de usabilidad (en curso)
 
 - [x] Desplegables de categorías agrupados por padre (2026-03-22)
+- [x] Formulario de movimientos en modal emergente (2026-03-23)
 - [ ] Migración al design system Living Sanctuary (hogar.css)
 - [ ] Drawer lateral con navegación entre apps
 

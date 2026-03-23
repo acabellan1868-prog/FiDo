@@ -4,6 +4,18 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-03-23
+
+### Formulario de movimientos en modal emergente
+- **Mejorado:** El formulario de nuevo/editar movimiento ahora se abre como ventana emergente (modal) centrada en pantalla, en lugar de aparecer encima de la tabla.
+- **Ventaja:** Al editar un movimiento, no se pierde la posición en la tabla. Antes había que hacer scroll arriba para editar y luego volver abajo.
+- **Añadido:** Cierre con tecla Escape, click fuera del modal o botón Cancelar.
+- **Añadido:** Labels en cada campo del formulario para mayor claridad.
+- **Añadido:** Transición suave de entrada/salida (fade).
+- Ficheros modificados: `static/index.html`
+
+---
+
 ## 2026-03-19
 
 ### Pestaña "₿ Crypto" — integración con Kryptonite
