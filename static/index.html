@@ -189,48 +189,81 @@
                 </button>
             </div>
 
-            <!-- Formulario nuevo/editar movimiento -->
-            <div x-show="mostrarFormularioMovimiento" class="hogar-tarjeta mb-4">
-                <h3 class="font-semibold mb-3" style="font-family: var(--fuente-titular);" x-text="editandoMovimiento ? 'Editar movimiento' : 'Nuevo movimiento'"></h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <input type="date" x-model="nuevoMovimiento.fecha"
-                           class="px-3 py-2 text-sm outline-none"
-                           style="background: var(--surface-container); border: none; border-radius: var(--radio-md); color: var(--on-surface);">
-                    <input type="number" step="0.01" x-model="nuevoMovimiento.importe"
-                           placeholder="Importe (-gasto, +ingreso)"
-                           class="px-3 py-2 text-sm outline-none"
-                           style="background: var(--surface-container); border: none; border-radius: var(--radio-md); color: var(--on-surface);">
-                    <input type="text" x-model="nuevoMovimiento.descripcion"
-                           placeholder="Descripcion"
-                           class="px-3 py-2 text-sm outline-none"
-                           style="background: var(--surface-container); border: none; border-radius: var(--radio-md); color: var(--on-surface);">
-                    <select x-model="nuevoMovimiento.cuenta_id"
-                            class="px-3 py-2 text-sm outline-none"
-                            style="background: var(--surface-container); border: none; border-radius: var(--radio-md); color: var(--on-surface);">
-                        <option value="">Cuenta...</option>
-                        <template x-for="c in cuentas" :key="c.id">
-                            <option :value="c.id" x-text="c.nombre"></option>
-                        </template>
-                    </select>
-                    <select x-model="nuevoMovimiento.categoria_id"
-                            class="px-3 py-2 text-sm outline-none"
-                            style="background: var(--surface-container); border: none; border-radius: var(--radio-md); color: var(--on-surface);">
-                        <option value="">Auto-categorizar</option>
-                        <template x-for="grupo in categoriasAgrupadas()" :key="grupo.id">
-                            <optgroup :label="(grupo.icono || '') + ' ' + grupo.nombre">
-                                <template x-for="hija in grupo.hijas" :key="hija.id">
-                                    <option :value="hija.id" x-text="hija.nombre"></option>
-                                </template>
-                            </optgroup>
-                        </template>
-                    </select>
-                    <input type="text" x-model="nuevoMovimiento.notas"
-                           placeholder="Notas (opcional)"
-                           class="px-3 py-2 text-sm outline-none"
-                           style="background: var(--surface-container); border: none; border-radius: var(--radio-md); color: var(--on-surface);">
-                    <div class="flex gap-2">
-                        <button @click="guardarMovimiento()" class="hogar-boton hogar-boton--primario">Guardar</button>
-                        <button @click="cancelarEdicionMovimiento()" class="hogar-boton hogar-boton--secundario">Cancelar</button>
+            <!-- Modal nuevo/editar movimiento -->
+            <div x-show="mostrarFormularioMovimiento"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 @keydown.escape.window="if(mostrarFormularioMovimiento) cancelarEdicionMovimiento()"
+                 style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:200; align-items:center; justify-content:center; padding:1rem;"
+                 :style="mostrarFormularioMovimiento && 'display:flex'">
+                <div @click.outside="cancelarEdicionMovimiento()"
+                     style="background: var(--surface-container-low); border-radius: var(--radio-lg); box-shadow: var(--sombra-lg); width:100%; max-width:480px; padding: var(--gap-xl);">
+                    <h3 class="font-semibold mb-4" style="font-family: var(--fuente-titular); font-size:1.1rem;"
+                        x-text="editandoMovimiento ? 'Editar movimiento' : 'Nuevo movimiento'"></h3>
+                    <div class="grid grid-cols-1 gap-3">
+                        <div>
+                            <label style="display:block; font-size:0.8rem; font-weight:600; color:var(--on-surface-variant); margin-bottom:0.25rem;">Fecha</label>
+                            <input type="date" x-model="nuevoMovimiento.fecha"
+                                   class="px-3 py-2 text-sm outline-none w-full"
+                                   style="background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: var(--radio-sm); color: var(--on-surface);">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.8rem; font-weight:600; color:var(--on-surface-variant); margin-bottom:0.25rem;">Importe</label>
+                            <input type="number" step="0.01" x-model="nuevoMovimiento.importe"
+                                   placeholder="-gasto, +ingreso"
+                                   class="px-3 py-2 text-sm outline-none w-full"
+                                   style="background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: var(--radio-sm); color: var(--on-surface);">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.8rem; font-weight:600; color:var(--on-surface-variant); margin-bottom:0.25rem;">Descripcion</label>
+                            <input type="text" x-model="nuevoMovimiento.descripcion"
+                                   placeholder="Descripcion del movimiento"
+                                   class="px-3 py-2 text-sm outline-none w-full"
+                                   style="background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: var(--radio-sm); color: var(--on-surface);">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label style="display:block; font-size:0.8rem; font-weight:600; color:var(--on-surface-variant); margin-bottom:0.25rem;">Cuenta</label>
+                                <select x-model="nuevoMovimiento.cuenta_id"
+                                        class="px-3 py-2 text-sm outline-none w-full"
+                                        style="background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: var(--radio-sm); color: var(--on-surface);">
+                                    <option value="">Cuenta...</option>
+                                    <template x-for="c in cuentas" :key="c.id">
+                                        <option :value="c.id" x-text="c.nombre"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display:block; font-size:0.8rem; font-weight:600; color:var(--on-surface-variant); margin-bottom:0.25rem;">Categoria</label>
+                                <select x-model="nuevoMovimiento.categoria_id"
+                                        class="px-3 py-2 text-sm outline-none w-full"
+                                        style="background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: var(--radio-sm); color: var(--on-surface);">
+                                    <option value="">Auto-categorizar</option>
+                                    <template x-for="grupo in categoriasAgrupadas()" :key="grupo.id">
+                                        <optgroup :label="(grupo.icono || '') + ' ' + grupo.nombre">
+                                            <template x-for="hija in grupo.hijas" :key="hija.id">
+                                                <option :value="hija.id" x-text="hija.nombre"></option>
+                                            </template>
+                                        </optgroup>
+                                    </template>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:0.8rem; font-weight:600; color:var(--on-surface-variant); margin-bottom:0.25rem;">Notas</label>
+                            <input type="text" x-model="nuevoMovimiento.notas"
+                                   placeholder="Opcional"
+                                   class="px-3 py-2 text-sm outline-none w-full"
+                                   style="background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: var(--radio-sm); color: var(--on-surface);">
+                        </div>
+                        <div class="flex gap-2 justify-end mt-2">
+                            <button @click="cancelarEdicionMovimiento()" class="hogar-boton hogar-boton--secundario">Cancelar</button>
+                            <button @click="guardarMovimiento()" class="hogar-boton hogar-boton--primario">Guardar</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -674,7 +707,7 @@
 </div>
 
 <script src="api.js?v=2"></script>
-<script src="app.js?v=2"></script>
+<script src="app.js?v=3"></script>
 <script>
     /* Toggle tema claro/oscuro */
     (function initTema() {
