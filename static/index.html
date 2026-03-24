@@ -173,11 +173,19 @@
                     <option value="">Todas las categorias</option>
                     <template x-for="grupo in categoriasAgrupadas()" :key="grupo.id">
                         <optgroup :label="(grupo.icono || '') + ' ' + grupo.nombre">
+                            <option :value="grupo.id" x-text="'▸ Todo ' + grupo.nombre" style="font-weight:600"></option>
                             <template x-for="hija in grupo.hijas" :key="hija.id">
                                 <option :value="hija.id" x-text="hija.nombre"></option>
                             </template>
                         </optgroup>
                     </template>
+                </select>
+                <select x-model="filtros.tipo" @change="filtros.offset=0; cargarMovimientos()"
+                        class="px-3 py-2 text-sm outline-none"
+                        style="background: var(--surface-container-lowest); border: none; border-radius: var(--radio-full); color: var(--on-surface);">
+                    <option value="">Gastos e ingresos</option>
+                    <option value="gasto">Solo gastos</option>
+                    <option value="ingreso">Solo ingresos</option>
                 </select>
                 <input type="text" x-model="filtros.buscar" @input.debounce.300ms="filtros.offset=0; cargarMovimientos()"
                        placeholder="Buscar..."
@@ -318,9 +326,14 @@
                 </table>
             </div>
 
-            <!-- Paginación -->
+            <!-- Suma y paginación -->
             <div class="flex justify-between items-center mt-4 text-sm" style="color: var(--on-surface-variant);">
-                <span x-text="'Mostrando ' + movimientos.length + ' de ' + totalMovimientos"></span>
+                <div class="flex gap-4 items-center">
+                    <span x-text="'Mostrando ' + movimientos.length + ' de ' + totalMovimientos"></span>
+                    <span class="font-mono font-semibold"
+                          :style="sumaMovimientos >= 0 ? 'color: var(--exito)' : 'color: var(--peligro)'"
+                          x-text="'Σ ' + formatoImporte(sumaMovimientos)"></span>
+                </div>
                 <div class="flex gap-2">
                     <button @click="filtros.offset = Math.max(0, filtros.offset - 50); cargarMovimientos()"
                             :disabled="filtros.offset === 0"

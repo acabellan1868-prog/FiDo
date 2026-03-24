@@ -4,6 +4,18 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-03-24
+
+### Filtros avanzados y suma de movimientos
+- **Mejorado:** El filtro de categoría ahora permite seleccionar una categoría padre ("▸ Todo Compras", etc.) para filtrar todos los movimientos de esa categoría y sus subcategorías, además de poder filtrar por subcategoría individual.
+- **Añadido:** Nuevo filtro por tipo de movimiento: "Gastos e ingresos" (todos), "Solo gastos" o "Solo ingresos".
+- **Añadido:** Suma total (Σ) de los movimientos filtrados visible junto a la paginación, con color verde (positivo) o rojo (negativo).
+- **Refactorizado:** Extraída la lógica de construcción de filtros SQL a una función compartida `_construir_filtros()` para eliminar duplicación entre los endpoints `/movimientos` y `/movimientos/total`.
+- **Mejorado:** El endpoint `/movimientos/total` ahora devuelve también la suma de importes además del conteo.
+- Ficheros modificados: `app/rutas/movimientos.py`, `static/app.js`, `static/index.html`
+
+---
+
 ## 2026-03-23
 
 ### Formulario de movimientos en modal emergente

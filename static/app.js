@@ -20,7 +20,8 @@ function fidoApp() {
         // Estado de movimientos
         movimientos: [],
         totalMovimientos: 0,
-        filtros: { mes: '', cuenta_id: '', categoria_id: '', buscar: '', offset: 0 },
+        filtros: { mes: '', cuenta_id: '', categoria_id: '', tipo: '', buscar: '', offset: 0 },
+        sumaMovimientos: 0,
         editandoMovimiento: null,
         mostrarFormularioMovimiento: false,
         nuevoMovimiento: { fecha: '', importe: '', descripcion: '', cuenta_id: '', categoria_id: '', origen: 'web', notas: '' },
@@ -152,12 +153,13 @@ function fidoApp() {
                 if (this.filtros.mes) params.set('mes', this.filtros.mes);
                 if (this.filtros.cuenta_id) params.set('cuenta_id', this.filtros.cuenta_id);
                 if (this.filtros.categoria_id) params.set('categoria_id', this.filtros.categoria_id);
+                if (this.filtros.tipo) params.set('tipo', this.filtros.tipo);
                 if (this.filtros.buscar) params.set('buscar', this.filtros.buscar);
                 params.set('offset', this.filtros.offset);
                 params.set('limite', '50');
                 const qs = '?' + params.toString();
 
-                [this.movimientos, { total: this.totalMovimientos }] = await Promise.all([
+                [this.movimientos, { total: this.totalMovimientos, suma: this.sumaMovimientos }] = await Promise.all([
                     API.obtener('/movimientos' + qs),
                     API.obtener('/movimientos/total' + qs),
                 ]);

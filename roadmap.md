@@ -2,11 +2,11 @@
 
 ## Estado actual
 
-**Fecha:** 2026-03-23
+**Fecha:** 2026-03-24
 
-El proyecto está funcional y desplegado. En esta sesión se ha convertido
-el formulario de movimientos (nuevo/editar) en un modal emergente para
-no perder la posición en la tabla al editar. Commits `f572c5c` y `cbdc81e`.
+El proyecto está funcional y desplegado. En esta sesión se han añadido
+filtros avanzados en movimientos: filtro por categoría padre/subcategoría,
+filtro por tipo (gasto/ingreso) y suma total de los movimientos filtrados.
 
 **Próximo paso:** Pendiente migración al design system Living Sanctuary
 (hogar.css).
@@ -36,6 +36,7 @@ no perder la posición en la tabla al editar. Commits `f572c5c` y `cbdc81e`.
 
 - [x] Desplegables de categorías agrupados por padre (2026-03-22)
 - [x] Formulario de movimientos en modal emergente (2026-03-23)
+- [x] Filtros avanzados: categoría padre/sub, tipo gasto/ingreso, suma total (2026-03-24)
 - [ ] Migración al design system Living Sanctuary (hogar.css)
 - [ ] Drawer lateral con navegación entre apps
 

@@ -8,6 +8,45 @@ from app import bd
 ruta = APIRouter()
 
 
+def _construir_filtros(
+    mes: Optional[str],
+    cuenta_id: Optional[int],
+    categoria_id: Optional[int],
+    origen: Optional[str],
+    buscar: Optional[str],
+    tipo: Optional[str] = None,
+    prefijo: str = "m.",
+):
+    """Construye condiciones WHERE y parámetros a partir de los filtros comunes."""
+    condiciones = []
+    parametros = []
+
+    if mes:
+        condiciones.append(f"strftime('%Y-%m', {prefijo}fecha) = ?")
+        parametros.append(mes)
+    if cuenta_id:
+        condiciones.append(f"{prefijo}cuenta_id = ?")
+        parametros.append(cuenta_id)
+    if categoria_id:
+        # Si es categoría padre, incluir todas sus subcategorías
+        condiciones.append(f"""({prefijo}categoria_id = ? OR {prefijo}categoria_id IN
+            (SELECT id FROM categorias WHERE padre_id = ?))""")
+        parametros.extend([categoria_id, categoria_id])
+    if origen:
+        condiciones.append(f"{prefijo}origen = ?")
+        parametros.append(origen)
+    if buscar:
+        condiciones.append(f"{prefijo}descripcion LIKE ?")
+        parametros.append(f"%{buscar}%")
+    if tipo == "gasto":
+        condiciones.append(f"{prefijo}importe < 0")
+    elif tipo == "ingreso":
+        condiciones.append(f"{prefijo}importe > 0")
+
+    where = "WHERE " + " AND ".join(condiciones) if condiciones else ""
+    return where, parametros
+
+
 @ruta.get("", response_model=list[MovimientoRespuesta])
 def listar_movimientos(
     mes: Optional[str] = Query(None, description="Filtrar por mes: YYYY-MM"),
@@ -15,30 +54,12 @@ def listar_movimientos(
     categoria_id: Optional[int] = Query(None),
     origen: Optional[str] = Query(None),
     buscar: Optional[str] = Query(None, description="Buscar en descripción"),
+    tipo: Optional[str] = Query(None, description="Filtrar por tipo: gasto | ingreso"),
     offset: int = Query(0, ge=0),
     limite: int = Query(50, ge=1, le=500),
 ):
     """Lista movimientos con filtros opcionales y paginación."""
-    condiciones = []
-    parametros = []
-
-    if mes:
-        condiciones.append("strftime('%Y-%m', m.fecha) = ?")
-        parametros.append(mes)
-    if cuenta_id:
-        condiciones.append("m.cuenta_id = ?")
-        parametros.append(cuenta_id)
-    if categoria_id:
-        condiciones.append("m.categoria_id = ?")
-        parametros.append(categoria_id)
-    if origen:
-        condiciones.append("m.origen = ?")
-        parametros.append(origen)
-    if buscar:
-        condiciones.append("m.descripcion LIKE ?")
-        parametros.append(f"%{buscar}%")
-
-    where = "WHERE " + " AND ".join(condiciones) if condiciones else ""
+    where, parametros = _construir_filtros(mes, cuenta_id, categoria_id, origen, buscar, tipo, "m.")
     parametros.extend([limite, offset])
 
     filas = bd.consultar_todos(f"""
@@ -62,30 +83,20 @@ def contar_movimientos(
     categoria_id: Optional[int] = Query(None),
     origen: Optional[str] = Query(None),
     buscar: Optional[str] = Query(None),
+    tipo: Optional[str] = Query(None),
 ):
-    """Devuelve el total de movimientos (para paginación)."""
-    condiciones = []
-    parametros = []
+    """Devuelve el total de movimientos y la suma de importes (para paginación y resumen)."""
+    where, parametros = _construir_filtros(mes, cuenta_id, categoria_id, origen, buscar, tipo, "")
 
-    if mes:
-        condiciones.append("strftime('%Y-%m', fecha) = ?")
-        parametros.append(mes)
-    if cuenta_id:
-        condiciones.append("cuenta_id = ?")
-        parametros.append(cuenta_id)
-    if categoria_id:
-        condiciones.append("categoria_id = ?")
-        parametros.append(categoria_id)
-    if origen:
-        condiciones.append("origen = ?")
-        parametros.append(origen)
-    if buscar:
-        condiciones.append("descripcion LIKE ?")
-        parametros.append(f"%{buscar}%")
-
-    where = "WHERE " + " AND ".join(condiciones) if condiciones else ""
-    resultado = bd.consultar_uno(f"SELECT COUNT(*) as total FROM movimientos {where}", tuple(parametros))
-    return {"total": resultado["total"] if resultado else 0}
+    resultado = bd.consultar_uno(f"""
+        SELECT COUNT(*) as total,
+               COALESCE(SUM(importe), 0) as suma
+        FROM movimientos {where}
+    """, tuple(parametros))
+    return {
+        "total": resultado["total"] if resultado else 0,
+        "suma": round(resultado["suma"], 2) if resultado else 0,
+    }
 
 
 @ruta.get("/{movimiento_id}", response_model=MovimientoRespuesta)
