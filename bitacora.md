@@ -4,6 +4,28 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-03-29
+
+### Migración CSS: de Tailwind CDN a design system hogar.css
+
+- **Eliminado:** Tailwind CDN (`<script src="https://cdn.tailwindcss.com">`) y su bloque `tailwind.config` con colores y radios personalizados. FiDo ya no depende de ningún CSS externo aparte de las fuentes de Google (que carga hogar.css).
+- **Eliminado:** Todas las clases utilitarias de Tailwind (`flex`, `gap-3`, `grid-cols-2`, `px-4`, `text-sm`, `font-semibold`, `bg-white`, `text-green-600`, `rounded-xl`, `shadow`, etc.) del HTML.
+- **Reescrito:** `static/estilos.css` — de 16 líneas a ~350 líneas, organizado en 20 secciones con clases propias prefijadas `fido-` que usan exclusivamente variables del design system (`--gap-md`, `--radio-sm`, `--surface-container`, `--fuente-titular`, etc.).
+- **Nuevas clases CSS creadas:**
+  - Utilidades: `fido-text-right`, `fido-text-center`, `fido-text-xs`, `fido-text-bold`, `fido-text-muted`, `fido-mono`, `fido-nowrap`
+  - Inputs: `fido-input`, `fido-input--pill` (filtros), `fido-input--form` (formularios), `fido-input--sm`, `fido-input--flex`, `fido-input--buscar`
+  - Layouts: `fido-filtros`, `fido-form-stack`, `fido-grid-2`, `fido-acciones-der`, `fido-resumen-grid`, `fido-graficas-grid`
+  - Panel: `fido-resumen-tarjeta`, `fido-resumen-valor`, `fido-resumen-valor--exito`, `fido-resumen-valor--peligro`
+  - Componentes: `fido-toast`, `fido-modal-overlay`, `fido-modal`, `fido-paginacion`, `fido-resultado`, `fido-lista`, `fido-cat-cabecera`, `fido-cat-hija`
+  - Botones: `fido-btn-icono`, `fido-btn-texto`, `fido-boton--sm`, `fido-boton--xs`
+  - Otros: `fido-titulo`, `fido-subtitulo`, `fido-label`, `fido-vacio`, `fido-footer`
+- **Mantenidas:** Todas las clases del design system hogar.css (`hogar-tarjeta`, `hogar-boton`, `hogar-tabla`, `hogar-badge`, `hogar-alerta`, `hogar-header`, `hogar-drawer`, etc.).
+- **Migrada:** La pestaña Crypto, que antes usaba clases Tailwind puras (`bg-white`, `text-gray-400`, `bg-gray-50`, `text-green-600`, `hover:bg-gray-50`), ahora usa `hogar-tabla-wrap` / `hogar-tabla` + clases `fido-`.
+- **Resultado:** FiDo sigue ahora el mismo patrón que ReDo y MediDo: solo `hogar.css` + estilos propios, sin Tailwind.
+- Ficheros modificados: `static/index.html`, `static/estilos.css`
+
+---
+
 ## 2026-03-24
 
 ### Filtros avanzados y suma de movimientos

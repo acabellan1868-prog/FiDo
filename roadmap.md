@@ -2,14 +2,13 @@
 
 ## Estado actual
 
-**Fecha:** 2026-03-24
+**Fecha:** 2026-03-29
 
-El proyecto está funcional y desplegado. En esta sesión se han añadido
-filtros avanzados en movimientos: filtro por categoría padre/subcategoría,
-filtro por tipo (gasto/ingreso) y suma total de los movimientos filtrados.
+El proyecto está funcional y desplegado. Se ha completado la migración
+al design system Living Sanctuary (hogar.css), eliminando Tailwind CDN.
+FiDo sigue ahora el mismo patrón visual que ReDo y MediDo.
 
-**Próximo paso:** Pendiente migración al design system Living Sanctuary
-(hogar.css).
+**Próximo paso:** Mejoras funcionales (resúmenes, exportación, presupuestos).
 
 ---
 
@@ -37,8 +36,8 @@ filtro por tipo (gasto/ingreso) y suma total de los movimientos filtrados.
 - [x] Desplegables de categorías agrupados por padre (2026-03-22)
 - [x] Formulario de movimientos en modal emergente (2026-03-23)
 - [x] Filtros avanzados: categoría padre/sub, tipo gasto/ingreso, suma total (2026-03-24)
-- [ ] Migración al design system Living Sanctuary (hogar.css)
-- [ ] Drawer lateral con navegación entre apps
+- [x] Migración al design system Living Sanctuary (hogar.css) (2026-03-29)
+- [x] Drawer lateral con navegación entre apps (2026-03-22)
 
 ### Fase 4 — Futuro
 

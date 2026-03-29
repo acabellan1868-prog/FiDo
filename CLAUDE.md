@@ -45,7 +45,7 @@ FiDo/
 │   ├── index.html              → Frontend SPA
 │   ├── app.js                  → Lógica principal del frontend
 │   ├── api.js                  → Capa de acceso a la API
-│   └── estilos.css             → CSS propio de FiDo (aún no usa hogar.css)
+│   └── estilos.css             → CSS propio de FiDo (prefijo fido-, usa variables de hogar.css)
 ├── data/
 │   └── .gitkeep
 ├── Dockerfile
@@ -61,12 +61,14 @@ FiDo se sirve en `/finanzas/` a través del Nginx de hogarOS.
 
 **Puerto:** 8080 (interno Docker, nombre de contenedor `fido`)
 
-### CSS propio vs design system
+### CSS — Design system
 
-FiDo tiene su propio `static/estilos.css` y **aún no usa `hogar.css`**.
-Pendiente migrar al design system Living Sanctuary (igual que se hizo con ReDo).
-Cuando se migre, aplicar el mismo patrón: `<link href="/static/hogar.css">`
-y nginx servirá el fichero desde `portal/static/` vía `location /finanzas/static/`.
+FiDo usa el design system Living Sanctuary (`hogar.css`) igual que ReDo y MediDo.
+Nginx sirve `hogar.css` desde `portal/static/` vía `location /finanzas/static/`.
+
+- `hogar.css` — variables, tipografía, header, drawer, tarjetas, tablas, botones, badges, alertas
+- `estilos.css` — clases propias con prefijo `fido-` (inputs, layouts, modal, paginación, etc.)
+- **Sin Tailwind** — eliminado en 2026-03-29
 
 ---
 
