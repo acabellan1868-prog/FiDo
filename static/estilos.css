@@ -1,15 +1,524 @@
-/* FiDo — Estilos adicionales mínimos */
+/* FiDo — Estilos especificos (no del design system)
+ * Todas las clases usan prefijo fido- para evitar colisiones.
+ * Las variables (--background, --gap-md, etc.) vienen de hogar.css.
+ */
 
-/* Ocultar elementos Alpine.js hasta que se inicialicen */
+/* ============================================================
+   0. Ocultar Alpine.js hasta init
+   ============================================================ */
 [x-cloak] {
     display: none !important;
 }
 
-/* Scrollbar más fina en tablas */
-.overflow-x-auto::-webkit-scrollbar {
-    height: 6px;
+/* ============================================================
+   1. Utilidades de texto
+   ============================================================ */
+.fido-text-right  { text-align: right; }
+.fido-text-center { text-align: center; }
+.fido-text-xs     { font-size: 0.75rem; }
+.fido-text-bold   { font-weight: 600; }
+.fido-nowrap      { white-space: nowrap; }
+
+.fido-text-muted {
+    color: var(--on-surface-variant);
 }
-.overflow-x-auto::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
+
+.fido-mono {
+    font-family: var(--fuente-mono);
+}
+
+/* ============================================================
+   2. Titulos y subtitulos
+   ============================================================ */
+.fido-titulo {
+    font-family: var(--fuente-titular);
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: var(--gap-lg);
+}
+
+.fido-subtitulo {
+    font-family: var(--fuente-titular);
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: var(--gap-md);
+}
+
+/* ============================================================
+   3. Inputs y selects
+   ============================================================ */
+.fido-input {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    font-family: var(--fuente-cuerpo);
+    color: var(--on-surface);
+    background: var(--surface-container-lowest);
+    border: none;
+    outline: none;
+    transition: box-shadow var(--transicion);
+}
+
+.fido-input:focus {
+    box-shadow: 0 0 0 2px var(--primary-container);
+}
+
+/* Pill: bordes redondeados completos (filtros) */
+.fido-input--pill {
+    border-radius: var(--radio-full);
+}
+
+/* Form: bordes redondeados suaves (formularios) */
+.fido-input--form {
+    width: 100%;
+    background: var(--surface-container);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radio-sm);
+}
+
+/* Pequeno: para edicion inline */
+.fido-input--sm {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.8rem;
+}
+
+/* Buscador: ancho fijo */
+.fido-input--buscar {
+    width: 10rem;
+}
+
+/* Flex: crece para llenar espacio */
+.fido-input--flex {
+    flex: 1;
+    min-width: 0;
+}
+
+/* ============================================================
+   4. Labels de formulario
+   ============================================================ */
+.fido-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--on-surface-variant);
+    margin-bottom: 0.25rem;
+}
+
+.fido-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.85rem;
+}
+
+/* ============================================================
+   5. Layouts: filtros, grids, stacks
+   ============================================================ */
+.fido-filtros {
+    display: flex;
+    gap: var(--gap-sm);
+    align-items: center;
+}
+
+.fido-filtros--wrap {
+    flex-wrap: wrap;
+    gap: var(--gap-sm);
+    margin-bottom: var(--gap-lg);
+}
+
+.fido-form-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-md);
+}
+
+.fido-form-stack--lg {
+    gap: var(--gap-xl);
+}
+
+.fido-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap-md);
+}
+
+.fido-acciones-der {
+    display: flex;
+    gap: var(--gap-sm);
+    justify-content: flex-end;
+    margin-top: var(--gap-sm);
+}
+
+/* ============================================================
+   6. Panel — Tarjetas resumen
+   ============================================================ */
+.fido-resumen-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--gap-md);
+    margin-bottom: var(--gap-xl);
+}
+
+@media (min-width: 768px) {
+    .fido-resumen-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.fido-resumen-tarjeta {
+    padding: var(--gap-lg);
+}
+
+.fido-resumen-valor {
+    font-family: var(--fuente-titular);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--on-surface);
+}
+
+.fido-resumen-valor--exito  { color: var(--exito); }
+.fido-resumen-valor--peligro { color: var(--peligro); }
+
+/* ============================================================
+   7. Panel — Graficas
+   ============================================================ */
+.fido-graficas-grid {
+    display: grid;
+    gap: var(--gap-xl);
+}
+
+@media (min-width: 768px) {
+    .fido-graficas-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* ============================================================
+   8. Toast (mensaje flotante)
+   ============================================================ */
+.fido-toast {
+    position: fixed;
+    top: 5rem;
+    right: 1rem;
+    z-index: 250;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.85rem;
+    border-radius: var(--radio-xl);
+    box-shadow: var(--sombra-lg);
+    font-family: var(--fuente-cuerpo);
+}
+
+.fido-toast--ok {
+    background: var(--exito-fondo);
+    color: var(--exito);
+    border: 1px solid var(--exito);
+}
+
+.fido-toast--error {
+    background: var(--peligro-fondo);
+    color: var(--peligro);
+    border: 1px solid var(--peligro);
+}
+
+/* ============================================================
+   9. Modal
+   ============================================================ */
+.fido-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 200;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fido-modal {
+    background: var(--surface-container-low);
+    border-radius: var(--radio-lg);
+    box-shadow: var(--sombra-lg);
+    width: 100%;
+    max-width: 480px;
+    padding: var(--gap-xl);
+}
+
+.fido-modal__titulo {
+    font-size: 1.1rem;
+    margin-bottom: var(--gap-lg);
+}
+
+/* Transiciones del modal */
+.fido-transicion-entrada  { transition: opacity 0.2s ease-out; }
+.fido-transicion-salida   { transition: opacity 0.15s ease-in; }
+.fido-transicion-oculto   { opacity: 0; }
+.fido-transicion-visible  { opacity: 1; }
+
+/* ============================================================
+   10. Paginacion
+   ============================================================ */
+.fido-paginacion {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--gap-lg);
+    font-size: 0.85rem;
+    color: var(--on-surface-variant);
+}
+
+.fido-paginacion__info {
+    display: flex;
+    gap: var(--gap-lg);
+    align-items: center;
+}
+
+.fido-paginacion__botones {
+    display: flex;
+    gap: var(--gap-sm);
+}
+
+/* Botones deshabilitados */
+.hogar-boton:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* ============================================================
+   11. Importar — resultado
+   ============================================================ */
+.fido-importar-card {
+    max-width: 36rem;
+}
+
+.fido-resultado {
+    margin-top: var(--gap-xl);
+    padding-top: var(--gap-lg);
+    border-top: 1px solid var(--surface-container);
+}
+
+.fido-resultado__stats {
+    display: flex;
+    gap: var(--gap-lg);
+    font-size: 0.85rem;
+    margin-bottom: var(--gap-md);
+}
+
+.fido-resultado__detalles {
+    max-height: 15rem;
+    overflow-y: auto;
+    font-size: 0.75rem;
+}
+
+.fido-resultado__linea {
+    padding: 0.25rem 0;
+    border-bottom: 1px solid var(--surface-container);
+}
+
+/* ============================================================
+   12. Categorias
+   ============================================================ */
+.fido-cabecera-seccion {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--gap-lg);
+}
+
+.fido-cabecera-seccion .fido-titulo {
+    margin-bottom: 0;
+}
+
+.fido-cat-cabecera {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid var(--surface-container);
+}
+
+.fido-cat-hijas {
+    padding: 0.5rem 1.25rem;
+}
+
+.fido-cat-hija {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0;
+    font-size: 0.85rem;
+    color: var(--on-surface-variant);
+}
+
+/* ============================================================
+   13. Reglas — grid del formulario
+   ============================================================ */
+.fido-regla-form {
+    margin-bottom: var(--gap-lg);
+}
+
+.fido-regla-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--gap-md);
+    align-items: end;
+}
+
+@media (min-width: 768px) {
+    .fido-regla-grid {
+        grid-template-columns: 1fr 1fr 8rem auto;
+    }
+}
+
+/* ============================================================
+   14. Ajustes — listas y edicion
+   ============================================================ */
+.fido-lista {
+    margin-bottom: var(--gap-md);
+}
+
+.fido-lista__item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.35rem 0;
+    font-size: 0.85rem;
+    border-bottom: 1px solid var(--surface-container);
+}
+
+.fido-cuenta-edicion {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--surface-container);
+}
+
+.fido-cuenta-edicion__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap-sm);
+    font-size: 0.85rem;
+}
+
+@media (min-width: 768px) {
+    .fido-cuenta-edicion__grid {
+        grid-template-columns: 1fr 1fr 1fr auto auto auto;
+    }
+}
+
+.fido-cuenta-nueva {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap-sm);
+}
+
+@media (min-width: 768px) {
+    .fido-cuenta-nueva {
+        grid-template-columns: 1fr 1fr 1fr auto auto;
+    }
+}
+
+/* ============================================================
+   15. Botones auxiliares
+   ============================================================ */
+
+/* Boton icono (edit, delete en tablas) */
+.fido-btn-icono {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.15rem;
+}
+
+.fido-btn-icono--primary { color: var(--primary); }
+.fido-btn-icono--peligro { color: var(--peligro); }
+
+/* Boton texto (sin fondo, tipo enlace) */
+.fido-btn-texto {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.fido-btn-texto--primary { color: var(--primary); }
+.fido-btn-texto--peligro { color: var(--peligro); }
+
+/* Tamanos de boton */
+.fido-boton--sm { padding: 0.4rem 1rem; }
+.fido-boton--xs { padding: 0.3rem 0.8rem; font-size: 0.7rem; }
+
+/* ============================================================
+   16. Crypto
+   ============================================================ */
+.fido-crypto-img {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radio-md);
+}
+
+/* ============================================================
+   17. Estado vacio
+   ============================================================ */
+.fido-vacio {
+    text-align: center;
+    padding: var(--gap-xl) 0;
+    color: var(--on-surface-variant);
+}
+
+/* ============================================================
+   18. Footer
+   ============================================================ */
+.fido-footer {
+    text-align: center;
+    font-size: 0.75rem;
+    padding: var(--gap-xl) 0;
+    margin-top: var(--gap-xl);
+    color: var(--on-surface-variant);
+    font-family: var(--fuente-cuerpo);
+}
+
+/* ============================================================
+   19. Responsive
+   ============================================================ */
+@media (max-width: 600px) {
+    .fido-resumen-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .fido-resumen-valor {
+        font-size: 1rem;
+    }
+
+    .fido-grid-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .fido-paginacion {
+        flex-direction: column;
+        gap: var(--gap-md);
+        align-items: flex-start;
+    }
+
+    .fido-filtros--wrap {
+        gap: var(--gap-xs);
+    }
+
+    .fido-input--buscar {
+        width: 100%;
+    }
+
+    .fido-cuenta-nueva,
+    .fido-cuenta-edicion__grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================================
+   20. Scrollbar fina (complemento a scroll-fino de hogar.css)
+   ============================================================ */
+.fido-resultado__detalles::-webkit-scrollbar {
+    width: 6px;
+}
+
+.fido-resultado__detalles::-webkit-scrollbar-thumb {
+    background: var(--outline-variant);
     border-radius: 3px;
 }

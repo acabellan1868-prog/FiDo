@@ -3,31 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FiDo — Finanzas Domésticas</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>FiDo — Finanzas Domesticas</title>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <link rel="stylesheet" href="/static/hogar.css">
     <link rel="stylesheet" href="estilos.css">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'accent': '#1a6a60',
-                        'accent-dim': '#025e54',
-                        'accent-container': '#a4eee0',
-                    },
-                    borderRadius: {
-                        'xl': '1.5rem',
-                        '2xl': '2rem',
-                    },
-                },
-            },
-        }
-    </script>
 </head>
-<body class="min-h-screen" style="background: var(--background); color: var(--on-surface); font-family: var(--fuente-cuerpo);">
+<body>
 <div x-data="fidoApp()" x-init="init()">
 
     <!-- ===== EFECTO LUMINA ===== -->
@@ -49,7 +31,7 @@
         </div>
     </header>
 
-    <!-- ===== DRAWER DE NAVEGACIÓN ===== -->
+    <!-- ===== DRAWER DE NAVEGACION ===== -->
     <div class="hogar-drawer-overlay" :class="drawerAbierto ? '' : 'oculto'" @click="drawerAbierto = false"></div>
     <nav class="hogar-drawer" :class="drawerAbierto ? '' : 'oculto'" @keydown.escape.window="drawerAbierto = false">
         <button class="hogar-drawer__cerrar" @click="drawerAbierto = false">
@@ -93,14 +75,8 @@
 
     <!-- ===== MENSAJE TOAST ===== -->
     <div x-show="mensaje" x-transition
-         :class="tipoMensaje === 'ok'
-            ? 'border-green-300'
-            : 'border-red-300'"
-         :style="tipoMensaje === 'ok'
-            ? 'background: var(--exito-fondo); color: var(--exito);'
-            : 'background: var(--peligro-fondo); color: var(--peligro);'"
-         class="fixed top-20 right-4 z-50 px-5 py-3 border text-sm"
-         style="border-radius: var(--radio-xl); box-shadow: var(--sombra-lg); font-family: var(--fuente-cuerpo);">
+         :class="tipoMensaje === 'ok' ? 'fido-toast--ok' : 'fido-toast--error'"
+         class="fido-toast">
         <span x-text="mensaje"></span>
     </div>
 
@@ -109,13 +85,11 @@
         <!-- ===== PANEL (DASHBOARD) ===== -->
         <div x-show="pestana === 'panel'" x-cloak>
             <!-- Filtros del panel -->
-            <div class="flex gap-3 mb-6 flex-wrap">
+            <div class="fido-filtros">
                 <input type="month" x-model="filtroPanelMes" @change="cargarPanel()"
-                       class="px-4 py-2 text-sm outline-none"
-                       style="background: var(--surface-container-lowest); border: none; border-radius: var(--radio-full); color: var(--on-surface); font-family: var(--fuente-cuerpo);">
+                       class="fido-input fido-input--pill">
                 <select x-model="filtroPanelCuenta" @change="cargarPanel()"
-                        class="px-4 py-2 text-sm outline-none"
-                        style="background: var(--surface-container-lowest); border: none; border-radius: var(--radio-full); color: var(--on-surface); font-family: var(--fuente-cuerpo);">
+                        class="fido-input fido-input--pill">
                     <option value="">Todas las cuentas</option>
                     <template x-for="c in cuentas" :key="c.id">
                         <option :value="c.id" x-text="c.nombre"></option>
@@ -124,38 +98,38 @@
             </div>
 
             <!-- Tarjetas resumen -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div class="hogar-tarjeta hogar-tarjeta--primary" style="padding: var(--gap-lg);">
+            <div class="fido-resumen-grid">
+                <div class="hogar-tarjeta hogar-tarjeta--primary fido-resumen-tarjeta">
                     <div class="hogar-tarjeta__label">Ingresos</div>
-                    <div class="text-xl font-bold" style="color: var(--exito); font-family: var(--fuente-titular);" x-text="formatoImporte(resumen.ingresos)"></div>
+                    <div class="fido-resumen-valor fido-resumen-valor--exito" x-text="formatoImporte(resumen.ingresos)"></div>
                 </div>
-                <div class="hogar-tarjeta hogar-tarjeta--tertiary" style="padding: var(--gap-lg);">
+                <div class="hogar-tarjeta hogar-tarjeta--tertiary fido-resumen-tarjeta">
                     <div class="hogar-tarjeta__label">Gastos</div>
-                    <div class="text-xl font-bold" style="color: var(--peligro); font-family: var(--fuente-titular);" x-text="formatoImporte(resumen.gastos)"></div>
+                    <div class="fido-resumen-valor fido-resumen-valor--peligro" x-text="formatoImporte(resumen.gastos)"></div>
                 </div>
-                <div class="hogar-tarjeta" style="padding: var(--gap-lg);">
+                <div class="hogar-tarjeta fido-resumen-tarjeta">
                     <div class="hogar-tarjeta__label">Balance</div>
-                    <div class="text-xl font-bold" style="font-family: var(--fuente-titular);"
-                         :style="resumen.balance >= 0 ? 'color: var(--exito)' : 'color: var(--peligro)'"
+                    <div class="fido-resumen-valor"
+                         :class="resumen.balance >= 0 ? 'fido-resumen-valor--exito' : 'fido-resumen-valor--peligro'"
                          x-text="formatoImporte(resumen.balance)"></div>
                 </div>
-                <div class="hogar-tarjeta hogar-tarjeta--secondary" style="padding: var(--gap-lg);">
+                <div class="hogar-tarjeta hogar-tarjeta--secondary fido-resumen-tarjeta">
                     <div class="hogar-tarjeta__label">Movimientos</div>
-                    <div class="text-xl font-bold" style="color: var(--on-surface); font-family: var(--fuente-titular);" x-text="resumen.total_movimientos"></div>
+                    <div class="fido-resumen-valor" x-text="resumen.total_movimientos"></div>
                 </div>
             </div>
 
-            <!-- Gráficas -->
-            <div class="grid md:grid-cols-2 gap-6">
+            <!-- Graficas -->
+            <div class="fido-graficas-grid">
                 <div class="hogar-tarjeta" style="min-width:0;">
-                    <h3 class="font-semibold mb-3" style="font-family: var(--fuente-titular);">Gastos por categoria</h3>
+                    <h3 class="fido-subtitulo">Gastos por categoria</h3>
                     <div id="graficaCategoria" style="height:300px;"></div>
-                    <p x-show="datosPorCategoria.length === 0" class="text-center py-8" style="color: var(--on-surface-variant);">Sin datos</p>
+                    <p x-show="datosPorCategoria.length === 0" class="fido-vacio">Sin datos</p>
                 </div>
                 <div class="hogar-tarjeta" style="min-width:0;">
-                    <h3 class="font-semibold mb-3" style="font-family: var(--fuente-titular);">Evolucion mensual</h3>
+                    <h3 class="fido-subtitulo">Evolucion mensual</h3>
                     <div id="graficaMes" style="height:300px;"></div>
-                    <p x-show="datosPorMes.length === 0" class="text-center py-8" style="color: var(--on-surface-variant);">Sin datos</p>
+                    <p x-show="datosPorMes.length === 0" class="fido-vacio">Sin datos</p>
                 </div>
             </div>
         </div>
@@ -163,25 +137,22 @@
         <!-- ===== MOVIMIENTOS ===== -->
         <div x-show="pestana === 'movimientos'" x-cloak>
             <!-- Filtros -->
-            <div class="flex gap-2 mb-4 flex-wrap items-end">
+            <div class="fido-filtros fido-filtros--wrap">
                 <input type="month" x-model="filtros.mes" @change="filtros.offset=0; cargarMovimientos()"
-                       class="px-3 py-2 text-sm outline-none"
-                       style="background: var(--surface-container-lowest); border: none; border-radius: var(--radio-full); color: var(--on-surface);">
+                       class="fido-input fido-input--pill">
                 <select x-model="filtros.cuenta_id" @change="filtros.offset=0; cargarMovimientos()"
-                        class="px-3 py-2 text-sm outline-none"
-                        style="background: var(--surface-container-lowest); border: none; border-radius: var(--radio-full); color: var(--on-surface);">
+                        class="fido-input fido-input--pill">
                     <option value="">Todas las cuentas</option>
                     <template x-for="c in cuentas" :key="c.id">
                         <option :value="c.id" x-text="c.nombre"></option>
                     </template>
                 </select>
                 <select x-model="filtros.categoria_id" @change="filtros.offset=0; cargarMovimientos()"
-                        class="px-3 py-2 text-sm outline-none"
-                        style="background: var(--surface-container-lowest); border: none; border-radius: var(--radio-full); color: var(--on-surface);">
+                        class="fido-input fido-input--pill">
                     <option value="">Todas las categorias</option>
                     <template x-for="grupo in categoriasAgrupadas()" :key="grupo.id">
                         <optgroup :label="(grupo.icono || '') + ' ' + grupo.nombre">
-                            <option :value="grupo.id" x-text="'▸ Todo ' + grupo.nombre" style="font-weight:600"></option>
+                            <option :value="grupo.id" x-text="'&#9658; Todo ' + grupo.nombre" style="font-weight:600"></option>
                             <template x-for="hija in grupo.hijas" :key="hija.id">
                                 <option :value="hija.id" x-text="hija.nombre"></option>
                             </template>
@@ -189,16 +160,14 @@
                     </template>
                 </select>
                 <select x-model="filtros.tipo" @change="filtros.offset=0; cargarMovimientos()"
-                        class="px-3 py-2 text-sm outline-none"
-                        style="background: var(--surface-container-lowest); border: none; border-radius: var(--radio-full); color: var(--on-surface);">
+                        class="fido-input fido-input--pill">
                     <option value="">Gastos e ingresos</option>
                     <option value="gasto">Solo gastos</option>
                     <option value="ingreso">Solo ingresos</option>
                 </select>
                 <input type="text" x-model="filtros.buscar" @input.debounce.300ms="filtros.offset=0; cargarMovimientos()"
                        placeholder="Buscar..."
-                       class="px-3 py-2 text-sm w-40 outline-none"
-                       style="background: var(--surface-container-lowest); border: none; border-radius: var(--radio-full); color: var(--on-surface);">
+                       class="fido-input fido-input--pill fido-input--buscar">
                 <button @click="mostrarFormularioMovimiento = true; editandoMovimiento = null"
                         class="hogar-boton hogar-boton--primario">
                     <span class="material-symbols-outlined" style="font-size:1rem">add</span> Nuevo
@@ -207,46 +176,40 @@
 
             <!-- Modal nuevo/editar movimiento -->
             <div x-show="mostrarFormularioMovimiento"
-                 x-transition:enter="transition ease-out duration-200"
-                 x-transition:enter-start="opacity-0"
-                 x-transition:enter-end="opacity-100"
-                 x-transition:leave="transition ease-in duration-150"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0"
+                 x-transition:enter="fido-transicion-entrada"
+                 x-transition:enter-start="fido-transicion-oculto"
+                 x-transition:enter-end="fido-transicion-visible"
+                 x-transition:leave="fido-transicion-salida"
+                 x-transition:leave-start="fido-transicion-visible"
+                 x-transition:leave-end="fido-transicion-oculto"
                  @keydown.escape.window="if(mostrarFormularioMovimiento) cancelarEdicionMovimiento()"
-                 class="flex items-center justify-center"
-                 style="position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:200; padding:1rem;">
-                <div @click.outside="cancelarEdicionMovimiento()"
-                     style="background: var(--surface-container-low); border-radius: var(--radio-lg); box-shadow: var(--sombra-lg); width:100%; max-width:480px; padding: var(--gap-xl);">
-                    <h3 class="font-semibold mb-4" style="font-family: var(--fuente-titular); font-size:1.1rem;"
+                 class="fido-modal-overlay">
+                <div @click.outside="cancelarEdicionMovimiento()" class="fido-modal">
+                    <h3 class="fido-subtitulo fido-modal__titulo"
                         x-text="editandoMovimiento ? 'Editar movimiento' : 'Nuevo movimiento'"></h3>
-                    <div class="grid grid-cols-1 gap-3">
+                    <div class="fido-form-stack">
                         <div>
-                            <label style="display:block; font-size:0.8rem; font-weight:600; color:var(--on-surface-variant); margin-bottom:0.25rem;">Fecha</label>
+                            <label class="fido-label">Fecha</label>
                             <input type="date" x-model="nuevoMovimiento.fecha"
-                                   class="px-3 py-2 text-sm outline-none w-full"
-                                   style="background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: var(--radio-sm); color: var(--on-surface);">
+                                   class="fido-input fido-input--form">
                         </div>
                         <div>
-                            <label style="display:block; font-size:0.8rem; font-weight:600; color:var(--on-surface-variant); margin-bottom:0.25rem;">Importe</label>
+                            <label class="fido-label">Importe</label>
                             <input type="number" step="0.01" x-model="nuevoMovimiento.importe"
                                    placeholder="-gasto, +ingreso"
-                                   class="px-3 py-2 text-sm outline-none w-full"
-                                   style="background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: var(--radio-sm); color: var(--on-surface);">
+                                   class="fido-input fido-input--form">
                         </div>
                         <div>
-                            <label style="display:block; font-size:0.8rem; font-weight:600; color:var(--on-surface-variant); margin-bottom:0.25rem;">Descripcion</label>
+                            <label class="fido-label">Descripcion</label>
                             <input type="text" x-model="nuevoMovimiento.descripcion"
                                    placeholder="Descripcion del movimiento"
-                                   class="px-3 py-2 text-sm outline-none w-full"
-                                   style="background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: var(--radio-sm); color: var(--on-surface);">
+                                   class="fido-input fido-input--form">
                         </div>
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="fido-grid-2">
                             <div>
-                                <label style="display:block; font-size:0.8rem; font-weight:600; color:var(--on-surface-variant); margin-bottom:0.25rem;">Cuenta</label>
+                                <label class="fido-label">Cuenta</label>
                                 <select x-model="nuevoMovimiento.cuenta_id"
-                                        class="px-3 py-2 text-sm outline-none w-full"
-                                        style="background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: var(--radio-sm); color: var(--on-surface);">
+                                        class="fido-input fido-input--form">
                                     <option value="">Cuenta...</option>
                                     <template x-for="c in cuentas" :key="c.id">
                                         <option :value="c.id" x-text="c.nombre"></option>
@@ -254,10 +217,9 @@
                                 </select>
                             </div>
                             <div>
-                                <label style="display:block; font-size:0.8rem; font-weight:600; color:var(--on-surface-variant); margin-bottom:0.25rem;">Categoria</label>
+                                <label class="fido-label">Categoria</label>
                                 <select x-model="nuevoMovimiento.categoria_id"
-                                        class="px-3 py-2 text-sm outline-none w-full"
-                                        style="background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: var(--radio-sm); color: var(--on-surface);">
+                                        class="fido-input fido-input--form">
                                     <option value="">Auto-categorizar</option>
                                     <template x-for="grupo in categoriasAgrupadas()" :key="grupo.id">
                                         <optgroup :label="(grupo.icono || '') + ' ' + grupo.nombre">
@@ -270,13 +232,12 @@
                             </div>
                         </div>
                         <div>
-                            <label style="display:block; font-size:0.8rem; font-weight:600; color:var(--on-surface-variant); margin-bottom:0.25rem;">Notas</label>
+                            <label class="fido-label">Notas</label>
                             <input type="text" x-model="nuevoMovimiento.notas"
                                    placeholder="Opcional"
-                                   class="px-3 py-2 text-sm outline-none w-full"
-                                   style="background: var(--surface-container); border: 1px solid var(--outline-variant); border-radius: var(--radio-sm); color: var(--on-surface);">
+                                   class="fido-input fido-input--form">
                         </div>
-                        <div class="flex gap-2 justify-end mt-2">
+                        <div class="fido-acciones-der">
                             <button @click="cancelarEdicionMovimiento()" class="hogar-boton hogar-boton--secundario">Cancelar</button>
                             <button @click="guardarMovimiento()" class="hogar-boton hogar-boton--primario">Guardar</button>
                         </div>
@@ -292,23 +253,23 @@
                             <th>Fecha</th>
                             <th>Descripcion</th>
                             <th>Categoria</th>
-                            <th class="text-right">Importe</th>
+                            <th class="fido-text-right">Importe</th>
                             <th>Cuenta</th>
-                            <th class="text-center">Origen</th>
-                            <th class="text-center">Acciones</th>
+                            <th class="fido-text-center">Origen</th>
+                            <th class="fido-text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         <template x-for="mov in movimientos" :key="mov.id">
                             <tr>
-                                <td class="whitespace-nowrap" x-text="mov.fecha"></td>
+                                <td class="fido-nowrap" x-text="mov.fecha"></td>
                                 <td x-text="mov.descripcion"></td>
-                                <td class="text-xs" style="color: var(--on-surface-variant);" x-text="nombreCategoria(mov.categoria_id)"></td>
-                                <td class="text-right font-mono whitespace-nowrap"
+                                <td class="fido-text-muted fido-text-xs" x-text="nombreCategoria(mov.categoria_id)"></td>
+                                <td class="fido-text-right fido-mono fido-nowrap"
                                     :style="mov.importe >= 0 ? 'color: var(--exito)' : 'color: var(--peligro)'"
                                     x-text="formatoImporte(mov.importe)"></td>
-                                <td class="text-xs" x-text="mov.nombre_cuenta"></td>
-                                <td class="text-center">
+                                <td class="fido-text-xs" x-text="mov.nombre_cuenta"></td>
+                                <td class="fido-text-center">
                                     <span class="hogar-badge"
                                           :class="{
                                               'hogar-badge--primary': mov.origen === 'web',
@@ -317,58 +278,56 @@
                                           }"
                                           x-text="mov.origen"></span>
                                 </td>
-                                <td class="text-center whitespace-nowrap">
-                                    <button @click="editarMovimiento(mov)" style="color: var(--primary); cursor: pointer; background: none; border: none;">
+                                <td class="fido-text-center fido-nowrap">
+                                    <button @click="editarMovimiento(mov)" class="fido-btn-icono fido-btn-icono--primary">
                                         <span class="material-symbols-outlined" style="font-size:1.1rem">edit</span>
                                     </button>
-                                    <button @click="borrarMovimiento(mov.id)" style="color: var(--peligro); cursor: pointer; background: none; border: none;">
+                                    <button @click="borrarMovimiento(mov.id)" class="fido-btn-icono fido-btn-icono--peligro">
                                         <span class="material-symbols-outlined" style="font-size:1.1rem">delete</span>
                                     </button>
                                 </td>
                             </tr>
                         </template>
                         <tr x-show="movimientos.length === 0">
-                            <td colspan="7" class="text-center py-8" style="color: var(--on-surface-variant);">No hay movimientos</td>
+                            <td colspan="7" class="fido-vacio">No hay movimientos</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
-            <!-- Suma y paginación -->
-            <div class="flex justify-between items-center mt-4 text-sm" style="color: var(--on-surface-variant);">
-                <div class="flex gap-4 items-center">
+            <!-- Suma y paginacion -->
+            <div class="fido-paginacion">
+                <div class="fido-paginacion__info">
                     <span x-text="'Mostrando ' + movimientos.length + ' de ' + totalMovimientos"></span>
-                    <span class="font-mono font-semibold"
+                    <span class="fido-mono fido-text-bold"
                           :style="sumaMovimientos >= 0 ? 'color: var(--exito)' : 'color: var(--peligro)'"
-                          x-text="'Σ ' + formatoImporte(sumaMovimientos)"></span>
+                          x-text="'&#931; ' + formatoImporte(sumaMovimientos)"></span>
                 </div>
-                <div class="flex gap-2">
+                <div class="fido-paginacion__botones">
                     <button @click="filtros.offset = Math.max(0, filtros.offset - 50); cargarMovimientos()"
                             :disabled="filtros.offset === 0"
-                            class="hogar-boton hogar-boton--secundario disabled:opacity-30">Anterior</button>
+                            class="hogar-boton hogar-boton--secundario">Anterior</button>
                     <button @click="filtros.offset += 50; cargarMovimientos()"
                             :disabled="filtros.offset + 50 >= totalMovimientos"
-                            class="hogar-boton hogar-boton--secundario disabled:opacity-30">Siguiente</button>
+                            class="hogar-boton hogar-boton--secundario">Siguiente</button>
                 </div>
             </div>
         </div>
 
         <!-- ===== IMPORTAR ===== -->
         <div x-show="pestana === 'importar'" x-cloak>
-            <div class="hogar-tarjeta max-w-xl">
-                <h2 class="text-lg font-semibold mb-4" style="font-family: var(--fuente-titular);">Importar extracto bancario</h2>
-                <div class="space-y-4">
+            <div class="hogar-tarjeta fido-importar-card">
+                <h2 class="fido-titulo">Importar extracto bancario</h2>
+                <div class="fido-form-stack">
                     <div>
-                        <label class="block text-sm font-medium mb-1">Fichero CSV / TSV</label>
+                        <label class="fido-label">Fichero CSV / TSV</label>
                         <input type="file" id="ficheroCSV" accept=".csv,.tsv,.txt"
-                               class="w-full px-3 py-2 text-sm"
-                               style="background: var(--surface-container); border: none; border-radius: var(--radio-md); color: var(--on-surface);">
+                               class="fido-input fido-input--form">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-1">Cuenta destino</label>
+                        <label class="fido-label">Cuenta destino</label>
                         <select x-model="importarCuentaId"
-                                class="w-full px-3 py-2 text-sm outline-none"
-                                style="background: var(--surface-container); border: none; border-radius: var(--radio-md); color: var(--on-surface);">
+                                class="fido-input fido-input--form">
                             <option value="">Seleccionar cuenta...</option>
                             <template x-for="c in cuentas" :key="c.id">
                                 <option :value="c.id" x-text="c.nombre"></option>
@@ -376,38 +335,37 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium mb-1">Banco</label>
+                        <label class="fido-label">Banco</label>
                         <select x-model="importarBanco"
-                                class="w-full px-3 py-2 text-sm outline-none"
-                                style="background: var(--surface-container); border: none; border-radius: var(--radio-md); color: var(--on-surface);">
+                                class="fido-input fido-input--form">
                             <option value="santander">Santander</option>
                             <option value="caixabank">CaixaBank</option>
                             <option value="revolut">Revolut</option>
                         </select>
                     </div>
-                    <div class="flex gap-3">
+                    <div class="fido-filtros">
                         <button @click="importarCSV()" :disabled="importando" class="hogar-boton hogar-boton--primario">
                             <span x-show="!importando">Importar</span>
                             <span x-show="importando">Importando...</span>
                         </button>
                         <button @click="recategorizar()" class="hogar-boton hogar-boton--secundario"
-                                title="Aplica las reglas de categorización a movimientos sin categoría">
+                                title="Aplica las reglas de categorizacion a movimientos sin categoria">
                             Recategorizar
                         </button>
                     </div>
                 </div>
 
                 <!-- Resultado -->
-                <div x-show="resultadoImportacion" class="mt-6 pt-4" style="border-top: 1px solid var(--surface-container);">
-                    <h3 class="font-semibold mb-2" style="font-family: var(--fuente-titular);">Resultado</h3>
-                    <div class="flex gap-4 text-sm mb-3">
+                <div x-show="resultadoImportacion" class="fido-resultado">
+                    <h3 class="fido-subtitulo">Resultado</h3>
+                    <div class="fido-resultado__stats">
                         <span style="color: var(--exito);">Importados: <strong x-text="resultadoImportacion?.importados"></strong></span>
                         <span style="color: var(--aviso);">Duplicados: <strong x-text="resultadoImportacion?.duplicados"></strong></span>
                         <span style="color: var(--peligro);">Errores: <strong x-text="resultadoImportacion?.errores"></strong></span>
                     </div>
-                    <div class="max-h-60 overflow-y-auto text-xs scroll-fino">
+                    <div class="fido-resultado__detalles scroll-fino">
                         <template x-for="(d, i) in (resultadoImportacion?.detalles || [])" :key="i">
-                            <div class="py-1" style="border-bottom: 1px solid var(--surface-container);"
+                            <div class="fido-resultado__linea"
                                  :style="{
                                      'color: var(--exito)': d.estado === 'importado',
                                      'color: var(--aviso)': d.estado === 'duplicado',
@@ -424,36 +382,36 @@
             </div>
         </div>
 
-        <!-- ===== CATEGORÍAS ===== -->
+        <!-- ===== CATEGORIAS ===== -->
         <div x-show="pestana === 'categorias'" x-cloak>
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-semibold" style="font-family: var(--fuente-titular);">Categorias</h2>
+            <div class="fido-cabecera-seccion">
+                <h2 class="fido-titulo">Categorias</h2>
                 <button @click="crearCategoriaPadre()" class="hogar-boton hogar-boton--primario">
                     <span class="material-symbols-outlined" style="font-size:1rem">add</span> Nueva categoria
                 </button>
             </div>
-            <div class="space-y-3">
+            <div class="fido-form-stack">
                 <template x-for="cat in categorias" :key="cat.id">
                     <div class="hogar-tarjeta" style="padding: 0; overflow: hidden;">
-                        <div class="flex items-center justify-between px-5 py-3" style="border-bottom: 1px solid var(--surface-container);">
-                            <span class="font-semibold" style="font-family: var(--fuente-titular);">
+                        <div class="fido-cat-cabecera">
+                            <span class="fido-subtitulo">
                                 <span x-text="cat.icono"></span>
                                 <span x-text="cat.nombre"></span>
-                                <span class="text-xs ml-2" style="color: var(--on-surface-variant);" x-text="'(' + cat.hijas.length + ')'"></span>
+                                <span class="fido-text-muted fido-text-xs" x-text="'(' + cat.hijas.length + ')'"></span>
                             </span>
-                            <div class="flex gap-3">
+                            <div class="fido-filtros">
                                 <button @click="crearSubcategoria(cat.id)"
-                                        class="text-xs font-semibold" style="color: var(--primary); background: none; border: none; cursor: pointer;">+ Subcategoria</button>
+                                        class="fido-btn-texto fido-btn-texto--primary">+ Subcategoria</button>
                                 <button @click="borrarCategoria(cat.id)"
-                                        class="text-xs font-semibold" style="color: var(--peligro); background: none; border: none; cursor: pointer;">Borrar</button>
+                                        class="fido-btn-texto fido-btn-texto--peligro">Borrar</button>
                             </div>
                         </div>
-                        <div class="px-5 py-2">
+                        <div class="fido-cat-hijas">
                             <template x-for="hija in cat.hijas" :key="hija.id">
-                                <div class="flex justify-between items-center py-1 text-sm" style="color: var(--on-surface-variant);">
-                                    <span x-text="'  └ ' + hija.nombre"></span>
+                                <div class="fido-cat-hija">
+                                    <span x-text="'  &#9492; ' + hija.nombre"></span>
                                     <button @click="borrarCategoria(hija.id)"
-                                            class="text-xs" style="color: var(--peligro); opacity: 0.6; background: none; border: none; cursor: pointer;">×</button>
+                                            class="fido-btn-texto fido-btn-texto--peligro" style="opacity: 0.6;">&times;</button>
                                 </div>
                             </template>
                         </div>
@@ -464,17 +422,15 @@
 
         <!-- ===== REGLAS ===== -->
         <div x-show="pestana === 'reglas'" x-cloak>
-            <h2 class="text-lg font-semibold mb-4" style="font-family: var(--fuente-titular);">Reglas de categorizacion</h2>
+            <h2 class="fido-titulo">Reglas de categorizacion</h2>
 
             <!-- Formulario nueva regla -->
-            <div class="hogar-tarjeta mb-4">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+            <div class="hogar-tarjeta fido-regla-form">
+                <div class="fido-regla-grid">
                     <input type="text" x-model="nuevaRegla.patron" placeholder="Patron (ej: mercadona)"
-                           class="px-3 py-2 text-sm outline-none"
-                           style="background: var(--surface-container); border: none; border-radius: var(--radio-md); color: var(--on-surface);">
+                           class="fido-input fido-input--form">
                     <select x-model="nuevaRegla.categoria_id"
-                            class="px-3 py-2 text-sm outline-none"
-                            style="background: var(--surface-container); border: none; border-radius: var(--radio-md); color: var(--on-surface);">
+                            class="fido-input fido-input--form">
                         <option value="">Categoria...</option>
                         <template x-for="grupo in categoriasAgrupadas()" :key="grupo.id">
                             <optgroup :label="(grupo.icono || '') + ' ' + grupo.nombre">
@@ -485,8 +441,7 @@
                         </template>
                     </select>
                     <input type="number" x-model="nuevaRegla.prioridad" placeholder="Prioridad"
-                           class="px-3 py-2 text-sm outline-none"
-                           style="background: var(--surface-container); border: none; border-radius: var(--radio-md); color: var(--on-surface);">
+                           class="fido-input fido-input--form">
                     <button @click="guardarRegla()" class="hogar-boton hogar-boton--primario">Anadir</button>
                 </div>
             </div>
@@ -498,18 +453,18 @@
                         <tr>
                             <th>Patron</th>
                             <th>Categoria</th>
-                            <th class="text-center">Prioridad</th>
-                            <th class="text-center">Acciones</th>
+                            <th class="fido-text-center">Prioridad</th>
+                            <th class="fido-text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         <template x-for="r in reglas" :key="r.id">
                             <tr>
-                                <td class="font-mono" x-text="r.patron"></td>
-                                <td class="text-xs" style="color: var(--on-surface-variant);" x-text="(r.nombre_categoria || '') + ' > ' + (r.nombre_subcategoria || '')"></td>
-                                <td class="text-center" x-text="r.prioridad"></td>
-                                <td class="text-center">
-                                    <button @click="borrarRegla(r.id)" style="color: var(--peligro); background: none; border: none; cursor: pointer;">
+                                <td class="fido-mono" x-text="r.patron"></td>
+                                <td class="fido-text-muted fido-text-xs" x-text="(r.nombre_categoria || '') + ' > ' + (r.nombre_subcategoria || '')"></td>
+                                <td class="fido-text-center" x-text="r.prioridad"></td>
+                                <td class="fido-text-center">
+                                    <button @click="borrarRegla(r.id)" class="fido-btn-icono fido-btn-icono--peligro">
                                         <span class="material-symbols-outlined" style="font-size:1.1rem">delete</span>
                                     </button>
                                 </td>
@@ -522,140 +477,129 @@
 
         <!-- ===== AJUSTES ===== -->
         <div x-show="pestana === 'ajustes'" x-cloak>
-            <div class="space-y-6">
+            <div class="fido-form-stack fido-form-stack--lg">
                 <!-- Miembros -->
                 <div class="hogar-tarjeta">
-                    <h3 class="font-semibold mb-3" style="font-family: var(--fuente-titular);">Miembros de la familia</h3>
-                    <div class="space-y-2 mb-3">
+                    <h3 class="fido-subtitulo">Miembros de la familia</h3>
+                    <div class="fido-lista">
                         <template x-for="m in miembros" :key="m.id">
-                            <div class="flex justify-between items-center py-1 text-sm" style="border-bottom: 1px solid var(--surface-container);">
+                            <div class="fido-lista__item">
                                 <span><strong x-text="m.nombre"></strong>
-                                    <span x-show="m.telegram_chat_id" class="text-xs" style="color: var(--on-surface-variant);" x-text="'(Telegram: ' + m.telegram_chat_id + ')'"></span>
+                                    <span x-show="m.telegram_chat_id" class="fido-text-muted fido-text-xs" x-text="'(Telegram: ' + m.telegram_chat_id + ')'"></span>
                                 </span>
                             </div>
                         </template>
                     </div>
-                    <div class="flex gap-2">
+                    <div class="fido-filtros">
                         <input type="text" x-model="nuevoMiembro.nombre" placeholder="Nombre"
-                               class="px-3 py-1 text-sm flex-1 outline-none"
-                               style="background: var(--surface-container); border: none; border-radius: var(--radio-md); color: var(--on-surface);">
+                               class="fido-input fido-input--form fido-input--flex">
                         <input type="text" x-model="nuevoMiembro.telegram_chat_id" placeholder="Chat ID Telegram"
-                               class="px-3 py-1 text-sm flex-1 outline-none"
-                               style="background: var(--surface-container); border: none; border-radius: var(--radio-md); color: var(--on-surface);">
-                        <button @click="guardarMiembro()" class="hogar-boton hogar-boton--primario" style="padding: 0.4rem 1rem;">Anadir</button>
+                               class="fido-input fido-input--form fido-input--flex">
+                        <button @click="guardarMiembro()" class="hogar-boton hogar-boton--primario fido-boton--sm">Anadir</button>
                     </div>
                 </div>
 
                 <!-- Cuentas -->
                 <div class="hogar-tarjeta">
-                    <h3 class="font-semibold mb-3" style="font-family: var(--fuente-titular);">Cuentas bancarias</h3>
-                    <div class="space-y-2 mb-3">
+                    <h3 class="fido-subtitulo">Cuentas bancarias</h3>
+                    <div class="fido-lista">
                         <template x-for="c in cuentas" :key="c.id">
                             <div>
                                 <!-- Vista normal -->
                                 <div x-show="!editandoCuenta || editandoCuenta.id !== c.id"
-                                     class="flex justify-between items-center py-1 text-sm" style="border-bottom: 1px solid var(--surface-container);">
+                                     class="fido-lista__item">
                                     <span>
                                         <strong x-text="c.nombre"></strong>
-                                        <span x-show="c.banco" class="text-xs" style="color: var(--on-surface-variant);" x-text="'(' + c.banco + ')'"></span>
+                                        <span x-show="c.banco" class="fido-text-muted fido-text-xs" x-text="'(' + c.banco + ')'"></span>
                                         <span x-show="c.es_compartida" class="hogar-badge" style="background: var(--aviso-fondo); color: var(--aviso); font-size: 0.6rem;">compartida</span>
                                     </span>
-                                    <span class="flex gap-1">
-                                        <button @click="editarCuenta(c)" class="text-xs px-1" style="color: var(--primary); background: none; border: none; cursor: pointer;">Editar</button>
-                                        <button @click="borrarCuenta(c)" class="text-xs px-1" style="color: var(--peligro); opacity: 0.6; background: none; border: none; cursor: pointer;">Borrar</button>
+                                    <span class="fido-filtros" style="gap: var(--gap-xs);">
+                                        <button @click="editarCuenta(c)" class="fido-btn-texto fido-btn-texto--primary">Editar</button>
+                                        <button @click="borrarCuenta(c)" class="fido-btn-texto fido-btn-texto--peligro" style="opacity:0.6;">Borrar</button>
                                     </span>
                                 </div>
-                                <!-- Formulario edición inline -->
-                                <div x-show="editandoCuenta && editandoCuenta.id === c.id" class="py-2" style="border-bottom: 1px solid var(--surface-container);">
-                                    <div class="grid grid-cols-2 md:grid-cols-6 gap-2 text-sm">
+                                <!-- Formulario edicion inline -->
+                                <div x-show="editandoCuenta && editandoCuenta.id === c.id" class="fido-cuenta-edicion">
+                                    <div class="fido-cuenta-edicion__grid">
                                         <input type="text" x-model="editandoCuenta.nombre" placeholder="Nombre"
-                                               class="px-2 py-1 outline-none"
-                                               style="background: var(--surface-container); border: none; border-radius: var(--radio-sm); color: var(--on-surface);">
+                                               class="fido-input fido-input--form fido-input--sm">
                                         <select x-model="editandoCuenta.banco"
-                                                class="px-2 py-1 outline-none"
-                                                style="background: var(--surface-container); border: none; border-radius: var(--radio-sm); color: var(--on-surface);">
+                                                class="fido-input fido-input--form fido-input--sm">
                                             <option value="">Banco...</option>
                                             <option value="santander">Santander</option>
                                             <option value="caixabank">CaixaBank</option>
                                             <option value="revolut">Revolut</option>
                                         </select>
                                         <select x-model="editandoCuenta.miembro_id"
-                                                class="px-2 py-1 outline-none"
-                                                style="background: var(--surface-container); border: none; border-radius: var(--radio-sm); color: var(--on-surface);">
+                                                class="fido-input fido-input--form fido-input--sm">
                                             <option value="">Titular...</option>
                                             <template x-for="m in miembros" :key="m.id">
                                                 <option :value="m.id" x-text="m.nombre"></option>
                                             </template>
                                         </select>
-                                        <label class="flex items-center gap-1">
+                                        <label class="fido-checkbox-label">
                                             <input type="checkbox" x-model="editandoCuenta.es_compartida"> Compartida
                                         </label>
-                                        <button @click="actualizarCuenta()" class="hogar-boton hogar-boton--primario" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;">Guardar</button>
-                                        <button @click="cancelarEdicionCuenta()" class="hogar-boton hogar-boton--secundario" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;">Cancelar</button>
+                                        <button @click="actualizarCuenta()" class="hogar-boton hogar-boton--primario fido-boton--xs">Guardar</button>
+                                        <button @click="cancelarEdicionCuenta()" class="hogar-boton hogar-boton--secundario fido-boton--xs">Cancelar</button>
                                     </div>
                                 </div>
                             </div>
                         </template>
                     </div>
-                    <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
+                    <div class="fido-cuenta-nueva">
                         <input type="text" x-model="nuevaCuenta.nombre" placeholder="Nombre"
-                               class="px-3 py-1 text-sm outline-none"
-                               style="background: var(--surface-container); border: none; border-radius: var(--radio-md); color: var(--on-surface);">
+                               class="fido-input fido-input--form">
                         <select x-model="nuevaCuenta.banco"
-                                class="px-3 py-1 text-sm outline-none"
-                                style="background: var(--surface-container); border: none; border-radius: var(--radio-md); color: var(--on-surface);">
+                                class="fido-input fido-input--form">
                             <option value="">Banco...</option>
                             <option value="santander">Santander</option>
                             <option value="caixabank">CaixaBank</option>
                             <option value="revolut">Revolut</option>
                         </select>
                         <select x-model="nuevaCuenta.miembro_id"
-                                class="px-3 py-1 text-sm outline-none"
-                                style="background: var(--surface-container); border: none; border-radius: var(--radio-md); color: var(--on-surface);">
+                                class="fido-input fido-input--form">
                             <option value="">Titular...</option>
                             <template x-for="m in miembros" :key="m.id">
                                 <option :value="m.id" x-text="m.nombre"></option>
                             </template>
                         </select>
-                        <label class="flex items-center gap-1 text-sm">
+                        <label class="fido-checkbox-label">
                             <input type="checkbox" x-model="nuevaCuenta.es_compartida"> Compartida
                         </label>
-                        <button @click="guardarCuenta()" class="hogar-boton hogar-boton--primario" style="padding: 0.4rem 1rem;">Anadir</button>
+                        <button @click="guardarCuenta()" class="hogar-boton hogar-boton--primario fido-boton--sm">Anadir</button>
                     </div>
                 </div>
 
                 <!-- Mapeo de tarjetas -->
                 <div class="hogar-tarjeta">
-                    <h3 class="font-semibold mb-3" style="font-family: var(--fuente-titular);">Mapeo de tarjetas</h3>
-                    <p class="text-xs mb-3" style="color: var(--on-surface-variant);">Asocia los ultimos 4 digitos de cada tarjeta a una cuenta (para la app Wallet Listener)</p>
-                    <div class="space-y-2 mb-3">
+                    <h3 class="fido-subtitulo">Mapeo de tarjetas</h3>
+                    <p class="fido-text-muted fido-text-xs" style="margin-bottom: var(--gap-md);">Asocia los ultimos 4 digitos de cada tarjeta a una cuenta (para la app Wallet Listener)</p>
+                    <div class="fido-lista">
                         <template x-for="mt in mapeoTarjetas" :key="mt.id">
-                            <div class="flex justify-between items-center py-1 text-sm" style="border-bottom: 1px solid var(--surface-container);">
+                            <div class="fido-lista__item">
                                 <span>
                                     <strong x-text="'*' + mt.ultimos4"></strong>
-                                    → <span x-text="mt.nombre_cuenta"></span>
-                                    <span x-show="mt.etiqueta" class="text-xs" style="color: var(--on-surface-variant);" x-text="'(' + mt.etiqueta + ')'"></span>
+                                    &rarr; <span x-text="mt.nombre_cuenta"></span>
+                                    <span x-show="mt.etiqueta" class="fido-text-muted fido-text-xs" x-text="'(' + mt.etiqueta + ')'"></span>
                                 </span>
                             </div>
                         </template>
                     </div>
-                    <div class="flex gap-2">
+                    <div class="fido-filtros">
                         <input type="text" x-model="nuevoMapeo.ultimos4" placeholder="Ultimos 4 digitos"
                                maxlength="6"
-                               class="px-3 py-1 text-sm w-32 outline-none"
-                               style="background: var(--surface-container); border: none; border-radius: var(--radio-md); color: var(--on-surface);">
+                               class="fido-input fido-input--form" style="width: 8rem;">
                         <select x-model="nuevoMapeo.cuenta_id"
-                                class="px-3 py-1 text-sm flex-1 outline-none"
-                                style="background: var(--surface-container); border: none; border-radius: var(--radio-md); color: var(--on-surface);">
+                                class="fido-input fido-input--form fido-input--flex">
                             <option value="">Cuenta...</option>
                             <template x-for="c in cuentas" :key="c.id">
                                 <option :value="c.id" x-text="c.nombre"></option>
                             </template>
                         </select>
                         <input type="text" x-model="nuevoMapeo.etiqueta" placeholder="Etiqueta"
-                               class="px-3 py-1 text-sm flex-1 outline-none"
-                               style="background: var(--surface-container); border: none; border-radius: var(--radio-md); color: var(--on-surface);">
-                        <button @click="guardarMapeo()" class="hogar-boton hogar-boton--primario" style="padding: 0.4rem 1rem;">Anadir</button>
+                               class="fido-input fido-input--form fido-input--flex">
+                        <button @click="guardarMapeo()" class="hogar-boton hogar-boton--primario fido-boton--sm">Anadir</button>
                     </div>
                 </div>
             </div>
@@ -663,57 +607,57 @@
 
         <!-- ===== CRYPTO ===== -->
         <div x-show="pestana === 'crypto'" x-cloak>
-            <div x-show="cargandoCrypto" class="text-center py-8 text-gray-400">⏳ Cargando datos crypto...</div>
-            <div x-show="errorCrypto" class="bg-red-50 border border-red-200 rounded-xl p-4 mb-4 text-red-700 text-sm" x-text="errorCrypto"></div>
+            <div x-show="cargandoCrypto" class="fido-vacio">&#9203; Cargando datos crypto...</div>
+            <div x-show="errorCrypto" class="hogar-alerta hogar-alerta--error" x-text="errorCrypto"></div>
             <div x-show="!cargandoCrypto">
 
                 <!-- Portfolio -->
-                <div class="bg-white rounded-xl shadow overflow-x-auto mb-6">
-                    <table class="w-full text-sm">
-                        <thead class="bg-gray-50 border-b">
+                <div class="hogar-tabla-wrap scroll-fino" style="overflow-x: auto; margin-bottom: var(--gap-xl);">
+                    <table class="hogar-tabla">
+                        <thead>
                             <tr>
-                                <th class="text-left px-4 py-3"></th>
-                                <th class="text-left px-4 py-3">Símbolo</th>
-                                <th class="text-right px-4 py-3">Inv. €</th>
-                                <th class="text-right px-4 py-3">Valor €</th>
-                                <th class="text-right px-4 py-3">%</th>
+                                <th></th>
+                                <th>Simbolo</th>
+                                <th class="fido-text-right">Inv. &euro;</th>
+                                <th class="fido-text-right">Valor &euro;</th>
+                                <th class="fido-text-right">%</th>
                             </tr>
                         </thead>
                         <tbody>
                             <template x-for="c in portafolioCrypto" :key="c.simbolo">
-                                <tr class="border-b hover:bg-gray-50">
-                                    <td class="px-4 py-2" x-text="emojiCrypto(c.simbolo)"></td>
-                                    <td class="px-4 py-2 font-medium" x-text="c.simbolo"></td>
-                                    <td class="px-4 py-2 text-right font-mono" x-text="fmtNum(c.coste_total_inversion)"></td>
-                                    <td class="px-4 py-2 text-right font-mono" x-text="fmtNum(c.valor_actual_inversion)"></td>
-                                    <td class="px-4 py-2 text-right font-mono font-semibold"
-                                        :class="c.rentabilidad_porcentaje >= 0 ? 'text-green-600' : 'text-red-600'"
-                                        x-text="(c.rentabilidad_porcentaje >= 0 ? '▲' : '▼') + Math.abs(c.rentabilidad_porcentaje).toFixed(1) + '%'"></td>
+                                <tr>
+                                    <td x-text="emojiCrypto(c.simbolo)"></td>
+                                    <td class="fido-text-bold" x-text="c.simbolo"></td>
+                                    <td class="fido-text-right fido-mono" x-text="fmtNum(c.coste_total_inversion)"></td>
+                                    <td class="fido-text-right fido-mono" x-text="fmtNum(c.valor_actual_inversion)"></td>
+                                    <td class="fido-text-right fido-mono fido-text-bold"
+                                        :style="c.rentabilidad_porcentaje >= 0 ? 'color: var(--exito)' : 'color: var(--peligro)'"
+                                        x-text="(c.rentabilidad_porcentaje >= 0 ? '&#9650;' : '&#9660;') + Math.abs(c.rentabilidad_porcentaje).toFixed(1) + '%'"></td>
                                 </tr>
                             </template>
                             <tr x-show="portafolioCrypto.length === 0">
-                                <td colspan="5" class="text-center py-8 text-gray-400">Sin datos</td>
+                                <td colspan="5" class="fido-vacio">Sin datos</td>
                             </tr>
                         </tbody>
-                        <tfoot x-show="portafolioCrypto.length > 0" class="border-t bg-gray-50">
+                        <tfoot x-show="portafolioCrypto.length > 0">
                             <tr>
-                                <td colspan="2" class="px-4 py-2 font-semibold">Total</td>
-                                <td class="px-4 py-2 text-right font-mono font-semibold" x-text="fmtNum(totalCryptoInvertido())"></td>
-                                <td class="px-4 py-2 text-right font-mono font-semibold" x-text="fmtNum(totalCryptoValor())"></td>
-                                <td class="px-4 py-2 text-right font-mono font-bold"
-                                    :class="totalCryptoPct() >= 0 ? 'text-green-600' : 'text-red-600'"
-                                    x-text="(totalCryptoPct() >= 0 ? '▲' : '▼') + Math.abs(totalCryptoPct()).toFixed(1) + '%'"></td>
+                                <td colspan="2" class="fido-text-bold">Total</td>
+                                <td class="fido-text-right fido-mono fido-text-bold" x-text="fmtNum(totalCryptoInvertido())"></td>
+                                <td class="fido-text-right fido-mono fido-text-bold" x-text="fmtNum(totalCryptoValor())"></td>
+                                <td class="fido-text-right fido-mono fido-text-bold"
+                                    :style="totalCryptoPct() >= 0 ? 'color: var(--exito)' : 'color: var(--peligro)'"
+                                    x-text="(totalCryptoPct() >= 0 ? '&#9650;' : '&#9660;') + Math.abs(totalCryptoPct()).toFixed(1) + '%'"></td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
 
-                <!-- Gráfica comparativa 24h -->
-                <div class="bg-white rounded-xl shadow p-4">
-                    <h3 class="font-semibold mb-3">Comparativa 24h</h3>
+                <!-- Grafica comparativa 24h -->
+                <div class="hogar-tarjeta">
+                    <h3 class="fido-subtitulo">Comparativa 24h</h3>
                     <img x-show="grafica24" :src="'data:image/png;base64,' + grafica24"
-                         alt="Comparativa 24h" class="w-full h-auto rounded">
-                    <p x-show="!grafica24" class="text-gray-400 text-center py-8">Sin datos de gráfica</p>
+                         alt="Comparativa 24h" class="fido-crypto-img">
+                    <p x-show="!grafica24" class="fido-vacio">Sin datos de grafica</p>
                 </div>
             </div>
         </div>
@@ -721,7 +665,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="text-center text-xs py-6 mt-8" style="color: var(--on-surface-variant); font-family: var(--fuente-cuerpo);">
+    <footer class="fido-footer">
         FiDo v1.0.0 — Finanzas Domesticas
     </footer>
 
