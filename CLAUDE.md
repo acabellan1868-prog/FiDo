@@ -1,112 +1,68 @@
 # CLAUDE.md — FiDo
 
 ## Qué es
+Gestor de finanzas domésticas. Importa extractos bancarios, categoriza movimientos, muestra resúmenes por cuenta y miembro.
 
-**FiDo** (Finanzas Domésticas) es el gestor de finanzas del ecosistema hogarOS.
-Importa extractos bancarios, categoriza movimientos y muestra resúmenes por cuenta y miembro.
+- **Repo:** acabellan1868-prog/FiDo
+- **Local:** `Desarrollo/FiDo/`
+- **Servidor:** `/mnt/datos/fido-build/` (build context), `/mnt/datos/fido/fido.db` (datos)
+- **Proxy:** `/finanzas/` → `fido:8080`
 
-- **GitHub:** acabellan1868-prog/FiDo
-- **Ruta local:** `E:\Documentos\Desarrollo\claude\FiDo\`
-- **En el servidor:** `/mnt/datos/fido-build/` (git clone, build context Docker)
-- **Datos persistentes:** `/mnt/datos/fido/fido.db`
-
----
-
-## Estructura del repo
+## Estructura
 
 ```
 FiDo/
 ├── app/
-│   ├── principal.py            → Punto de entrada FastAPI
-│   ├── bd.py                   → Acceso a SQLite (fido.db)
-│   ├── esquema.sql             → DDL de la base de datos
-│   ├── modelos.py              → Modelos Pydantic
-│   ├── datos_iniciales.py      → Seed de categorías y cuentas
+│   ├── principal.py
+│   ├── bd.py
+│   ├── esquema.sql
+│   ├── modelos.py
+│   ├── datos_iniciales.py
 │   ├── parsers/
-│   │   ├── base.py             → Clase base Parser
-│   │   ├── caixabank.py        → Parser extractos CaixaBank (CSV, cabeceras flexibles)
-│   │   ├── revolut.py          → Parser extractos Revolut (CSV)
-│   │   └── santander.py        → Parser extractos Santander (CSV)
+│   │   ├── base.py
+│   │   ├── caixabank.py        ← cabeceras flexibles, detección automática
+│   │   ├── revolut.py
+│   │   └── santander.py
 │   ├── rutas/
-│   │   ├── movimientos.py      → CRUD movimientos
-│   │   ├── categorias.py       → CRUD categorías
-│   │   ├── cuentas.py          → CRUD cuentas
-│   │   ├── miembros.py         → CRUD miembros del hogar
-│   │   ├── importar.py         → POST /importar — sube y parsea extracto
-│   │   ├── reglas.py           → Reglas de auto-categorización
-│   │   ├── sincronizar.py      → Sincronización de datos
-│   │   ├── mapeo_tarjetas.py   → Mapeo tarjeta → cuenta
-│   │   ├── panel.py            → Datos para el dashboard
-│   │   └── resumen.py          → Resúmenes y estadísticas
+│   │   ├── movimientos.py
+│   │   ├── categorias.py
+│   │   ├── cuentas.py
+│   │   ├── miembros.py
+│   │   ├── importar.py
+│   │   ├── reglas.py
+│   │   ├── sincronizar.py
+│   │   ├── mapeo_tarjetas.py
+│   │   ├── panel.py
+│   │   └── resumen.py
 │   └── servicios/
-│       ├── categorizador.py    → Lógica de categorización automática
-│       └── deduplicador.py     → Deduplicación de movimientos al importar
+│       ├── categorizador.py
+│       └── deduplicador.py
 ├── static/
-│   ├── index.html              → Frontend SPA
-│   ├── app.js                  → Lógica principal del frontend
-│   ├── api.js                  → Capa de acceso a la API
-│   └── estilos.css             → CSS propio de FiDo (prefijo fido-, usa variables de hogar.css)
-├── data/
-│   └── .gitkeep
-├── Dockerfile
-├── docker-compose.yml          → Solo para desarrollo local
-└── requirements.txt
+│   ├── index.html
+│   ├── app.js
+│   ├── api.js                  ← autodetecta prefijo (/finanzas/ o /)
+│   └── estilos.css             ← prefijo fido-, usa variables de hogar.css
+└── Dockerfile
 ```
 
----
-
-## Integración con hogarOS
-
-FiDo se sirve en `/finanzas/` a través del Nginx de hogarOS.
-
-**Puerto:** 8080 (interno Docker, nombre de contenedor `fido`)
-
-### CSS — Design system
-
-FiDo usa el design system Living Sanctuary (`hogar.css`) igual que ReDo y MediDo.
-Nginx sirve `hogar.css` desde `portal/static/` vía `location /finanzas/static/`.
-
-- `hogar.css` — variables, tipografía, header, drawer, tarjetas, tablas, botones, badges, alertas
-- `estilos.css` — clases propias con prefijo `fido-` (inputs, layouts, modal, paginación, etc.)
-- **Sin Tailwind** — eliminado en 2026-03-29
-
----
-
-## API principal
+## API
 
 | Método | Ruta | Descripción |
-|---|---|---|
-| GET | `/movimientos` | Lista movimientos con filtros |
-| POST | `/importar` | Sube extracto bancario (CSV) |
-| GET/POST | `/categorias` | CRUD categorías |
-| GET/POST | `/cuentas` | CRUD cuentas bancarias |
-| GET | `/panel` | Datos del dashboard |
-| GET | `/resumen` | Resúmenes y estadísticas |
-| GET/POST | `/reglas` | Reglas de auto-categorización |
-
----
-
-## Bancos soportados (parsers)
-
-| Banco | Formato | Notas |
-|---|---|---|
-| CaixaBank | CSV | Cabeceras flexibles, detección automática |
-| Revolut | CSV | Formato estándar Revolut |
-| Santander | CSV | Formato estándar Santander |
-
----
+|--------|------|-------------|
+| GET | `/movimientos` | Lista con filtros |
+| POST | `/importar` | Sube extracto CSV |
+| GET/POST | `/categorias` | CRUD |
+| GET/POST | `/cuentas` | CRUD |
+| GET | `/panel` | Dashboard |
+| GET | `/resumen` | Estadísticas |
+| GET/POST | `/reglas` | Auto-categorización |
 
 ## Variables de entorno
 
 | Variable | Descripción |
-|---|---|
-| `FIDO_DB_PATH` | Ruta a la BD SQLite (por defecto `data/fido.db`) |
-| `TZ` | Zona horaria (Europe/Madrid) |
+|----------|-------------|
+| `FIDO_DB_PATH` | Ruta BD SQLite (defecto `data/fido.db`) |
+| `TZ` | Zona horaria (`Europe/Madrid`) |
 
----
-
-## Convenciones de código
-
-- Todo en español: variables, funciones, clases, comentarios
-- Backend: Python + FastAPI + SQLite
-- Frontend: HTML/CSS/JS vanilla, sin frameworks ni bundlers
+## hogar.css
+Nginx reescribe `/static/` → `/finanzas/static/` y lo sirve desde `portal/static/` de hogarOS. FiDo no sirve `hogar.css` por sí mismo.
