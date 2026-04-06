@@ -49,13 +49,20 @@ FiDo/
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| GET | `/movimientos` | Lista con filtros |
+| GET | `/movimientos` | Lista con filtros (`mes`, `cuenta_id`, `categoria_id`, `tipo`, `estado`, `buscar`) |
+| GET | `/movimientos/total` | Cuenta y suma de importes (para paginación) |
+| GET/PUT/DELETE | `/movimientos/{id}` | Obtener, editar o borrar un movimiento |
+| PUT | `/movimientos/{id}/estado` | Cambiar estado: `ok` \| `revisar` |
+| POST | `/movimientos/recategorizar` | Recategoriza los movimientos sin categoría |
 | POST | `/importar` | Sube extracto CSV |
-| GET/POST | `/categorias` | CRUD |
-| GET/POST | `/cuentas` | CRUD |
+| GET/POST | `/categorias` | CRUD de categorías |
+| GET/POST | `/cuentas` | CRUD de cuentas |
+| GET/POST/DELETE | `/mapeo_tarjetas` | Mapeo últimos 4 dígitos → cuenta |
 | GET | `/panel` | Dashboard |
-| GET | `/resumen` | Estadísticas |
-| GET/POST | `/reglas` | Auto-categorización |
+| GET | `/resumen` | Estadísticas por categoría y cuenta |
+| GET/POST | `/reglas` | Auto-categorización por palabras clave |
+| GET | `/sincronizar/ping` | Health-check (sondeo de disponibilidad) para la app Android |
+| POST | `/sincronizar/movimientos` | Recibe lote de movimientos desde app Android |
 
 ## Variables de entorno
 

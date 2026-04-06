@@ -26,7 +26,9 @@ entradas que necesitan revisión humana antes de darse por buenas.
 
 **Frontend:**
 - Filtro "Por revisar / Confirmados / Todos" en la barra de filtros
-- Icono ⚠ naranja en cada fila con estado `revisar`, clicable para confirmar
+- Icono ⚠ naranja en cada fila con estado `revisar`, clicable para confirmar (marcar como ok)
+- Icono ✓ verde en cada fila con estado `ok`, clicable para marcar como "por revisar"
+- Modal de edición/creación: campo "Estado" con selector Confirmado / Por revisar
 - Badge `ntfy` con color diferenciado (azul secundario) en la columna origen
 
 ---
