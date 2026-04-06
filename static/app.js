@@ -398,6 +398,17 @@ function fidoApp() {
             }
         },
 
+        async borrarMapeo(id) {
+            if (!confirm('¿Eliminar este mapeo de tarjeta?')) return;
+            try {
+                await API.borrar(`/mapeo-tarjetas/${id}`);
+                this.mostrarOk('Mapeo eliminado');
+                await this.cargarAjustes();
+            } catch (e) {
+                this.mostrarError('Error: ' + e.message);
+            }
+        },
+
         async guardarMapeo() {
             try {
                 await API.crear('/mapeo-tarjetas', {

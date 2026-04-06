@@ -583,6 +583,9 @@
                                     &rarr; <span x-text="mt.nombre_cuenta"></span>
                                     <span x-show="mt.etiqueta" class="fido-text-muted fido-text-xs" x-text="'(' + mt.etiqueta + ')'"></span>
                                 </span>
+                                <button @click="borrarMapeo(mt.id)"
+                                        class="hogar-boton hogar-boton--peligro fido-boton--xs"
+                                        title="Eliminar mapeo">✕</button>
                             </div>
                         </template>
                     </div>
