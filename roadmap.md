@@ -2,13 +2,14 @@
 
 ## Estado actual
 
-**Fecha:** 2026-03-29
+**Fecha:** 2026-04-07
 
-El proyecto está funcional y desplegado. Se ha completado la migración
-al design system Living Sanctuary (hogar.css), eliminando Tailwind CDN.
-FiDo sigue ahora el mismo patrón visual que ReDo y MediDo.
+El proyecto está funcional y desplegado. La captura automática desde el móvil
+vía NTFY está implementada y funcionando. Pendiente configurar la app de
+automatización Android (Tasker / MacroDroid / Automate) para completar el
+flujo end-to-end con notificaciones bancarias reales.
 
-**Próximo paso:** Mejoras funcionales (resúmenes, exportación, presupuestos).
+**Próximo paso:** Configurar la app de automatización en el móvil y probar con notificaciones reales.
 
 ---
 
@@ -43,7 +44,11 @@ FiDo sigue ahora el mismo patrón visual que ReDo y MediDo.
 
 - [x] Listener NTFY en segundo plano dentro de FiDo (2026-04-06)
 - [x] Migración de BD para soportar origen 'ntfy' (2026-04-06)
-- [ ] Configuración de Tasker en el móvil (perfiles por banco)
+- [x] Campo `estado` (ok | revisar) con asignación automática (2026-04-07)
+- [x] Flujo de revisión en la UI: icono ⚠/✓ en tabla, campo en modal (2026-04-07)
+- [x] Gestión de datos sensibles: `.env` / `.env.example` en todos los proyectos (2026-04-07)
+- [x] Guías de configuración: `docs/macrodroid-ntfy.md` y `docs/tasker-ntfy.md` (2026-04-07)
+- [ ] Configurar app de automatización en el móvil (Tasker / MacroDroid / Automate)
 - [ ] Pruebas end-to-end con notificaciones bancarias reales
 
 ### Fase 5 — Futuro
