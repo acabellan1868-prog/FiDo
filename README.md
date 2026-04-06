@@ -13,8 +13,8 @@ Controlar los gastos e ingresos familiares con **dos prioridades claras**:
 
 | Canal | Tipo | Uso |
 |-------|------|-----|
-| **Wallet Listener** (App Android) | Automático | Captura pagos con tarjeta desde las notificaciones de Google Wallet |
-| **Bot de Telegram** | Manual rápido | Gastos en efectivo y ajustes rápidos desde el móvil |
+| **Tasker + NTFY** | Automático | Captura notificaciones bancarias en el móvil y las envía a FiDo a través de NTFY como intermediario |
+| **Bot de Telegram** | Manual rápido | Gastos en efectivo y ajustes rápidos desde el móvil (previsto) |
 | **Importación CSV** | Periódico | Histórico bancario (Santander, CaixaBank, Revolut) |
 
 La **web** es para consultar, analizar, importar y corregir.
@@ -26,36 +26,35 @@ La **web** es para consultar, analizar, importar y corregir.
 | Backend | Python + FastAPI |
 | Frontend | HTML/JS (Alpine.js + Chart.js) servido por FastAPI (StaticFiles) |
 | Base de datos | SQLite |
-| App Android | Kotlin (NotificationListenerService + Room + WorkManager) |
-| Integración Telegram | Node-RED (polling) + n8n (parseo y respuesta) — externa a FiDo |
-| Despliegue | Docker (1 contenedor) en servidor Debian con Proxmox |
-| Acceso remoto | Tailscale (VPN privada) |
+| Captura desde móvil | Tasker (app Android de automatización) + NTFY como intermediario |
+| Despliegue | Docker (1 contenedor) en VM Proxmox |
 
 ## Funcionalidades principales
 
 - Gestión de cuentas bancarias y miembros de la familia
-- Captura automática de pagos con tarjeta (Google Wallet)
-- Bot de Telegram para entrada rápida de gastos
+- Captura automática de notificaciones bancarias desde el móvil vía NTFY
 - Importación de CSV bancarios con deduplicación inteligente
 - Categorización en dos niveles con reglas automáticas
 - Dashboard con gráficas por categoría, mes, cuenta y miembro
 - Edición y borrado de movimientos desde la web
 
-## Arquitectura de sync (App Android)
+## Arquitectura de captura desde el móvil
 
-La app Android guarda los gastos en local y sincroniza con el servidor cuando detecta conectividad:
+Sin app nativa, sin puertos abiertos, sin VPN permanente:
 
 ```
-¿Ping al servidor FiDo? (WiFi de casa o Tailscale)
-  └─ SÍ → Vuelca todos los gastos pendientes al API
-  └─ NO → Se queda en local, reintenta con el siguiente cambio de red
+Notificación bancaria (en cualquier lugar, con datos móviles)
+  └─ Tasker parsea el texto y extrae importe + comercio
+     └─ POST a NTFY topic privado (configurado en docker-compose.yml)
+        └─ FiDo escucha el topic de forma continua desde la VM
+           └─ Categoriza automáticamente y guarda el movimiento
 ```
 
-Sin puertos abiertos. Sin VPN permanente. Los gastos nunca se pierden.
+Ver guía de configuración de Tasker en [`docs/tasker-ntfy.md`](docs/tasker-ntfy.md).
 
 ## Estado del proyecto
 
-En fase de diseño. El documento de diseño completo está en [`finanzas-familia-resumen.md`](finanzas-familia-resumen.md).
+En producción. Ver [`roadmap.md`](roadmap.md) para el estado de cada fase.
 
 ## Licencia
 

@@ -39,7 +39,14 @@ FiDo sigue ahora el mismo patrón visual que ReDo y MediDo.
 - [x] Migración al design system Living Sanctuary (hogar.css) (2026-03-29)
 - [x] Drawer lateral con navegación entre apps (2026-03-22)
 
-### Fase 4 — Futuro
+### Fase 4 — Captura automática desde el móvil (en curso)
+
+- [x] Listener NTFY en segundo plano dentro de FiDo (2026-04-06)
+- [x] Migración de BD para soportar origen 'ntfy' (2026-04-06)
+- [ ] Configuración de Tasker en el móvil (perfiles por banco)
+- [ ] Pruebas end-to-end con notificaciones bancarias reales
+
+### Fase 5 — Futuro
 
 - [ ] Resúmenes por período y comparativas
 - [ ] Exportación de datos

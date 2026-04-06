@@ -63,6 +63,65 @@ FiDo/
 |----------|-------------|
 | `FIDO_DB_PATH` | Ruta BD SQLite (defecto `data/fido.db`) |
 | `TZ` | Zona horaria (`Europe/Madrid`) |
+| `NTFY_URL` | URL base del servidor NTFY (defecto `https://ntfy.sh`) |
+| `NTFY_TOPIC` | Topic privado para recibir movimientos desde el móvil. Si está vacío, el listener se desactiva. El valor real está en `docker-compose.yml` (no en el repositorio público). |
+| `NTFY_CUENTA_DEFAULT` | ID de cuenta a usar cuando el mensaje NTFY no especifica cuenta ni tarjeta |
+
+## Listener NTFY — captura automática desde el móvil
+
+FiDo incluye un listener que se suscribe a un topic privado de NTFY mediante
+SSE (Server-Sent Events, flujo de eventos del servidor). Cuando Tasker (app
+Android) detecta una notificación bancaria, la parsea y la publica en ese topic.
+FiDo la recibe y la inserta como movimiento automáticamente.
+
+Esto resuelve el problema de conectividad: el móvil no necesita estar en la red
+local. NTFY actúa de intermediario en la nube; FiDo siempre está conectado
+desde la VM.
+
+### Formato del mensaje que envía Tasker
+
+El body del mensaje NTFY debe ser un JSON con estos campos:
+
+```json
+{
+    "importe": -45.50,
+    "descripcion": "Mercadona",
+    "ultimos4": "1234",
+    "fecha": "2026-04-06"
+}
+```
+
+| Campo | Obligatorio | Descripción |
+|-------|-------------|-------------|
+| `importe` | Sí | Negativo = gasto, positivo = ingreso |
+| `descripcion` | No | Nombre del comercio. Defecto: "Sin descripción" |
+| `cuenta_id` | No* | ID directo de la cuenta en FiDo |
+| `ultimos4` | No* | Últimos 4 dígitos de la tarjeta (se busca en mapeo_tarjetas) |
+| `fecha` | No | Formato YYYY-MM-DD. Defecto: hoy |
+| `categoria_id` | No | Si no se envía, se auto-categoriza por las reglas |
+| `notas` | No | Texto libre |
+
+*Al menos uno de `cuenta_id`, `ultimos4` o `NTFY_CUENTA_DEFAULT` debe estar disponible.
+
+### Lógica de resolución de cuenta
+
+1. `cuenta_id` explícito en el mensaje
+2. `ultimos4` → búsqueda en la tabla `mapeo_tarjetas`
+3. Variable de entorno `NTFY_CUENTA_DEFAULT`
+
+### Reconexión automática
+
+Si la conexión con NTFY se pierde, el listener reintenta con espera exponencial
+(5s → 10s → 20s → … → máximo 5 min). Al reconectar, recupera los mensajes de
+las últimas 12 horas para no perder movimientos durante caídas breves.
+
+### Archivo del listener
+
+`app/servicios/ntfy_listener.py`
+
+### Configuración de Tasker (app Android)
+
+Ver la guía completa de configuración de Tasker en `docs/tasker-ntfy.md`.
 
 ## hogar.css
 Nginx reescribe `/static/` → `/finanzas/static/` y lo sirve desde `portal/static/` de hogarOS. FiDo no sirve `hogar.css` por sí mismo.

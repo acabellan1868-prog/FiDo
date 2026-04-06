@@ -4,6 +4,61 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-04-06
+
+### Listener NTFY — captura automática de movimientos desde el móvil
+
+Resuelve el problema de conectividad: el móvil no siempre está en la red local
+y la VM de FiDo no tiene puertos abiertos al exterior ni TailScale permanente.
+NTFY actúa de intermediario en la nube: Tasker publica en un topic privado,
+FiDo escucha ese topic de forma continua y procesa cada mensaje como movimiento.
+
+- **Añadido:** `app/servicios/ntfy_listener.py` — servicio de escucha SSE (Server-Sent
+  Events, flujo de eventos del servidor) contra NTFY. Se ejecuta como tarea asyncio
+  (asíncrona) en segundo plano dentro del proceso de FastAPI. Incluye:
+  - Reconexión automática con espera exponencial (5s → 10s → … → 5 min máximo).
+  - Recuperación de los últimos 12 horas al reconectar (`?since=12h`) para no
+    perder movimientos durante caídas breves.
+  - Resolución de cuenta en tres pasos: `cuenta_id` explícito → `ultimos4` en
+    `mapeo_tarjetas` → `NTFY_CUENTA_DEFAULT`.
+  - Auto-categorización mediante las reglas existentes.
+  - Deduplicación usando el servicio ya existente (evita dobles entradas).
+  - Logging (registro de eventos) detallado en el canal `fido.ntfy`.
+- **Modificado:** `app/principal.py` — inicia y detiene la tarea NTFY en el
+  ciclo de vida (lifespan) de la app. Llama a `migrar_bd()` antes de arrancar.
+- **Modificado:** `app/bd.py` — nueva función `migrar_bd()` que detecta si la BD
+  tiene el esquema antiguo y lo actualiza sin pérdida de datos (renombra la tabla,
+  crea la nueva con el CHECK extendido y copia los registros).
+- **Modificado:** `app/esquema.sql` — añadido `'ntfy'` al CHECK de `movimientos.origen`.
+- **Modificado:** `requirements.txt` — añadida dependencia `httpx==0.27.0` para
+  las peticiones HTTP asíncronas al servidor NTFY.
+- **Modificado:** `CLAUDE.md` — documentadas las nuevas variables de entorno
+  (`NTFY_URL`, `NTFY_TOPIC`, `NTFY_CUENTA_DEFAULT`) y el formato del mensaje JSON
+  que debe enviar Tasker.
+
+**Variables de entorno nuevas:**
+```
+NTFY_URL=https://ntfy.sh          # Servidor NTFY
+NTFY_TOPIC=fido-mov-xxxxxxxx      # Topic privado (nombre largo = seguridad)
+NTFY_CUENTA_DEFAULT=1             # ID de cuenta por defecto (opcional)
+```
+
+**Formato del mensaje que envía Tasker:**
+```json
+{
+    "importe": -45.50,
+    "descripcion": "Mercadona",
+    "ultimos4": "1234",
+    "fecha": "2026-04-06"
+}
+```
+
+- Ficheros añadidos: `app/servicios/ntfy_listener.py`
+- Ficheros modificados: `app/principal.py`, `app/bd.py`, `app/esquema.sql`,
+  `requirements.txt`, `CLAUDE.md`, `roadmap.md`
+
+---
+
 ## 2026-03-29
 
 ### Migración CSS: de Tailwind CDN a design system hogar.css

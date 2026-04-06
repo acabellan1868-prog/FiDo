@@ -10,4 +10,7 @@ services:
     environment:
       - TZ=Europe/Madrid
       - FIDO_DB_PATH=/app/data/fido.db
+      - NTFY_URL=${NTFY_URL:-https://ntfy.sh}
+      - NTFY_TOPIC=${NTFY_TOPIC}
+      - NTFY_CUENTA_DEFAULT=${NTFY_CUENTA_DEFAULT:-1}
     restart: always

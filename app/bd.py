@@ -59,3 +59,54 @@ def ejecutar_varios(sql: str, lista_parametros: list[tuple]) -> None:
     conexion.executemany(sql, lista_parametros)
     conexion.commit()
     conexion.close()
+
+
+def migrar_bd():
+    """Aplica migraciones de esquema sobre BDs existentes.
+
+    Se ejecuta en cada arranque y es idempotente (seguro de llamar varias veces).
+
+    Migraciones incluidas:
+      v1→v2: Añade 'ntfy' al CHECK de movimientos.origen para soportar
+              movimientos recibidos desde NTFY (intermediario de transporte).
+    """
+    conexion = obtener_conexion()
+
+    fila = conexion.execute(
+        "SELECT sql FROM sqlite_master WHERE type='table' AND name='movimientos'"
+    ).fetchone()
+
+    if fila and "'ntfy'" not in fila[0]:
+        # La BD tiene el esquema antiguo sin 'ntfy' — migrar recreando la tabla.
+        # SQLite no permite ALTER COLUMN, así que se renombra, se crea la nueva
+        # y se copian los datos.
+        conexion.executescript("""
+            ALTER TABLE movimientos RENAME TO movimientos_v1;
+
+            CREATE TABLE movimientos (
+                id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+                fecha                TEXT    NOT NULL,
+                fecha_valor          TEXT,
+                importe              REAL    NOT NULL,
+                descripcion          TEXT    NOT NULL,
+                descripcion_original TEXT,
+                categoria_id         INTEGER REFERENCES categorias(id),
+                cuenta_id            INTEGER NOT NULL REFERENCES cuentas(id),
+                origen               TEXT    NOT NULL
+                                     CHECK(origen IN ('telegram','wallet','csv','web','ntfy')),
+                origen_ref           TEXT,
+                huella               TEXT,
+                notas                TEXT,
+                creado_en            TEXT    NOT NULL DEFAULT (datetime('now'))
+            );
+
+            INSERT INTO movimientos SELECT * FROM movimientos_v1;
+            DROP TABLE movimientos_v1;
+
+            CREATE INDEX IF NOT EXISTS idx_movimientos_fecha     ON movimientos(fecha);
+            CREATE INDEX IF NOT EXISTS idx_movimientos_cuenta    ON movimientos(cuenta_id);
+            CREATE INDEX IF NOT EXISTS idx_movimientos_categoria ON movimientos(categoria_id);
+            CREATE INDEX IF NOT EXISTS idx_movimientos_huella    ON movimientos(huella);
+        """)
+
+    conexion.close()

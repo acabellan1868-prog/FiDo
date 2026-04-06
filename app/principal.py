@@ -3,13 +3,15 @@ FiDo — Punto de entrada de la aplicación FastAPI.
 Inicializa la BD, siembra datos iniciales y registra todas las rutas.
 """
 
+import asyncio
 import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from app.bd import inicializar_bd, RUTA_BD
+from app.bd import inicializar_bd, migrar_bd, RUTA_BD
 from app.datos_iniciales import sembrar_si_vacio
+from app.servicios import ntfy_listener
 from app.rutas import (
     miembros, cuentas, categorias, reglas,
     movimientos, mapeo_tarjetas, importar, sincronizar, panel, resumen
@@ -18,15 +20,28 @@ from app.rutas import (
 
 @asynccontextmanager
 async def ciclo_vida(app: FastAPI):
-    """Se ejecuta al arrancar la app: crea BD y siembra datos."""
+    """Se ejecuta al arrancar la app: crea BD, migra esquema, siembra datos
+    e inicia el listener de NTFY en segundo plano."""
     # Asegurar que el directorio de datos existe
     directorio_bd = os.path.dirname(RUTA_BD)
     if directorio_bd:
         os.makedirs(directorio_bd, exist_ok=True)
 
     inicializar_bd()
+    migrar_bd()
     sembrar_si_vacio()
+
+    # Iniciar listener NTFY como tarea en segundo plano (asyncio)
+    tarea_ntfy = asyncio.create_task(ntfy_listener.escuchar())
+
     yield
+
+    # Detener el listener limpiamente al parar la app
+    tarea_ntfy.cancel()
+    try:
+        await tarea_ntfy
+    except asyncio.CancelledError:
+        pass
 
 
 app = FastAPI(
