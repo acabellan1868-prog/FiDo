@@ -33,6 +33,16 @@ entradas que necesitan revisión humana antes de darse por buenas.
 
 ---
 
+### Guía MacroDroid (alternativa gratuita a Tasker)
+
+- Añadida `docs/macrodroid-ntfy.md` — guía completa para capturar notificaciones
+  bancarias con MacroDroid (gratuito, sin plugins). Cubre triggers, extracción
+  de datos con regex, HTTP Request a NTFY y depuración por banco.
+- MacroDroid no requiere plugins de pago; Tasker + AutoNotification costarían ~7€.
+- `docs/tasker-ntfy.md` se mantiene como referencia alternativa.
+
+---
+
 ## 2026-04-06
 
 ### Listener NTFY — captura automática de movimientos desde el móvil

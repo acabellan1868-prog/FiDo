@@ -128,7 +128,8 @@ las últimas 12 horas para no perder movimientos durante caídas breves.
 
 ### Configuración de Tasker (app Android)
 
-Ver la guía completa de configuración de Tasker en `docs/tasker-ntfy.md`.
+Ver la guía completa de configuración en `docs/macrodroid-ntfy.md` (MacroDroid, gratuito).
+La guía original de Tasker sigue disponible en `docs/tasker-ntfy.md`.
 
 ## hogar.css
 Nginx reescribe `/static/` → `/finanzas/static/` y lo sirve desde `portal/static/` de hogarOS. FiDo no sirve `hogar.css` por sí mismo.
