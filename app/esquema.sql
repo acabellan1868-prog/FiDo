@@ -54,6 +54,7 @@ CREATE TABLE IF NOT EXISTS movimientos (
     origen_ref TEXT,
     huella TEXT,
     notas TEXT,
+    estado TEXT NOT NULL DEFAULT 'ok' CHECK(estado IN ('ok', 'revisar')),
     creado_en TEXT NOT NULL DEFAULT (datetime('now'))
 );
 

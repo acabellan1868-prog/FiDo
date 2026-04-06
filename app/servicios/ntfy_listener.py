@@ -113,6 +113,12 @@ def procesar_mensaje(mensaje_body: str) -> dict:
     # Auto-categorización (si no viene ya en el mensaje)
     categoria_id = datos.get("categoria_id") or categorizar(descripcion)
 
+    # Determinar si hay dudas que requieren revisión humana:
+    # - Sin categoría: la descripción no coincidió con ninguna regla
+    # - Cuenta resuelta por defecto: no había ultimos4 ni cuenta_id explícito
+    uso_cuenta_default = "cuenta_id" not in datos and "ultimos4" not in datos
+    estado = "revisar" if (not categoria_id or uso_cuenta_default) else "ok"
+
     # Deduplicación: evita dobles entradas
     huella = calcular_huella(fecha, importe, descripcion)
     if buscar_duplicados(fecha, importe, descripcion):
@@ -122,8 +128,8 @@ def procesar_mensaje(mensaje_body: str) -> dict:
     bd.ejecutar(
         """INSERT INTO movimientos
            (fecha, fecha_valor, importe, descripcion, descripcion_original,
-            categoria_id, cuenta_id, origen, origen_ref, huella, notas)
-           VALUES (?, ?, ?, ?, ?, ?, ?, 'ntfy', ?, ?, ?)""",
+            categoria_id, cuenta_id, origen, origen_ref, huella, notas, estado)
+           VALUES (?, ?, ?, ?, ?, ?, ?, 'ntfy', ?, ?, ?, ?)""",
         (
             fecha,
             datos.get("fecha_valor"),
@@ -135,11 +141,12 @@ def procesar_mensaje(mensaje_body: str) -> dict:
             datos.get("origen_ref"),
             huella,
             datos.get("notas"),
+            estado,
         )
     )
 
-    logger.info(f"Movimiento NTFY importado: {descripcion} {importe:+.2f}€ ({fecha})")
-    return {"estado": "importado", "descripcion": descripcion, "importe": importe}
+    logger.info(f"Movimiento NTFY {'⚠ revisar' if estado == 'revisar' else '✓'}: {descripcion} {importe:+.2f}€ ({fecha})")
+    return {"estado_proceso": "importado", "estado_revision": estado, "descripcion": descripcion, "importe": importe}
 
 
 async def escuchar():

@@ -109,4 +109,11 @@ def migrar_bd():
             CREATE INDEX IF NOT EXISTS idx_movimientos_huella    ON movimientos(huella);
         """)
 
+    # Migración v3: añadir columna 'estado' si no existe
+    # SQLite soporta ALTER TABLE ADD COLUMN — no hace falta recrear la tabla.
+    columnas = [fila[1] for fila in conexion.execute("PRAGMA table_info(movimientos)").fetchall()]
+    if "estado" not in columnas:
+        conexion.execute("ALTER TABLE movimientos ADD COLUMN estado TEXT NOT NULL DEFAULT 'ok'")
+        conexion.commit()
+
     conexion.close()

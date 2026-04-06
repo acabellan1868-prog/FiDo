@@ -20,7 +20,7 @@ function fidoApp() {
         // Estado de movimientos
         movimientos: [],
         totalMovimientos: 0,
-        filtros: { mes: '', cuenta_id: '', categoria_id: '', tipo: '', buscar: '', offset: 0 },
+        filtros: { mes: '', cuenta_id: '', categoria_id: '', tipo: '', buscar: '', estado: '', offset: 0 },
         sumaMovimientos: 0,
         editandoMovimiento: null,
         mostrarFormularioMovimiento: false,
@@ -155,6 +155,7 @@ function fidoApp() {
                 if (this.filtros.categoria_id) params.set('categoria_id', this.filtros.categoria_id);
                 if (this.filtros.tipo) params.set('tipo', this.filtros.tipo);
                 if (this.filtros.buscar) params.set('buscar', this.filtros.buscar);
+                if (this.filtros.estado) params.set('estado', this.filtros.estado);
                 params.set('offset', this.filtros.offset);
                 params.set('limite', '50');
                 const qs = '?' + params.toString();
@@ -209,6 +210,15 @@ function fidoApp() {
             this.mostrarFormularioMovimiento = false;
             const hoy = new Date().toISOString().split('T')[0];
             this.nuevoMovimiento = { fecha: hoy, importe: '', descripcion: '', cuenta_id: '', categoria_id: '', origen: 'web', notas: '' };
+        },
+
+        async marcarEstado(id, nuevoEstado) {
+            try {
+                await API.actualizar(`/movimientos/${id}/estado?nuevo_estado=${nuevoEstado}`, {});
+                await this.cargarMovimientos();
+            } catch (e) {
+                this.mostrarError('Error cambiando estado: ' + e.message);
+            }
         },
 
         async borrarMovimiento(id) {

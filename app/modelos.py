@@ -120,9 +120,10 @@ class MovimientoCrear(BaseModel):
     descripcion_original: Optional[str] = None
     categoria_id: Optional[int] = None
     cuenta_id: int
-    origen: str  # telegram, wallet, csv, web
+    origen: str  # telegram, wallet, csv, web, ntfy
     origen_ref: Optional[str] = None
     notas: Optional[str] = None
+    estado: str = 'ok'  # ok | revisar
 
 class MovimientoActualizar(BaseModel):
     fecha: Optional[str] = None
@@ -132,6 +133,7 @@ class MovimientoActualizar(BaseModel):
     categoria_id: Optional[int] = None
     cuenta_id: Optional[int] = None
     notas: Optional[str] = None
+    estado: Optional[str] = None  # ok | revisar
 
 class MovimientoRespuesta(BaseModel):
     id: int
@@ -146,6 +148,7 @@ class MovimientoRespuesta(BaseModel):
     origen_ref: Optional[str] = None
     huella: Optional[str] = None
     notas: Optional[str] = None
+    estado: str = 'ok'
     creado_en: Optional[str] = None
     # Campos extra que se rellenan con JOINs
     nombre_categoria: Optional[str] = None

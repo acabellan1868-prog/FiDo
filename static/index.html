@@ -165,6 +165,12 @@
                     <option value="gasto">Solo gastos</option>
                     <option value="ingreso">Solo ingresos</option>
                 </select>
+                <select x-model="filtros.estado" @change="filtros.offset=0; cargarMovimientos()"
+                        class="fido-input fido-input--pill">
+                    <option value="">Todos</option>
+                    <option value="revisar">⚠ Por revisar</option>
+                    <option value="ok">✓ Confirmados</option>
+                </select>
                 <input type="text" x-model="filtros.buscar" @input.debounce.300ms="filtros.offset=0; cargarMovimientos()"
                        placeholder="Buscar..."
                        class="fido-input fido-input--pill fido-input--buscar">
@@ -275,10 +281,18 @@
                                               'hogar-badge--primary': mov.origen === 'web',
                                               'hogar-badge--exito': mov.origen === 'csv',
                                               'hogar-badge--peligro': mov.origen === 'telegram' || mov.origen === 'wallet',
+                                              'hogar-badge--secondary': mov.origen === 'ntfy',
                                           }"
                                           x-text="mov.origen"></span>
                                 </td>
                                 <td class="fido-text-center fido-nowrap">
+                                    <button @click="marcarEstado(mov.id, 'ok')"
+                                            x-show="mov.estado === 'revisar'"
+                                            class="fido-btn-icono"
+                                            style="color: var(--aviso)"
+                                            title="Marcar como revisado">
+                                        <span class="material-symbols-outlined" style="font-size:1.1rem">warning</span>
+                                    </button>
                                     <button @click="editarMovimiento(mov)" class="fido-btn-icono fido-btn-icono--primary">
                                         <span class="material-symbols-outlined" style="font-size:1.1rem">edit</span>
                                     </button>
@@ -289,7 +303,7 @@
                             </tr>
                         </template>
                         <tr x-show="movimientos.length === 0">
-                            <td colspan="7" class="fido-vacio">No hay movimientos</td>
+                            <td colspan="7" class="fido-vacio">No hay movimientos que coincidan con los filtros</td>
                         </tr>
                     </tbody>
                 </table>

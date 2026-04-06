@@ -40,11 +40,11 @@ def sincronizar_movimientos(lote: list[MovimientoCrear]):
         bd.ejecutar(
             """INSERT INTO movimientos
                (fecha, fecha_valor, importe, descripcion, descripcion_original,
-                categoria_id, cuenta_id, origen, origen_ref, huella, notas)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                categoria_id, cuenta_id, origen, origen_ref, huella, notas, estado)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (mov.fecha, mov.fecha_valor, mov.importe, mov.descripcion,
              mov.descripcion_original, categoria_id, mov.cuenta_id,
-             mov.origen, mov.origen_ref, huella, mov.notas)
+             mov.origen, mov.origen_ref, huella, mov.notas, mov.estado)
         )
         importados += 1
 

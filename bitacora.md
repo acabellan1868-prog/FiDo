@@ -4,6 +4,33 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-04-07
+
+### Campo estado en movimientos — flujo de revisión
+
+Añadido campo `estado` (`ok` | `revisar`) a los movimientos para identificar
+entradas que necesitan revisión humana antes de darse por buenas.
+
+**Criterios de asignación automática (listener NTFY):**
+- `revisar` — si no se encontró categoría tras auto-categorización
+- `revisar` — si se usó la cuenta por defecto (sin `ultimos4` ni `cuenta_id` explícito)
+- `ok` — si categoría y cuenta se resolvieron con confianza
+
+**Backend:**
+- `app/esquema.sql` — columna `estado TEXT NOT NULL DEFAULT 'ok' CHECK(ok|revisar)`
+- `app/bd.py` — migración v3: `ALTER TABLE ADD COLUMN` (no recreación de tabla)
+- `app/modelos.py` — campo `estado` en `MovimientoCrear`, `MovimientoActualizar`, `MovimientoRespuesta`
+- `app/rutas/movimientos.py` — filtro `?estado=` en listado y total, nuevo endpoint `PUT /{id}/estado`
+- `app/servicios/ntfy_listener.py` — lógica de asignación automática de estado
+- `app/rutas/sincronizar.py` — `estado` incluido en el INSERT
+
+**Frontend:**
+- Filtro "Por revisar / Confirmados / Todos" en la barra de filtros
+- Icono ⚠ naranja en cada fila con estado `revisar`, clicable para confirmar
+- Badge `ntfy` con color diferenciado (azul secundario) en la columna origen
+
+---
+
 ## 2026-04-06
 
 ### Listener NTFY — captura automática de movimientos desde el móvil

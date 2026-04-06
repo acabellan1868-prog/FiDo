@@ -15,6 +15,7 @@ def _construir_filtros(
     origen: Optional[str],
     buscar: Optional[str],
     tipo: Optional[str] = None,
+    estado: Optional[str] = None,
     prefijo: str = "m.",
 ):
     """Construye condiciones WHERE y parámetros a partir de los filtros comunes."""
@@ -42,6 +43,9 @@ def _construir_filtros(
         condiciones.append(f"{prefijo}importe < 0")
     elif tipo == "ingreso":
         condiciones.append(f"{prefijo}importe > 0")
+    if estado:
+        condiciones.append(f"{prefijo}estado = ?")
+        parametros.append(estado)
 
     where = "WHERE " + " AND ".join(condiciones) if condiciones else ""
     return where, parametros
@@ -55,11 +59,12 @@ def listar_movimientos(
     origen: Optional[str] = Query(None),
     buscar: Optional[str] = Query(None, description="Buscar en descripción"),
     tipo: Optional[str] = Query(None, description="Filtrar por tipo: gasto | ingreso"),
+    estado: Optional[str] = Query(None, description="Filtrar por estado: ok | revisar"),
     offset: int = Query(0, ge=0),
     limite: int = Query(50, ge=1, le=500),
 ):
     """Lista movimientos con filtros opcionales y paginación."""
-    where, parametros = _construir_filtros(mes, cuenta_id, categoria_id, origen, buscar, tipo, "m.")
+    where, parametros = _construir_filtros(mes, cuenta_id, categoria_id, origen, buscar, tipo, estado, "m.")
     parametros.extend([limite, offset])
 
     filas = bd.consultar_todos(f"""
@@ -84,9 +89,10 @@ def contar_movimientos(
     origen: Optional[str] = Query(None),
     buscar: Optional[str] = Query(None),
     tipo: Optional[str] = Query(None),
+    estado: Optional[str] = Query(None),
 ):
     """Devuelve el total de movimientos y la suma de importes (para paginación y resumen)."""
-    where, parametros = _construir_filtros(mes, cuenta_id, categoria_id, origen, buscar, tipo, "")
+    where, parametros = _construir_filtros(mes, cuenta_id, categoria_id, origen, buscar, tipo, estado, "")
 
     resultado = bd.consultar_uno(f"""
         SELECT COUNT(*) as total,
@@ -130,11 +136,11 @@ def crear_movimiento(datos: MovimientoCrear):
     nuevo_id = bd.ejecutar(
         """INSERT INTO movimientos
            (fecha, fecha_valor, importe, descripcion, descripcion_original,
-            categoria_id, cuenta_id, origen, origen_ref, huella, notas)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            categoria_id, cuenta_id, origen, origen_ref, huella, notas, estado)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         (datos.fecha, datos.fecha_valor, datos.importe, datos.descripcion,
          datos.descripcion_original, categoria_id, datos.cuenta_id,
-         datos.origen, datos.origen_ref, huella, datos.notas)
+         datos.origen, datos.origen_ref, huella, datos.notas, datos.estado)
     )
     return obtener_movimiento(nuevo_id)
 
@@ -151,7 +157,7 @@ def actualizar_movimiento(movimiento_id: int, datos: MovimientoActualizar):
         ("fecha", datos.fecha), ("fecha_valor", datos.fecha_valor),
         ("importe", datos.importe), ("descripcion", datos.descripcion),
         ("categoria_id", datos.categoria_id), ("cuenta_id", datos.cuenta_id),
-        ("notas", datos.notas),
+        ("notas", datos.notas), ("estado", datos.estado),
     ]:
         if valor is not None:
             campos.append(f"{campo} = ?")
@@ -162,6 +168,18 @@ def actualizar_movimiento(movimiento_id: int, datos: MovimientoActualizar):
         bd.ejecutar(f"UPDATE movimientos SET {', '.join(campos)} WHERE id = ?", tuple(valores))
 
     return obtener_movimiento(movimiento_id)
+
+
+@ruta.put("/{movimiento_id}/estado")
+def cambiar_estado(movimiento_id: int, nuevo_estado: str):
+    """Cambia el estado de un movimiento: ok | revisar."""
+    if nuevo_estado not in ("ok", "revisar"):
+        raise HTTPException(400, "Estado no válido. Usa 'ok' o 'revisar'.")
+    existente = bd.consultar_uno("SELECT id FROM movimientos WHERE id = ?", (movimiento_id,))
+    if not existente:
+        raise HTTPException(404, "Movimiento no encontrado")
+    bd.ejecutar("UPDATE movimientos SET estado = ? WHERE id = ?", (nuevo_estado, movimiento_id))
+    return {"id": movimiento_id, "estado": nuevo_estado}
 
 
 @ruta.post("/recategorizar")
