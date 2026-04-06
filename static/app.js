@@ -24,7 +24,7 @@ function fidoApp() {
         sumaMovimientos: 0,
         editandoMovimiento: null,
         mostrarFormularioMovimiento: false,
-        nuevoMovimiento: { fecha: '', importe: '', descripcion: '', cuenta_id: '', categoria_id: '', origen: 'web', notas: '' },
+        nuevoMovimiento: { fecha: '', importe: '', descripcion: '', cuenta_id: '', categoria_id: '', origen: 'web', notas: '', estado: 'ok' },
 
         // Estado de importación
         resultadoImportacion: null,
@@ -201,6 +201,7 @@ function fidoApp() {
                 categoria_id: mov.categoria_id || '',
                 origen: mov.origen,
                 notas: mov.notas || '',
+                estado: mov.estado || 'ok',
             };
             this.mostrarFormularioMovimiento = true;
         },
@@ -209,7 +210,7 @@ function fidoApp() {
             this.editandoMovimiento = null;
             this.mostrarFormularioMovimiento = false;
             const hoy = new Date().toISOString().split('T')[0];
-            this.nuevoMovimiento = { fecha: hoy, importe: '', descripcion: '', cuenta_id: '', categoria_id: '', origen: 'web', notas: '' };
+            this.nuevoMovimiento = { fecha: hoy, importe: '', descripcion: '', cuenta_id: '', categoria_id: '', origen: 'web', notas: '', estado: 'ok' };
         },
 
         async marcarEstado(id, nuevoEstado) {

@@ -243,6 +243,13 @@
                                    placeholder="Opcional"
                                    class="fido-input fido-input--form">
                         </div>
+                        <div>
+                            <label class="fido-label">Estado</label>
+                            <select x-model="nuevoMovimiento.estado" class="fido-input fido-input--form">
+                                <option value="ok">✓ Confirmado</option>
+                                <option value="revisar">⚠ Por revisar</option>
+                            </select>
+                        </div>
                         <div class="fido-acciones-der">
                             <button @click="cancelarEdicionMovimiento()" class="hogar-boton hogar-boton--secundario">Cancelar</button>
                             <button @click="guardarMovimiento()" class="hogar-boton hogar-boton--primario">Guardar</button>
@@ -292,6 +299,13 @@
                                             style="color: var(--aviso)"
                                             title="Marcar como revisado">
                                         <span class="material-symbols-outlined" style="font-size:1.1rem">warning</span>
+                                    </button>
+                                    <button @click="marcarEstado(mov.id, 'revisar')"
+                                            x-show="mov.estado === 'ok'"
+                                            class="fido-btn-icono"
+                                            style="color: var(--exito)"
+                                            title="Marcar para revisar">
+                                        <span class="material-symbols-outlined" style="font-size:1.1rem">check_circle</span>
                                     </button>
                                     <button @click="editarMovimiento(mov)" class="fido-btn-icono fido-btn-icono--primary">
                                         <span class="material-symbols-outlined" style="font-size:1.1rem">edit</span>
