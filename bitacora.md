@@ -6,6 +6,15 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ## 2026-04-07
 
+### Guía Automate (LlamaLab) para captura NTFY
+
+- Añadida `docs/automate-ntfy.md` — guía completa para capturar notificaciones
+  bancarias con Automate (gratuita, sin plugins, hasta 30 bloques).
+  Cubre el diagrama de bloques completo, extracción regex, HTTP POST a NTFY
+  y depuración por banco. Alternativa gratuita a MacroDroid y Tasker.
+
+---
+
 ### Campo estado en movimientos — flujo de revisión
 
 Añadido campo `estado` (`ok` | `revisar`) a los movimientos para identificar

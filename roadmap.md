@@ -47,7 +47,7 @@ flujo end-to-end con notificaciones bancarias reales.
 - [x] Campo `estado` (ok | revisar) con asignación automática (2026-04-07)
 - [x] Flujo de revisión en la UI: icono ⚠/✓ en tabla, campo en modal (2026-04-07)
 - [x] Gestión de datos sensibles: `.env` / `.env.example` en todos los proyectos (2026-04-07)
-- [x] Guías de configuración: `docs/macrodroid-ntfy.md` y `docs/tasker-ntfy.md` (2026-04-07)
+- [x] Guías de configuración: `docs/macrodroid-ntfy.md`, `docs/tasker-ntfy.md` y `docs/automate-ntfy.md` (2026-04-07)
 - [ ] Configurar app de automatización en el móvil (Tasker / MacroDroid / Automate)
 - [ ] Pruebas end-to-end con notificaciones bancarias reales
 
