@@ -2,14 +2,13 @@
 
 ## Estado actual
 
-**Fecha:** 2026-04-07
+**Fecha:** 2026-04-08
 
-El proyecto está funcional y desplegado. La captura automática desde el móvil
-vía NTFY está implementada y funcionando. Pendiente configurar la app de
-automatización Android (Tasker / MacroDroid / Automate) para completar el
-flujo end-to-end con notificaciones bancarias reales.
+El flow de Automate (LlamaLab) está creado con 6 bloques y el topic NTFY configurado.
+La prueba con `curl` es exitosa — el servidor recibe y procesa movimientos correctamente.
+Pendiente corregir dos regex en el flow y hacer la prueba end-to-end con notificación bancaria real.
 
-**Próximo paso:** Configurar la app de automatización en el móvil y probar con notificaciones reales.
+**Próximo paso:** Corregir regex de `importe_raw` y `ultima4` en Automate, luego probar con un pago real con tarjeta.
 
 ---
 

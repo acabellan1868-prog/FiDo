@@ -4,6 +4,21 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-04-08
+
+### Configuración Automate — flow FiDo Gastos
+
+- Recuperado el flow exportado `docs/FiDo - Gastos.flo` y analizado su contenido.
+- Verificado que el flow tiene 6 bloques: Flow beginning → When notification (Google Wallet) → Set variable importe_raw (regex) → Set variable importe_raw (replace coma→punto) → Set variable ultima4 (regex) → HTTP request POST a NTFY.
+- Identificados dos bugs en los regex:
+  - `importe_raw`: carácter corrupto en lugar de `{2}` → corrección: `.*(\d+[.,]\d{2})\s*€.*`
+  - `ultima4`: `.*(\d)` solo capturaba 1 dígito → corrección: `\*(\d{4})`
+- NTFY_TOPIC configurado en el bloque HTTP request (sustituido el placeholder `TU_TOPIC`).
+- Prueba con `curl` exitosa: el servidor FiDo recibe y procesa el movimiento correctamente.
+- **Pendiente:** corregir los dos regex en Automate y probar con notificación bancaria real.
+
+---
+
 ## 2026-04-07
 
 ### Guía Automate (LlamaLab) para captura NTFY
