@@ -2,15 +2,13 @@
 
 ## Estado actual
 
-**Fecha:** 2026-04-07
+**Fecha:** 2026-04-08
 
-Configurando Automate (LlamaLab) en el móvil. El flow está creado a medias:
-bloques Notification posted?, 3x Variable set y HTTP request añadidos.
-Pendiente: terminar el campo body del HTTP request y hacer el bucle de retorno.
+El flow de Automate (LlamaLab) está creado con 6 bloques y el topic NTFY configurado.
+La prueba con `curl` es exitosa — el servidor recibe y procesa movimientos correctamente.
+Pendiente corregir dos regex en el flow y hacer la prueba end-to-end con notificación bancaria real.
 
-**Próximo paso:** Terminar el campo "Request content body" del bloque HTTP request
-con la expresión de concatenación. Ver detalle exacto en `docs/automate-ntfy.md`
-y en la bitácora de 2026-04-07.
+**Próximo paso:** Corregir regex de `importe_raw` y `ultima4` en Automate, luego probar con un pago real con tarjeta.
 
 ---
 
