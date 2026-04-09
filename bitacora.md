@@ -6,12 +6,43 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ## 2026-04-07
 
-### Guía Automate (LlamaLab) para captura NTFY
+### Configuración de Automate en el móvil — sesión en curso
 
-- Añadida `docs/automate-ntfy.md` — guía completa para capturar notificaciones
-  bancarias con Automate (gratuita, sin plugins, hasta 30 bloques).
-  Cubre el diagrama de bloques completo, extracción regex, HTTP POST a NTFY
-  y depuración por banco. Alternativa gratuita a MacroDroid y Tasker.
+Configurando el flow de Automate (LlamaLab) en el móvil para captura automática
+de notificaciones de Google Wallet → NTFY → FiDo.
+
+**Decisiones tomadas en esta sesión:**
+- Se elige **Google Wallet** como fuente de notificaciones (centraliza todas las
+  tarjetas, siempre incluye los últimos 4 dígitos en el cuerpo).
+- Formato real confirmado: Título = comercio, Cuerpo = `2,50 € con Visa ••9625`.
+- No existe bloque "Text match" en Automate — la extracción regex se hace con
+  la función `matches()` dentro de bloques **Variable set**.
+- El campo **Request headers** del HTTP request acepta formato diccionario JSON:
+  `{"Content-Type":"application/json"}`
+- **Problema detectado:** copiar expresiones desde WhatsApp convierte comillas
+  rectas `'` en tipográficas `'` que Automate no reconoce → hay que escribir
+  el body directamente desde el teclado del móvil.
+
+**Estado del flow al terminar la sesión:**
+
+| # | Bloque | Estado |
+|---|--------|--------|
+| 1 | Flow beginning | ✅ |
+| 2 | Notification posted? (Google Wallet) | ✅ |
+| 3 | Variable set — importe_raw (matches) | ✅ |
+| 4 | Variable set — importe_raw (replaceAll) | ✅ |
+| 5 | Variable set — ultimos4 | ✅ |
+| 6 | HTTP request → NTFY | ⚠ Body pendiente |
+| 7 | Bucle de retorno | ⏳ Pendiente |
+
+**Próximo paso:** Abrir el bloque HTTP request, campo **Request content body**,
+y escribir desde el teclado del móvil (no copiar/pegar):
+```
+'{"importe":-' + importe_raw + ',"descripcion":"' + descripcion + '","ultimos4":"' + ultimos4 + '"}'
+```
+Luego conectar la salida del HTTP request de vuelta al bloque Notification posted?
+
+Ver guía completa actualizada en `docs/automate-ntfy.md`.
 
 ---
 

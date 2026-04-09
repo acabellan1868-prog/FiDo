@@ -4,12 +4,13 @@
 
 **Fecha:** 2026-04-07
 
-El proyecto está funcional y desplegado. La captura automática desde el móvil
-vía NTFY está implementada y funcionando. Pendiente configurar la app de
-automatización Android (Tasker / MacroDroid / Automate) para completar el
-flujo end-to-end con notificaciones bancarias reales.
+Configurando Automate (LlamaLab) en el móvil. El flow está creado a medias:
+bloques Notification posted?, 3x Variable set y HTTP request añadidos.
+Pendiente: terminar el campo body del HTTP request y hacer el bucle de retorno.
 
-**Próximo paso:** Configurar la app de automatización en el móvil y probar con notificaciones reales.
+**Próximo paso:** Terminar el campo "Request content body" del bloque HTTP request
+con la expresión de concatenación. Ver detalle exacto en `docs/automate-ntfy.md`
+y en la bitácora de 2026-04-07.
 
 ---
 

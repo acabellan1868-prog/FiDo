@@ -2,262 +2,228 @@
 
 Automate es una app de automatización Android **gratuita** (hasta 30 bloques por flow).
 No necesita plugins de pago. Esta guía configura un flow que captura notificaciones
-bancarias y las envía a FiDo a través de NTFY.
+de Google Wallet y las envía a FiDo a través de NTFY.
+
+> **Nota:** Esta guía usa los nombres de bloques de la versión actual de Automate
+> verificados en https://llamalab.com/automate/doc/block/index.html. No existe
+> bloque "Text match" — la extracción de datos se hace con expresiones `matches()`
+> dentro de bloques **Variable set**.
 
 ---
 
 ## Visión general del flujo
 
 ```
-App bancaria (CaixaBank / Revolut / etc.)
-  └─ lanza notificación: "Pago 8,94€ en Cash Lepe *9625"
+Google Wallet lanza notificación:
+  Título:  "EL RINCONCITO"
+  Cuerpo:  "2,50 € con Visa ••9625"
      └─ Automate intercepta la notificación
-        └─ extrae importe, comercio y últimos 4 dígitos con regex
-           └─ POST a https://ntfy.sh/{NTFY_TOPIC}  ←  funciona con datos móviles
-              └─ FiDo recibe el mensaje (siempre conectado desde la VM)
-                 └─ categoriza automáticamente y guarda el movimiento
+        └─ extrae importe, descripción y últimos 4 dígitos
+           └─ POST a https://ntfy.sh/{NTFY_TOPIC}
+              └─ FiDo recibe el mensaje y guarda el movimiento
 ```
 
-El móvil **no necesita estar en casa ni en la WiFi local**. NTFY funciona con
-datos móviles. FiDo siempre está conectado en la VM.
+El móvil **no necesita estar en casa ni en la WiFi local**.
 
 ---
 
-## Qué es un bloque en Automate
+## Formato de notificación de Google Wallet
 
-Cada pieza del diagrama (rectángulo, rombo de decisión, evento) es un bloque.
-Los bloques se conectan con flechas. El flow gratuito permite hasta 30 bloques;
-este flow usa aproximadamente 12.
+Google Wallet es el intermediario recomendado porque centraliza todas las tarjetas
+y siempre incluye los últimos 4 dígitos.
+
+| Campo de la notificación | Contenido | Ejemplo |
+|--------------------------|-----------|---------|
+| Título (Title) | Nombre del comercio | `EL RINCONCITO` |
+| Cuerpo (Message) | Importe + tipo tarjeta + últimos 4 | `2,50 € con Visa ••9625` |
 
 ---
 
 ## Requisitos
 
 - **Automate** de LlamaLab (gratuita en Google Play)
-- Permiso de "acceso a notificaciones" concedido a Automate en Ajustes del móvil
+- Permiso **Notification access** concedido a Automate
+- Permiso **Do not disturb** concedido a Automate
 
 ---
 
-## Paso 1 — Conceder acceso a notificaciones
+## Paso 1 — Conceder permisos
 
-1. Abrir Automate → menú lateral → **Settings**
-2. Pulsar **Notification access** → se abre el ajuste del sistema
-3. Activar Automate en la lista
+1. Abrir Automate → menú lateral (☰) → **Settings**
+2. Pulsar **Notification access** → activar Automate en la lista del sistema
+3. Pulsar **Do not disturb access** → activar Automate
 
 ---
 
 ## Paso 2 — Crear el flow
 
-### 2.1 Nuevo flow
-
-1. En la pantalla principal de Automate pulsar **+** (nuevo flow)
+1. Pantalla principal → **+** (abajo a la derecha)
 2. Nombre: `FiDo — Gasto bancario`
-3. Se abre el editor de diagrama vacío con un bloque **Flow beginning**
+3. Pulsar **Create** → se abre el editor con un bloque **Flow beginning**
 
 ---
 
-### 2.2 Bloques del flow (en orden)
+## Paso 3 — Bloques del flow
 
-Añadir los bloques uno a uno pulsando el **+** de la conexión de salida de cada
-bloque anterior. El número entre paréntesis es el orden en el diagrama.
+### Bloque 1 — Flow beginning *(ya existe)*
 
----
-
-#### Bloque 1 — Flow beginning *(ya existe al crear el flow)*
-
-Sin configuración. Conectar su salida al bloque 2.
+Sin configuración. Es el punto de entrada del flow.
 
 ---
 
-#### Bloque 2 — Notification event
+### Bloque 2 — Notification posted?
 
-Buscar: **Notification event**
+Categoría: **Interface** (o buscar `Notification posted`)
+
+> El símbolo `?` indica que es un bloque de evento — espera hasta que llega
+> una notificación que cumpla los criterios.
+
+**Input arguments** (parte superior):
+- **Package:** seleccionar `Google Wallet`
+- El resto: dejar vacío
+
+**Output variables** (parte inferior — aquí defines los nombres de las variables):
+- **Title** → escribir `descripcion`
+- **Message** → escribir `notif_mensaje`
+- El resto: dejar vacío
+
+Pulsar **SAVE**.
+
+---
+
+### Bloque 3 — Variable set (extraer importe)
+
+Buscar: `Variable set`
+
+- **Variable:** `importe_raw`
+- **Value:** `matches(notif_mensaje, ".*(\\d+[.,]\\d{2})\\s*€.*")[1]`
+
+Extrae el número antes del símbolo €. Devuelve `null` si no hay coincidencia.
+
+Pulsar **SAVE**.
+
+---
+
+### Bloque 4 — Variable set (normalizar importe)
+
+Otro bloque **Variable set**:
+
+- **Variable:** `importe_raw`
+- **Value:** `replaceAll(importe_raw, ",", ".")`
+
+Convierte `2,50` en `2.50` (formato numérico que espera FiDo).
+
+Pulsar **SAVE**.
+
+---
+
+### Bloque 5 — Variable set (extraer últimos 4 dígitos)
+
+Otro bloque **Variable set**:
+
+- **Variable:** `ultimos4`
+- **Value:** `matches(notif_mensaje, ".*(\\d{4})")[1]`
+
+Extrae los 4 dígitos finales del cuerpo de la notificación.
+
+Pulsar **SAVE**.
+
+---
+
+### Bloque 6 — HTTP request (enviar a NTFY)
+
+Buscar: `HTTP request` (categoría **Connectivity**)
 
 Configuración:
-- **Application:** seleccionar tu app bancaria (ej: CaixaBank, Revolut…)
-  *(si tienes varias, crear una copia del flow para cada una o seleccionar varias)*
-- **Type:** Posted *(notificación nueva)*
-- **Content filter (regex):** `(?i)(pago|compra|cargo|has paid|you paid)`
-  *(solo dispara en notificaciones de gasto, ignora el resto)*
-
-Salida: conectar al bloque 3.
-
-> Este bloque espera indefinidamente hasta que llega una notificación que cumpla
-> el filtro. Cuando llega, guarda automáticamente el texto en la variable
-> `Notification.TEXT` (texto) y `Notification.TITLE` (título).
-
----
-
-#### Bloque 3 — Text match (extraer importe)
-
-Buscar: **Text match**
-
-Configuración:
-- **Text:** `Notification.TEXT`
-- **Regular expression:** `(\d+[.,]\d{2})`
-- **Match group:** `1`
-- **Output variable:** `importe_raw`
-
-Salidas:
-- **Matched** → bloque 4
-- **Not matched** → conectar de vuelta al bloque 2 *(notificación sin importe, ignorar)*
-
----
-
-#### Bloque 4 — Text replace (coma → punto)
-
-Buscar: **Text replace**
-
-Configuración:
-- **Text:** `importe_raw`
-- **Regular expression:** activado
-- **Search:** `,`
-- **Replace:** `.`
-- **Output variable:** `importe_raw`
-
-Salida: conectar al bloque 5.
-
----
-
-#### Bloque 5 — Text match (extraer descripción)
-
-Buscar: **Text match**
-
-Configuración:
-- **Text:** `Notification.TEXT`
-- **Regular expression:** *(elegir según tu banco, ver tabla al final)*
-  - CaixaBank: `en (.+?)(?:\s+\*\d{4})?$`
-  - Revolut: `at (.+?)$`
-  - Santander: `Compra .+?€ (.+)`
-- **Match group:** `1`
-- **Output variable:** `descripcion`
-
-Salidas:
-- **Matched** → bloque 6
-- **Not matched** → usar valor por defecto: añadir bloque **Variable set** con
-  `descripcion = Sin descripcion` → conectar al bloque 6
-
----
-
-#### Bloque 6 — Text match (extraer últimos 4 dígitos)
-
-Buscar: **Text match**
-
-Configuración:
-- **Text:** `Notification.TEXT`
-- **Regular expression:** `\*(\d{4})`
-- **Match group:** `1`
-- **Output variable:** `ultimos4`
-
-Salidas:
-- **Matched** → bloque 7
-- **Not matched** → bloque 7 *(sin ultimos4; FiDo usará NTFY_CUENTA_DEFAULT)*
-
----
-
-#### Bloque 7 — HTTP request (enviar a NTFY)
-
-Buscar: **HTTP request**
-
-Configuración:
-- **URL:** `https://ntfy.sh/{NTFY_TOPIC}`
-  *(sustituir `{NTFY_TOPIC}` por tu topic real, ej: `fido-mov-a3k9x2m7p1`)*
-- **Method:** POST
-- **Headers:**
-  - Nombre: `Content-Type`
-  - Valor: `application/json`
-- **Request body:**
+- **URL:** `https://ntfy.sh/TU_TOPIC_AQUI`
+  *(sustituir por el topic real configurado en el `.env` de FiDo)*
+- **Method:** `POST`
+- **Request headers** (campo tipo Dictionary):
   ```
-  {"importe":-{importe_raw},"descripcion":"{descripcion}","ultimos4":"{ultimos4}"}
+  {"Content-Type":"application/json"}
   ```
-  *(Automate sustituye `{nombre_variable}` por el valor de la variable)*
+- **Request content body** (campo de expresión):
+  ```
+  '{"importe":-' + importe_raw + ',"descripcion":"' + descripcion + '","ultimos4":"' + ultimos4 + '"}'
+  ```
 
-> El `-` delante de `{importe_raw}` convierte el importe en negativo (gasto).
-> Para ingresos, crear un flow separado sin el signo menos y con filtro de
-> contenido distinto (ej: `(?i)(ingreso|transferencia recibida|abono)`).
+> **IMPORTANTE — problema con copiar/pegar desde WhatsApp u otras apps:**
+> WhatsApp y muchas apps convierten las comillas rectas `'` en comillas tipográficas
+> `'` `'` que Automate no reconoce y da error. Escribir siempre desde el teclado
+> del móvil directamente en Automate.
+>
+> Las comillas del body son **todas simples rectas** `'` (la tecla normal del teclado).
+> Las comillas dentro del JSON (alrededor de los valores) son **dobles** `"`.
 
-Salida: conectar al bloque 8.
+Pulsar **SAVE**.
 
 ---
 
-#### Bloque 8 — Flow beginning (bucle)
+### Bloque 7 — Volver al inicio (bucle)
 
-No añadir un nuevo bloque. **Conectar la salida del bloque 7 de vuelta al
-bloque 2** (Notification event). Así el flow permanece activo y escucha la
-siguiente notificación sin necesidad de relanzarlo.
+No añadir un bloque nuevo. **Conectar la salida del bloque HTTP request de vuelta
+al bloque 2 (Notification posted?)** pulsando y arrastrando la flecha de salida
+hasta ese bloque. Así el flow permanece activo indefinidamente.
 
 ---
 
-### 2.3 Diagrama final
+## Diagrama final
 
 ```
 [Flow beginning]
       │
       ▼
-[Notification event] ◄────────────────────────────┐
-      │ (notificación detectada)                   │
-      ▼                                            │
-[Text match — importe]                             │
-      │ Matched          Not matched               │
-      ▼                       └──────────────────►─┘
-[Text replace — coma→punto]
-      │
-      ▼
-[Text match — descripción]
-      │ Matched     Not matched
-      ▼                   ▼
-[Text match — ultimos4]  [Variable set descripcion="Sin descripcion"]
-      │ Matched / Not matched                      │
-      └─────────────────────────────────────────►──┘
-                                                   ▼
-                                        [HTTP request → NTFY]
-                                                   │
-                                                   └──► (vuelve a Notification event)
+[Notification posted?] ◄─────────────────────────────┐
+  Package: Google Wallet                              │
+  Title → descripcion                                 │
+  Message → notif_mensaje                             │
+      │                                               │
+      ▼                                               │
+[Variable set]                                        │
+  importe_raw = matches(notif_mensaje, ...)[1]        │
+      │                                               │
+      ▼                                               │
+[Variable set]                                        │
+  importe_raw = replaceAll(importe_raw, ",", ".")     │
+      │                                               │
+      ▼                                               │
+[Variable set]                                        │
+  ultimos4 = matches(notif_mensaje, ...)[1]           │
+      │                                               │
+      ▼                                               │
+[HTTP request → NTFY]                                 │
+  POST JSON con importe, descripcion, ultimos4        │
+      │                                               │
+      └─────────────────────────────────────────────►─┘
 ```
 
----
-
-### 2.4 Guardar y activar el flow
-
-1. Pulsar el tick o **Save** para guardar
-2. En la pantalla principal, pulsar el botón **Play** (▶) del flow
-3. El flow aparecerá en estado **Running** — ya está escuchando
-
-> **Importante:** Para que el flow sobreviva a reinicios del móvil, ir a
-> **Settings** → **Run on system startup** y activarlo para este flow.
+Total: **7 bloques** (límite gratuito: 30).
 
 ---
 
-## Paso 3 — Probar
+## Paso 4 — Activar el flow
 
-### Prueba sin notificación real
+1. Guardar el flow (tick o botón Save del editor)
+2. En la pantalla principal, pulsar **Play (▶)** en el flow
+3. El flow aparece como **Running** — ya está escuchando
 
-Enviar un JSON directamente desde una terminal:
+Para que sobreviva a reinicios del móvil:
+- **Settings** → **Run on system startup** → activar el flow
+
+---
+
+## Paso 5 — Probar sin notificación real
+
+Desde una terminal (PC o Termux en el móvil):
 
 ```bash
 curl -d '{"importe":-8.94,"descripcion":"Cash Lepe","ultimos4":"9625"}' \
-     https://ntfy.sh/{NTFY_TOPIC}
+     https://ntfy.sh/TU_TOPIC_AQUI
 ```
 
 El movimiento debería aparecer en FiDo en unos segundos.
 
-### Prueba manual desde Automate
-
-Con el flow parado (no en Running), pulsar **Run** — Automate ejecutará el flow
-pero el bloque "Notification event" necesita que llegue una notificación real
-para continuar. Lo más práctico es la prueba con `curl` de arriba.
-
-### Prueba con notificación real
-
-1. Hacer un pago pequeño con la tarjeta
-2. Comprobar que el flow tiene actividad (icono de running en Automate)
-3. Verificar el movimiento en FiDo
-
----
-
-## Depuración
-
-### Ver los logs de FiDo en tiempo real
+Para verificar que FiDo lo recibe:
 
 ```bash
 docker logs fido -f | grep ntfy
@@ -269,54 +235,53 @@ INFO  fido.ntfy  Conexión NTFY establecida. Escuchando movimientos...
 INFO  fido.ntfy  Movimiento NTFY importado: Cash Lepe -8.94€ (2026-04-07)
 ```
 
-### El flow no dispara con la notificación bancaria
+---
 
-1. Verificar que Automate tiene permiso de "acceso a notificaciones"
-2. Probar desactivando el **filtro de contenido** temporalmente para confirmar
-   que la notificación se captura
-3. En Xiaomi/MIUI: desactivar la optimización de batería para Automate
-   (Ajustes → Batería → buscar Automate → Sin restricciones)
-4. En Samsung One UI: añadir Automate a "Apps no optimizadas"
+## Depuración
 
-### Ver qué texto captura Automate
+### El flow no dispara con notificaciones de Google Wallet
 
-Añadir un bloque **Notification log** o conectar temporalmente un bloque
-**Dialog — Alert** después del bloque 2 para mostrar `Notification.TEXT`
-en pantalla y confirmar el texto exacto que llega.
+1. Verificar permisos: Notification access y Do not disturb activos para Automate
+2. En Xiaomi/MIUI: desactivar optimización de batería para Automate
+3. En Samsung One UI: añadir Automate a "Apps no optimizadas"
+4. Probar dejando el campo **Package** vacío temporalmente para confirmar
+   que el bloque captura notificaciones de cualquier app
 
-### El importe sale mal o la descripción está vacía
+### Error en el campo body del HTTP request
 
-Copiar el texto exacto de la notificación bancaria y probar el regex en
-[regex101.com](https://regex101.com) antes de configurarlo en Automate.
+- Verificar que todas las comillas son **rectas** `'` `"`, no tipográficas `'` `"`
+- Escribir directamente en Automate, no copiar desde WhatsApp ni navegador
+- El campo acepta una **expresión**, no texto plano
+
+### importe_raw es null
+
+La notificación no tiene el formato esperado. Usar un bloque temporal
+**Dialog — Message** después del Notification posted? para mostrar el valor
+de `notif_mensaje` y ver el texto exacto que llega. Luego ajustar el regex.
 
 ### Movimiento sin categoría o con estado "Por revisar"
 
-Es normal la primera vez. FiDo no tiene una regla que coincida con esa
-descripción. Ir a FiDo → Reglas y añadir una regla para ese comercio.
-En el siguiente movimiento se categorizará automáticamente.
+Normal la primera vez. FiDo no tiene una regla para ese comercio.
+Ir a FiDo → Reglas y añadir una regla para la descripción. En el siguiente
+pago se categorizará automáticamente.
 
 ---
 
-## Formatos de notificación por banco (referencia)
+## Estado de la configuración (2026-04-07)
 
-| Banco | Ejemplo de notificación | Regex importe | Regex descripción |
-|-------|------------------------|---------------|-------------------|
-| CaixaBank | `Pago 8,94€ en Cash Lepe *9625` | `(\d+[.,]\d{2})` | `en (.+?)(?:\s+\*\d{4})?$` |
-| Santander | `Compra 12,30€ Carrefour` | `(\d+[.,]\d{2})` | `Compra \d+[.,]\d+€ (.+)` |
-| Revolut | `You paid €8.50 at Cafe` | `(\d+[.,]\d{2})` | `at (.+?)$` |
+| # | Bloque | Estado |
+|---|--------|--------|
+| 1 | Flow beginning | ✅ |
+| 2 | Notification posted? (Google Wallet) | ✅ |
+| 3 | Variable set — importe_raw (matches) | ✅ |
+| 4 | Variable set — importe_raw (replaceAll) | ✅ |
+| 5 | Variable set — ultimos4 | ✅ |
+| 6 | HTTP request → NTFY | ⚠ Pendiente (body sin terminar) |
+| 7 | Bucle de retorno al bloque 2 | ⏳ Pendiente |
 
-El formato exacto puede variar según la versión de la app. Lo más fiable es:
-1. Recibir una notificación real del banco
-2. Usar el truco del bloque **Dialog — Alert** para ver el texto capturado
-3. Ajustar el regex sobre ese texto real en regex101.com
+**Pendiente:** Escribir el campo **Request content body** del bloque 6 directamente
+desde el teclado del móvil (no copiar/pegar):
 
----
-
-## Consideraciones de seguridad
-
-- El topic de NTFY es el único mecanismo de autenticación. Usar un nombre
-  largo y aleatorio (16+ caracteres).
-- No compartir el nombre del topic.
-- Los mensajes en `ntfy.sh` (servidor público) se almacenan 12 horas. Para
-  mayor privacidad, se puede desplegar NTFY en la propia VM y configurar
-  `NTFY_URL` apuntando a él.
+```
+'{"importe":-' + importe_raw + ',"descripcion":"' + descripcion + '","ultimos4":"' + ultimos4 + '"}'
+```
