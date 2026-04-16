@@ -46,6 +46,13 @@ class ParserRevolut(ParserBase):
         normalizada = {}
         for clave, valor in fila.items():
             clave_limpia = clave.strip()
+            # Revolut exporta a veces con mojibake (UTF-8 leído como Latin-1
+            # y re-guardado), lo que convierte "Descripción" en "DescripciÃ³n".
+            # Revertimos: codificamos como Latin-1 y decodificamos como UTF-8.
+            try:
+                clave_limpia = clave_limpia.encode("latin-1").decode("utf-8")
+            except (UnicodeDecodeError, UnicodeEncodeError):
+                pass
             clave_en = _MAPEO_CABECERAS.get(clave_limpia, clave_limpia)
             normalizada[clave_en] = valor
         return normalizada
