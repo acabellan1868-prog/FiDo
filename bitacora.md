@@ -4,6 +4,27 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-04-16
+
+### Fix: parser Revolut no extraía la descripción del comercio
+
+**Síntoma:** al importar un extracto de Revolut, todos los movimientos quedaban
+sin categoría y la descripción mostraba solo el tipo ("Pago con tarjeta") en
+lugar del nombre del comercio.
+
+**Causa:** mojibake (doble codificación de caracteres) en las cabeceras del CSV.
+Revolut exporta en UTF-8, pero los bytes de los caracteres acentuados (`C3 B3`
+para `ó`) son a la vez UTF-8 válido, así que Python los decodifica sin error y
+obtiene `DescripciÃ³n` en lugar de `Descripción`. Eso hace que el mapeo de
+cabeceras no encuentre la columna `Description` y la deje vacía.
+
+**Solución** (`app/parsers/revolut.py` → `_normalizar_fila`): antes de buscar en
+el mapeo, se intenta revertir el mojibake codificando la clave como Latin-1 y
+decodificando como UTF-8. Si falla (clave ya correcta), se usa tal cual.
+Afecta también a `Fecha de finalización` y `Comisión`.
+
+---
+
 ## 2026-04-08
 
 ### Configuración Automate — flow FiDo Gastos

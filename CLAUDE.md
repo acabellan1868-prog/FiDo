@@ -21,7 +21,7 @@ FiDo/
 │   ├── parsers/
 │   │   ├── base.py
 │   │   ├── caixabank.py        ← cabeceras flexibles, detección automática
-│   │   ├── revolut.py          ← corrige mojibake en cabeceras (ver § Parser Revolut)
+│   │   ├── revolut.py
 │   │   └── santander.py
 │   ├── rutas/
 │   │   ├── movimientos.py
@@ -133,18 +133,3 @@ La guía original de Tasker sigue disponible en `docs/tasker-ntfy.md`.
 
 ## hogar.css
 Nginx reescribe `/static/` → `/finanzas/static/` y lo sirve desde `portal/static/` de hogarOS. FiDo no sirve `hogar.css` por sí mismo.
-
-## Parser Revolut — problema de mojibake en cabeceras
-
-Revolut exporta los CSV en UTF-8, pero en algunos sistemas Windows la app los
-guarda con doble codificación (mojibake): el texto UTF-8 se lee como Latin-1 y
-se re-guarda, convirtiendo `Descripción` → `DescripciÃ³n` (y similares).
-
-Como los bytes `C3 B3` son UTF-8 válido para `ó`, Python no falla al decodificar
-y no cae al fallback Latin-1; lee el fichero como UTF-8 y obtiene `DescripciÃ³n`
-en lugar de `Descripción`. Eso hace que el mapeo de cabeceras no encuentre la
-columna `Description`, la descripción queda vacía y la categorización falla.
-
-**Solución** (`_normalizar_fila` en `parsers/revolut.py`): antes de buscar en el
-mapeo, se intenta revertir el mojibake codificando la clave como Latin-1 y
-decodificando como UTF-8. Si falla (clave ya correcta), se usa tal cual.
