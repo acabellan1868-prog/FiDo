@@ -67,10 +67,19 @@ async def importar_csv(
             huella      = huella_base if ocurrencia == 0 else f"{huella_base}_{ocurrencia}"
             contador_huellas[huella_base] = ocurrencia + 1
 
-            # Buscar duplicados en BD usando la huella ajustada
+            # Buscar duplicados: primero por huella exacta, luego fuzzy
             existentes = bd.consultar_todos(
                 "SELECT * FROM movimientos WHERE huella = ?", (huella,)
             )
+            if not existentes:
+                # Fallback: mismo importe, misma cuenta y fecha ±1 día
+                existentes = bd.consultar_todos(
+                    """SELECT * FROM movimientos
+                       WHERE importe = ? AND cuenta_id = ?
+                       AND fecha BETWEEN date(?, '-1 day') AND date(?, '+1 day')""",
+                    (movimiento.importe, movimiento.cuenta_id,
+                     movimiento.fecha, movimiento.fecha)
+                )
             if existentes:
                 duplicados += 1
                 detalles.append({
