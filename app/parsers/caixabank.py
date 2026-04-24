@@ -149,7 +149,10 @@ class ParserCaixaBank(ParserBase):
 
     def _parsear_importe(self, texto: str) -> float:
         limpio = texto.strip().strip('"').replace("EUR", "").replace("€", "").strip()
-        limpio = limpio.replace(".", "").replace(",", ".")
+        if "," in limpio:
+            # Formato español: punto = miles, coma = decimal (ej. -1.200,50)
+            limpio = limpio.replace(".", "").replace(",", ".")
+        # Sin coma: punto ya es el separador decimal (ej. -173.68)
         return float(limpio)
 
     def _limpiar_descripcion(self, texto: str) -> str:
