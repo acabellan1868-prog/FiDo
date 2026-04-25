@@ -4,6 +4,21 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-04-25
+
+### Resumen mensual filtrable por cuenta
+
+El endpoint `GET /api/resumen` ahora acepta filtros opcionales `cuenta_id`, `cuenta_nombre`
+y `banco`. Sin filtros mantiene el comportamiento anterior: suma todas las cuentas.
+
+Motivo: la portada de hogarOS necesita mostrar una visión operativa del mes basada solo
+en `Cuenta Antonio (Caixa)`, porque sumar todas las cuentas duplica transferencias internas
+y falsea ingresos/gastos.
+
+Ficheros modificados: `app/rutas/resumen.py`
+
+---
+
 ## 2026-04-16
 
 ### Fix: parser Revolut no extraía la descripción del comercio

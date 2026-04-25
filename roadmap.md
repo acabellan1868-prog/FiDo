@@ -8,6 +8,9 @@ El flow de Automate (LlamaLab) está creado con 6 bloques y el topic NTFY config
 La prueba con `curl` es exitosa — el servidor recibe y procesa movimientos correctamente.
 Pendiente corregir dos regex en el flow y hacer la prueba end-to-end con notificación bancaria real.
 
+**Nota 2026-04-25:** `GET /api/resumen` acepta filtros de cuenta para que hogarOS pueda
+mostrar la lectura mensual de `Cuenta Antonio (Caixa)` sin duplicar transferencias internas.
+
 **Próximo paso:** Corregir regex de `importe_raw` y `ultima4` en Automate, luego probar con un pago real con tarjeta.
 
 ---
