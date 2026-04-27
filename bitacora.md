@@ -4,6 +4,31 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-04-27
+
+### Resumen semanal — nuevo parámetro `?periodo=semana`
+
+Añadido parámetro `periodo` a `GET /api/resumen` para soportar el briefing diario
+de hogarOS, que necesita el gasto de la semana en curso.
+
+- `?periodo=mes` (por defecto): comportamiento previo sin cambios.
+- `?periodo=semana`: devuelve gastos/ingresos/balance desde el lunes de la semana
+  actual hasta hoy. La etiqueta `semana` describe el rango, p.ej. "Semana del 21 al 27 abr".
+- El portal hogarOS sigue usando `?periodo=mes` (con filtro de cuenta), sin cambios en él.
+
+## 2026-04-25
+
+### AGENTS.md local para Codex
+
+Creado `AGENTS.md` en el repo de FiDo a partir de `CLAUDE.md`, con estructura,
+API, variables de entorno, listener NTFY y gotchas operativos.
+
+Añadidas dos normas locales:
+- Las transferencias internas duplican ingresos/gastos si se agregan todas las cuentas.
+- No subir capturas, logs ni flows de `docs/` sin confirmación explícita.
+
+---
+
 ## 2026-04-25
 
 ### Resumen mensual filtrable por cuenta
