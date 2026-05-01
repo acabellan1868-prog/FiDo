@@ -149,6 +149,7 @@ class MovimientoRespuesta(BaseModel):
     huella: Optional[str] = None
     notas: Optional[str] = None
     estado: str = 'ok'
+    es_transferencia_interna: int = 0
     creado_en: Optional[str] = None
     # Campos extra que se rellenan con JOINs
     nombre_categoria: Optional[str] = None
