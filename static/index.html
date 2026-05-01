@@ -307,6 +307,12 @@
                                             title="Marcar para revisar">
                                         <span class="material-symbols-outlined" style="font-size:1.1rem">check_circle</span>
                                     </button>
+                                    <button @click="toggleTransferenciaInterna(mov)"
+                                            class="fido-btn-icono"
+                                            :style="mov.es_transferencia_interna ? 'color: var(--aviso)' : 'color: var(--texto-muted); opacity: 0.4'"
+                                            :title="mov.es_transferencia_interna ? 'Desmarcar transferencia interna' : 'Marcar como transferencia interna'">
+                                        <span class="material-symbols-outlined" style="font-size:1.1rem">swap_horiz</span>
+                                    </button>
                                     <button @click="editarMovimiento(mov)" class="fido-btn-icono fido-btn-icono--primary">
                                         <span class="material-symbols-outlined" style="font-size:1.1rem">edit</span>
                                     </button>
@@ -760,7 +766,7 @@
 </div>
 
 <script src="api.js?v=2"></script>
-<script src="app.js?v=4"></script>
+<script src="app.js?v=5"></script>
 <script>
     /* Toggle tema claro/oscuro */
     (function initTema() {

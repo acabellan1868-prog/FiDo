@@ -93,6 +93,18 @@ def ejecutar_deteccion():
     return {"pares_marcados": pares}
 
 
+@ruta.post("/{id}/marcar")
+def marcar_transferencia(id: int):
+    """Marca manualmente un movimiento como transferencia interna."""
+    mov = bd.consultar_uno("SELECT * FROM movimientos WHERE id = ?", (id,))
+    if not mov:
+        raise HTTPException(404, "Movimiento no encontrado")
+    bd.ejecutar(
+        "UPDATE movimientos SET es_transferencia_interna = 1 WHERE id = ?", (id,)
+    )
+    return {"ok": True, "id": id}
+
+
 @ruta.post("/{id}/desmarcar")
 def desmarcar_transferencia(id: int):
     """Desmarca un movimiento como transferencia interna (corrección de falso positivo)."""

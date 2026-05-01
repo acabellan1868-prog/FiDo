@@ -459,6 +459,16 @@ function fidoApp() {
             }
         },
 
+        async toggleTransferenciaInterna(mov) {
+            try {
+                const accion = mov.es_transferencia_interna ? 'desmarcar' : 'marcar';
+                await API.crear(`/transferencias/${mov.id}/${accion}`, {});
+                mov.es_transferencia_interna = mov.es_transferencia_interna ? 0 : 1;
+            } catch (e) {
+                this.mostrarError('Error: ' + e.message);
+            }
+        },
+
         async borrarVinculacion(id) {
             if (!confirm('¿Eliminar esta vinculación? Los movimientos ya marcados como transferencia interna no se desmarcarán.')) return;
             try {
