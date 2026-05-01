@@ -343,12 +343,16 @@ function fidoApp() {
 
         // ---- AJUSTES ----
         async cargarAjustes() {
-            [this.miembros, this.cuentas, this.mapeoTarjetas, this.vinculaciones] = await Promise.all([
+            [this.miembros, this.cuentas, this.mapeoTarjetas] = await Promise.all([
                 API.obtener('/miembros'),
                 API.obtener('/cuentas'),
                 API.obtener('/mapeo-tarjetas'),
-                API.obtener('/transferencias/vinculaciones'),
             ]);
+            try {
+                this.vinculaciones = await API.obtener('/transferencias/vinculaciones');
+            } catch (_) {
+                this.vinculaciones = [];
+            }
         },
 
         async guardarMiembro() {
