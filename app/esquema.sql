@@ -66,6 +66,20 @@ CREATE TABLE IF NOT EXISTS mapeo_tarjetas (
     etiqueta TEXT
 );
 
+-- Vinculaciones entre cuentas (ej: Caixa → Revolut)
+-- Los movimientos que coincidan con los patrones de ambos lados
+-- y tengan el mismo importe en fechas próximas se marcan automáticamente
+-- como transferencias internas y se excluyen de los informes.
+CREATE TABLE IF NOT EXISTS cuentas_vinculadas (
+    id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+    cuenta_principal_id  INTEGER NOT NULL REFERENCES cuentas(id),
+    cuenta_vinculada_id  INTEGER NOT NULL REFERENCES cuentas(id),
+    patron_principal     TEXT    NOT NULL,  -- patrón LIKE para el gasto en la cuenta principal
+    patron_vinculada     TEXT    NOT NULL,  -- patrón LIKE para el ingreso en la cuenta vinculada
+    tolerancia_dias      INTEGER NOT NULL DEFAULT 1,
+    UNIQUE(cuenta_principal_id, cuenta_vinculada_id)
+);
+
 -- Índices para rendimiento
 CREATE INDEX IF NOT EXISTS idx_movimientos_fecha ON movimientos(fecha);
 CREATE INDEX IF NOT EXISTS idx_movimientos_cuenta ON movimientos(cuenta_id);

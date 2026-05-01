@@ -116,4 +116,29 @@ def migrar_bd():
         conexion.execute("ALTER TABLE movimientos ADD COLUMN estado TEXT NOT NULL DEFAULT 'ok'")
         conexion.commit()
 
+    # Migración v4: añadir columna 'es_transferencia_interna' si no existe
+    columnas = [fila[1] for fila in conexion.execute("PRAGMA table_info(movimientos)").fetchall()]
+    if "es_transferencia_interna" not in columnas:
+        conexion.execute(
+            "ALTER TABLE movimientos ADD COLUMN es_transferencia_interna INTEGER NOT NULL DEFAULT 0"
+        )
+        conexion.commit()
+
+    # Migración v4: crear tabla cuentas_vinculadas si no existe
+    tablas = [fila[0] for fila in conexion.execute(
+        "SELECT name FROM sqlite_master WHERE type='table'"
+    ).fetchall()]
+    if "cuentas_vinculadas" not in tablas:
+        conexion.executescript("""
+            CREATE TABLE cuentas_vinculadas (
+                id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+                cuenta_principal_id  INTEGER NOT NULL REFERENCES cuentas(id),
+                cuenta_vinculada_id  INTEGER NOT NULL REFERENCES cuentas(id),
+                patron_principal     TEXT    NOT NULL,
+                patron_vinculada     TEXT    NOT NULL,
+                tolerancia_dias      INTEGER NOT NULL DEFAULT 1,
+                UNIQUE(cuenta_principal_id, cuenta_vinculada_id)
+            );
+        """)
+
     conexion.close()

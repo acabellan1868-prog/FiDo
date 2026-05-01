@@ -39,6 +39,7 @@ function fidoApp() {
         miembros: [],
         cuentas: [],
         mapeoTarjetas: [],
+        vinculaciones: [],
 
         // Formularios
         nuevaRegla: { patron: '', categoria_id: '', prioridad: 0 },
@@ -46,6 +47,7 @@ function fidoApp() {
         nuevaCuenta: { nombre: '', banco: '', miembro_id: '', es_compartida: false },
         editandoCuenta: null,
         nuevoMapeo: { ultimos4: '', cuenta_id: '', etiqueta: '' },
+        nuevaVinculacion: { cuenta_principal_id: '', cuenta_vinculada_id: '', patron_principal: 'Recarga', patron_vinculada: 'Recargas: Pago de%', tolerancia_dias: 1 },
 
         // Crypto
         portafolioCrypto: [],
@@ -341,10 +343,11 @@ function fidoApp() {
 
         // ---- AJUSTES ----
         async cargarAjustes() {
-            [this.miembros, this.cuentas, this.mapeoTarjetas] = await Promise.all([
+            [this.miembros, this.cuentas, this.mapeoTarjetas, this.vinculaciones] = await Promise.all([
                 API.obtener('/miembros'),
                 API.obtener('/cuentas'),
                 API.obtener('/mapeo-tarjetas'),
+                API.obtener('/transferencias/vinculaciones'),
             ]);
         },
 
@@ -429,6 +432,34 @@ function fidoApp() {
                 });
                 this.nuevoMapeo = { ultimos4: '', cuenta_id: '', etiqueta: '' };
                 this.mostrarOk('Mapeo creado');
+                await this.cargarAjustes();
+            } catch (e) {
+                this.mostrarError('Error: ' + e.message);
+            }
+        },
+
+        async guardarVinculacion() {
+            try {
+                await API.crear('/transferencias/vinculaciones', {
+                    cuenta_principal_id: parseInt(this.nuevaVinculacion.cuenta_principal_id),
+                    cuenta_vinculada_id: parseInt(this.nuevaVinculacion.cuenta_vinculada_id),
+                    patron_principal:    this.nuevaVinculacion.patron_principal,
+                    patron_vinculada:    this.nuevaVinculacion.patron_vinculada,
+                    tolerancia_dias:     parseInt(this.nuevaVinculacion.tolerancia_dias) || 1,
+                });
+                this.nuevaVinculacion = { cuenta_principal_id: '', cuenta_vinculada_id: '', patron_principal: 'Recarga', patron_vinculada: 'Recargas: Pago de%', tolerancia_dias: 1 };
+                this.mostrarOk('Vinculación creada');
+                await this.cargarAjustes();
+            } catch (e) {
+                this.mostrarError('Error: ' + e.message);
+            }
+        },
+
+        async borrarVinculacion(id) {
+            if (!confirm('¿Eliminar esta vinculación? Los movimientos ya marcados como transferencia interna no se desmarcarán.')) return;
+            try {
+                await API.borrar(`/transferencias/vinculaciones/${id}`);
+                this.mostrarOk('Vinculación eliminada');
                 await this.cargarAjustes();
             } catch (e) {
                 this.mostrarError('Error: ' + e.message);

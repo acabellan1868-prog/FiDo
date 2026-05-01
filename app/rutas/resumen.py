@@ -78,7 +78,9 @@ def resumen(
             COALESCE(SUM(m.importe), 0) as balance
         FROM movimientos m
         JOIN cuentas c ON c.id = m.cuenta_id
-        WHERE {filtro_fecha}{filtro_cuenta}
+        WHERE {filtro_fecha}
+          AND m.es_transferencia_interna = 0
+          {filtro_cuenta}
     """, tuple(parametros))
 
     clave_periodo = "semana" if periodo == "semana" else "mes"

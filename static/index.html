@@ -599,6 +599,63 @@
                     </div>
                 </div>
 
+                <!-- Vinculaciones entre cuentas -->
+                <div class="hogar-tarjeta">
+                    <h3 class="fido-subtitulo">Cuentas vinculadas</h3>
+                    <p class="fido-text-muted fido-text-xs" style="margin-bottom: var(--gap-md);">
+                        Define qué cuentas están vinculadas entre sí. Las transferencias detectadas entre ellas
+                        se excluirán de ingresos y gastos en los informes.
+                    </p>
+                    <div class="fido-lista">
+                        <template x-for="v in vinculaciones" :key="v.id">
+                            <div class="fido-lista__item" style="flex-direction: column; align-items: flex-start; gap: var(--gap-xs);">
+                                <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                                    <span>
+                                        <strong x-text="v.nombre_principal"></strong>
+                                        <span style="margin: 0 0.4rem; color: var(--texto-muted);">→</span>
+                                        <strong x-text="v.nombre_vinculada"></strong>
+                                    </span>
+                                    <button @click="borrarVinculacion(v.id)"
+                                            class="hogar-boton hogar-boton--peligro fido-boton--xs"
+                                            title="Eliminar vinculación">✕</button>
+                                </div>
+                                <span class="fido-text-muted fido-text-xs">
+                                    Patrón: "<span x-text="v.patron_principal"></span>"
+                                    <span style="margin: 0 0.3rem;">→</span>
+                                    "<span x-text="v.patron_vinculada"></span>"
+                                    · tolerancia <span x-text="v.tolerancia_dias"></span> día(s)
+                                </span>
+                            </div>
+                        </template>
+                        <div x-show="vinculaciones.length === 0" class="fido-text-muted fido-text-xs" style="padding: var(--gap-sm) 0;">
+                            Sin vinculaciones configuradas.
+                        </div>
+                    </div>
+                    <div class="fido-cuenta-edicion__grid" style="margin-top: var(--gap-md);">
+                        <select x-model="nuevaVinculacion.cuenta_principal_id"
+                                class="fido-input fido-input--form fido-input--sm">
+                            <option value="">Cuenta principal...</option>
+                            <template x-for="c in cuentas" :key="c.id">
+                                <option :value="c.id" x-text="c.nombre"></option>
+                            </template>
+                        </select>
+                        <select x-model="nuevaVinculacion.cuenta_vinculada_id"
+                                class="fido-input fido-input--form fido-input--sm">
+                            <option value="">Cuenta vinculada...</option>
+                            <template x-for="c in cuentas" :key="c.id">
+                                <option :value="c.id" x-text="c.nombre"></option>
+                            </template>
+                        </select>
+                        <input type="text" x-model="nuevaVinculacion.patron_principal"
+                               placeholder="Patrón principal (LIKE)"
+                               class="fido-input fido-input--form fido-input--sm">
+                        <input type="text" x-model="nuevaVinculacion.patron_vinculada"
+                               placeholder="Patrón vinculada (LIKE)"
+                               class="fido-input fido-input--form fido-input--sm">
+                        <button @click="guardarVinculacion()" class="hogar-boton hogar-boton--primario fido-boton--xs">Añadir</button>
+                    </div>
+                </div>
+
                 <!-- Mapeo de tarjetas -->
                 <div class="hogar-tarjeta">
                     <h3 class="fido-subtitulo">Mapeo de tarjetas</h3>

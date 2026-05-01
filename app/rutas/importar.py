@@ -6,6 +6,7 @@ from app.parsers.caixabank import ParserCaixaBank
 from app.parsers.revolut import ParserRevolut
 from app.servicios.categorizador import categorizar
 from app.servicios.deduplicador import calcular_huella, buscar_duplicados
+from app.servicios.detector_transferencias import detectar_y_marcar
 from app import bd
 
 ruta = APIRouter()
@@ -117,9 +118,12 @@ async def importar_csv(
                 "error": str(e),
             })
 
+    transferencias_marcadas = detectar_y_marcar()
+
     return {
         "importados": importados,
         "duplicados": duplicados,
         "errores": errores,
+        "transferencias_marcadas": transferencias_marcadas,
         "detalles": detalles,
     }

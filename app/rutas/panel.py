@@ -23,7 +23,8 @@ def resumen(
         condiciones.append("cuenta_id = ?")
         parametros.append(cuenta_id)
 
-    where = "WHERE " + " AND ".join(condiciones) if condiciones else ""
+    condiciones.append("es_transferencia_interna = 0")
+    where = "WHERE " + " AND ".join(condiciones)
 
     fila = bd.consultar_uno(f"""
         SELECT
@@ -42,7 +43,7 @@ def por_categoria(
     cuenta_id: Optional[int] = Query(None),
 ):
     """Gastos agrupados por categoría padre, con desglose por subcategoría."""
-    condiciones = ["m.importe < 0"]  # Solo gastos
+    condiciones = ["m.importe < 0", "m.es_transferencia_interna = 0"]
     parametros = []
 
     if mes:
@@ -94,7 +95,7 @@ def por_mes(
     meses: int = Query(12, description="Número de meses hacia atrás"),
 ):
     """Evolución mensual: ingresos y gastos por mes."""
-    condiciones = []
+    condiciones = ["es_transferencia_interna = 0"]
     parametros = []
 
     if cuenta_id:
@@ -123,14 +124,14 @@ def por_mes(
 @ruta.get("/por-cuenta")
 def por_cuenta(mes: Optional[str] = Query(None)):
     """Totales por cuenta bancaria."""
-    condiciones = []
+    condiciones = ["m.es_transferencia_interna = 0"]
     parametros = []
 
     if mes:
         condiciones.append("strftime('%Y-%m', m.fecha) = ?")
         parametros.append(mes)
 
-    filtro_join = " AND " + " AND ".join(condiciones) if condiciones else ""
+    filtro_join = " AND " + " AND ".join(condiciones)
 
     filas = bd.consultar_todos(f"""
         SELECT

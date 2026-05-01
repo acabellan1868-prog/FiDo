@@ -14,7 +14,8 @@ from app.datos_iniciales import sembrar_si_vacio
 from app.servicios import ntfy_listener
 from app.rutas import (
     miembros, cuentas, categorias, reglas,
-    movimientos, mapeo_tarjetas, importar, sincronizar, panel, resumen
+    movimientos, mapeo_tarjetas, importar, sincronizar, panel, resumen,
+    transferencias
 )
 
 
@@ -62,6 +63,7 @@ app.include_router(importar.ruta, prefix="/api/importar", tags=["Importar"])
 app.include_router(sincronizar.ruta, prefix="/api/sincronizar", tags=["Sincronizar"])
 app.include_router(panel.ruta, prefix="/api/panel", tags=["Panel"])
 app.include_router(resumen.ruta, prefix="/api/resumen", tags=["Resumen"])
+app.include_router(transferencias.ruta, prefix="/api/transferencias", tags=["Transferencias"])
 
 # ---- Servir frontend estático (DEBE ir al final, es catch-all) ----
 app.mount("/", StaticFiles(directory="static", html=True), name="static")

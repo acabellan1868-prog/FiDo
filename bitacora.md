@@ -4,6 +4,45 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-05-01
+
+### Transferencias internas — cuentas vinculadas
+
+Se implementa el sistema de detección y exclusión de transferencias internas
+entre cuentas propias (caso concreto: Caixa → Revolut).
+
+**Motivación:** al importar extractos de ambas cuentas, las recargas a Revolut
+aparecían como gasto en Caixa y como ingreso en Revolut, inflando ambos totales
+en todos los informes.
+
+**Solución:**
+- Nueva tabla `cuentas_vinculadas`: define la relación entre cuentas y los
+  patrones de descripción que identifican cada lado de la transferencia.
+- Nueva columna `es_transferencia_interna` en `movimientos` (por defecto 0).
+- Nuevo servicio `detector_transferencias.py`: busca pares no marcados
+  (mismo importe, mismo día ±1, patrones de descripción coincidentes) y los marca.
+- La detección se lanza automáticamente al importar cualquier CSV.
+- Todos los informes (`/api/panel/*` y `/api/resumen`) filtran los movimientos marcados.
+
+**Patrones configurados (se crean vía API, no en código):**
+- Caixa → descripcion LIKE `Recarga`
+- Revolut → descripcion LIKE `Recargas: Pago de ANTONIO%`
+- Tolerancia: 1 día
+
+**Ficheros nuevos:**
+- `app/servicios/detector_transferencias.py`
+- `app/rutas/transferencias.py`
+
+**Ficheros modificados:**
+- `app/esquema.sql` — tabla `cuentas_vinculadas`
+- `app/bd.py` — migraciones v4
+- `app/rutas/importar.py` — llama al detector tras importar
+- `app/rutas/panel.py` — filtro en resumen, por-categoria, por-mes, por-cuenta
+- `app/rutas/resumen.py` — filtro en resumen hogarOS
+- `app/principal.py` — registra ruta `/api/transferencias`
+
+---
+
 ## 2026-04-27
 
 ### Resumen semanal — nuevo parámetro `?periodo=semana`
