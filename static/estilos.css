@@ -1,524 +1,1053 @@
-/* FiDo — Estilos especificos (no del design system)
- * Todas las clases usan prefijo fido- para evitar colisiones.
- * Las variables (--background, --gap-md, etc.) vienen de hogar.css.
+/**
+ * FiDo — Estilos Cockpit
+ * Todas las clases usan prefijo fido- o ck- para evitar colisiones.
+ * Las variables --ck-* vienen de hogar.css (sección 26 en adelante).
  */
 
 /* ============================================================
    0. Ocultar Alpine.js hasta init
    ============================================================ */
-[x-cloak] {
-    display: none !important;
-}
+[x-cloak] { display: none !important; }
 
 /* ============================================================
-   1. Utilidades de texto
+   1. Layout principal
    ============================================================ */
-.fido-text-right  { text-align: right; }
-.fido-text-center { text-align: center; }
-.fido-text-xs     { font-size: 0.75rem; }
-.fido-text-bold   { font-weight: 600; }
-.fido-nowrap      { white-space: nowrap; }
-
-.fido-text-muted {
-    color: var(--on-surface-variant);
+body {
+    margin: 0;
+    background: var(--ck-bg);
+    color: var(--ck-on-surface);
+    font-family: var(--ck-fuente);
+    font-size: 0.72rem;
+    overflow: hidden;
 }
 
-.fido-mono {
-    font-family: var(--fuente-mono);
-}
-
-/* ============================================================
-   2. Titulos y subtitulos
-   ============================================================ */
-.fido-titulo {
-    font-family: var(--fuente-titular);
-    font-size: 1.15rem;
-    font-weight: 700;
-    margin-bottom: var(--gap-lg);
-}
-
-.fido-subtitulo {
-    font-family: var(--fuente-titular);
-    font-size: 0.95rem;
-    font-weight: 600;
-    margin-bottom: var(--gap-md);
-}
-
-/* ============================================================
-   3. Inputs y selects
-   ============================================================ */
-.fido-input {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.85rem;
-    font-family: var(--fuente-cuerpo);
-    color: var(--on-surface);
-    background: var(--surface-container-lowest);
-    border: none;
-    outline: none;
-    transition: box-shadow var(--transicion);
-}
-
-.fido-input:focus {
-    box-shadow: 0 0 0 2px var(--primary-container);
-}
-
-/* Pill: bordes redondeados completos (filtros) */
-.fido-input--pill {
-    border-radius: var(--radio-full);
-}
-
-/* Form: bordes redondeados suaves (formularios) */
-.fido-input--form {
-    width: 100%;
-    background: var(--surface-container);
-    border: 1px solid var(--outline-variant);
-    border-radius: var(--radio-sm);
-}
-
-/* Pequeno: para edicion inline */
-.fido-input--sm {
-    padding: 0.35rem 0.5rem;
-    font-size: 0.8rem;
-}
-
-/* Buscador: ancho fijo */
-.fido-input--buscar {
-    width: 10rem;
-}
-
-/* Flex: crece para llenar espacio */
-.fido-input--flex {
-    flex: 1;
-    min-width: 0;
-}
-
-/* ============================================================
-   4. Labels de formulario
-   ============================================================ */
-.fido-label {
-    display: block;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--on-surface-variant);
-    margin-bottom: 0.25rem;
-}
-
-.fido-checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 0.85rem;
-}
-
-/* ============================================================
-   5. Layouts: filtros, grids, stacks
-   ============================================================ */
-.fido-filtros {
-    display: flex;
-    gap: var(--gap-sm);
-    align-items: center;
-}
-
-.fido-filtros--wrap {
-    flex-wrap: wrap;
-    gap: var(--gap-sm);
-    margin-bottom: var(--gap-lg);
-}
-
-.fido-form-stack {
+#fido-app {
     display: flex;
     flex-direction: column;
-    gap: var(--gap-md);
+    height: 100vh;
+    overflow: hidden;
+    background: var(--ck-bg);
 }
 
-.fido-form-stack--lg {
-    gap: var(--gap-xl);
-}
-
-.fido-grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--gap-md);
-}
-
-.fido-acciones-der {
+/* ============================================================
+   2. Header
+   ============================================================ */
+#fido-header {
     display: flex;
-    gap: var(--gap-sm);
-    justify-content: flex-end;
-    margin-top: var(--gap-sm);
+    align-items: center;
+    justify-content: space-between;
+    height: 48px;
+    padding: 0 1rem;
+    border-bottom: 1px solid var(--ck-line);
+    background: var(--ck-bg2);
+    flex-shrink: 0;
+    z-index: 10;
 }
 
-/* ============================================================
-   6. Panel — Tarjetas resumen
-   ============================================================ */
-.fido-resumen-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--gap-md);
-    margin-bottom: var(--gap-xl);
+.fido-header__left {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+    flex: 1;
 }
 
-@media (min-width: 768px) {
-    .fido-resumen-grid {
-        grid-template-columns: repeat(4, 1fr);
-    }
+.fido-header__right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
 }
 
-.fido-resumen-tarjeta {
-    padding: var(--gap-lg);
+.fido-header__marca {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
 }
 
-.fido-resumen-valor {
-    font-family: var(--fuente-titular);
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--on-surface);
-}
-
-.fido-resumen-valor--exito  { color: var(--exito); }
-.fido-resumen-valor--peligro { color: var(--peligro); }
-
-/* ============================================================
-   7. Panel — Graficas
-   ============================================================ */
-.fido-graficas-grid {
-    display: grid;
-    gap: var(--gap-xl);
-}
-
-@media (min-width: 768px) {
-    .fido-graficas-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-/* ============================================================
-   8. Toast (mensaje flotante)
-   ============================================================ */
-.fido-toast {
-    position: fixed;
-    top: 5rem;
-    right: 1rem;
-    z-index: 250;
-    padding: 0.75rem 1.25rem;
-    font-size: 0.85rem;
-    border-radius: var(--radio-xl);
-    box-shadow: var(--sombra-lg);
-    font-family: var(--fuente-cuerpo);
-}
-
-.fido-toast--ok {
-    background: var(--exito-fondo);
-    color: var(--exito);
-    border: 1px solid var(--exito);
-}
-
-.fido-toast--error {
-    background: var(--peligro-fondo);
-    color: var(--peligro);
-    border: 1px solid var(--peligro);
-}
-
-/* ============================================================
-   9. Modal
-   ============================================================ */
-.fido-modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 200;
-    padding: 1rem;
+.fido-header__logo {
+    width: 20px;
+    height: 20px;
+    border: 1px solid var(--ck-accent);
+    border-radius: 3px;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
-.fido-modal {
-    background: var(--surface-container-low);
-    border-radius: var(--radio-lg);
-    box-shadow: var(--sombra-lg);
-    width: 100%;
-    max-width: 480px;
-    padding: var(--gap-xl);
+.fido-header__logo-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ck-accent);
 }
 
-.fido-modal__titulo {
-    font-size: 1.1rem;
-    margin-bottom: var(--gap-lg);
+.fido-header__marca-text {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--ck-accent-dim);
+    letter-spacing: 0.1em;
 }
 
-/* Transiciones del modal */
-.fido-transicion-entrada  { transition: opacity 0.2s ease-out; }
-.fido-transicion-salida   { transition: opacity 0.15s ease-in; }
-.fido-transicion-oculto   { opacity: 0; }
-.fido-transicion-visible  { opacity: 1; }
+.fido-header__marca-os {
+    color: var(--ck-on-variant);
+}
+
+.fido-header__sep {
+    width: 1px;
+    height: 16px;
+    background: var(--ck-line);
+    flex-shrink: 0;
+}
+
+.fido-header__app {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--ck-accent);
+    letter-spacing: 0.12em;
+    flex-shrink: 0;
+}
+
+.fido-header__sub {
+    font-size: 0.48rem;
+    color: var(--ck-on-variant);
+    letter-spacing: 0.08em;
+}
+
+.fido-header__reloj {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--ck-accent);
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+}
+
+.fido-header__tema-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--ck-on-variant);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.fido-header__tema-btn:hover {
+    background: rgba(128, 128, 128, 0.15);
+}
+
+.fido-header__hamburguesa {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--ck-on-variant);
+    display: flex;
+    align-items: center;
+    padding: 0.25rem;
+}
+
+/* Nav secciones */
+.fido-nav {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.fido-nav__btn {
+    font-family: var(--ck-fuente);
+    font-size: 0.5rem;
+    letter-spacing: 0.1em;
+    color: var(--ck-on-variant);
+    background: none;
+    border: none;
+    border-bottom: 1px solid transparent;
+    cursor: pointer;
+    padding: 0.2rem 0.5rem;
+    transition: color 0.15s;
+    white-space: nowrap;
+}
+
+.fido-nav__btn:hover {
+    color: var(--ck-on-surface);
+}
+
+.fido-nav__btn--activo {
+    color: var(--ck-accent);
+    border-bottom-color: var(--ck-accent);
+}
+
+.fido-mobile-seccion {
+    font-size: 0.6rem;
+    color: var(--ck-accent);
+    letter-spacing: 0.1em;
+}
 
 /* ============================================================
-   10. Paginacion
+   3. Drawer móvil
    ============================================================ */
+.fido-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 200;
+}
+
+.fido-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 220px;
+    background: var(--ck-bg2);
+    border-left: 1px solid var(--ck-line);
+    z-index: 201;
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 0.75rem;
+    gap: 0.1rem;
+}
+
+.fido-drawer--abierto {
+    transform: translateX(0);
+}
+
+.fido-drawer__cerrar {
+    align-self: flex-end;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--ck-on-variant);
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    line-height: 1;
+}
+
+.fido-drawer__item {
+    font-family: var(--ck-fuente);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--ck-on-variant);
+    background: none;
+    border: none;
+    border-left: 2px solid transparent;
+    border-bottom: 1px solid var(--ck-line);
+    cursor: pointer;
+    padding: 0.65rem 0.75rem;
+    text-align: left;
+    transition: color 0.15s;
+}
+
+.fido-drawer__item--activo {
+    color: var(--ck-accent);
+    border-left-color: var(--ck-accent);
+}
+
+/* ============================================================
+   4. Contenido principal
+   ============================================================ */
+#fido-content {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+/* ============================================================
+   5. SECCIÓN PANEL
+   ============================================================ */
+.fido-panel-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.fido-panel-filtros {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.85rem;
+    border-bottom: 1px solid var(--ck-line);
+    background: var(--ck-bg2);
+    flex-shrink: 0;
+}
+
+.fido-panel-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 210px 1fr 230px;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.fido-panel-col {
+    border-right: 1px solid var(--ck-line);
+    padding: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.fido-panel-col:last-child {
+    border-right: none;
+}
+
+.fido-panel-cats {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-height: 0;
+}
+
+.fido-panel-donut {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    padding-top: 0.5rem;
+}
+
+.fido-panel-barras {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+}
+
+.fido-panel-barras svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+.fido-barras-leyenda {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    padding: 0.4rem 0;
+    flex-shrink: 0;
+}
+
+.fido-barras-leyenda__item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.55rem;
+    color: var(--ck-on-variant);
+}
+
+.fido-barras-leyenda__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 1px;
+    flex-shrink: 0;
+}
+
+.fido-panel-crypto {
+    border-top: 1px solid var(--ck-line);
+    padding-top: 0.6rem;
+    flex-shrink: 0;
+}
+
+.fido-panel-crypto__kpis {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+/* ============================================================
+   6. KPI
+   ============================================================ */
+.ck-kpi {
+    border-bottom: 1px solid var(--ck-line);
+    padding-bottom: 0.55rem;
+    margin-bottom: 0.55rem;
+    flex-shrink: 0;
+}
+
+.ck-kpi__label,
+.ck-label {
+    font-size: 0.48rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--ck-on-variant);
+    margin-bottom: 0.2rem;
+    display: block;
+}
+
+.ck-kpi__valor {
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+}
+
+.ck-kpi__valor--lg  { font-size: 2rem; }
+.ck-kpi__valor--md  { font-size: 1.1rem; }
+.ck-kpi__valor--sm  { font-size: 0.9rem; }
+.ck-kpi__valor--xl  { font-size: 1.8rem; line-height: 1.1; }
+
+/* ============================================================
+   7. Zone Label
+   ============================================================ */
+.ck-zl {
+    font-size: 0.48rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--ck-on-variant);
+    margin-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-shrink: 0;
+}
+
+.ck-zl::before {
+    content: '◆';
+    color: var(--ck-accent-dim);
+}
+
+/* ============================================================
+   8. Category bars
+   ============================================================ */
+.ck-fila-cat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ck-fila-cat__nombre {
+    font-size: 0.6rem;
+    color: var(--ck-on-variant);
+    width: 7.5rem;
+    flex-shrink: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ck-fila-cat__track {
+    flex: 1;
+    height: 5px;
+    background: var(--ck-line);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.ck-fila-cat__fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.6s ease;
+}
+
+.ck-fila-cat__valor {
+    font-size: 0.58rem;
+    width: 4.5rem;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   9. Sección genérica (scrollable)
+   ============================================================ */
+.fido-seccion {
+    height: 100%;
+    overflow-y: auto;
+    padding: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    box-sizing: border-box;
+}
+
+.fido-seccion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ============================================================
+   10. Sección de tabla completa (Movimientos)
+   ============================================================ */
+.fido-seccion-full {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.fido-filtros-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.85rem;
+    border-bottom: 1px solid var(--ck-line);
+    background: var(--ck-bg2);
+    flex-shrink: 0;
+    flex-wrap: nowrap;
+}
+
+.fido-filtros-bar--mini {
+    flex-wrap: nowrap;
+    padding: 0.4rem 0.85rem;
+}
+
+.fido-filtros-bar__right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.fido-tabla-wrap {
+    flex: 1;
+    overflow: auto;
+    min-height: 0;
+}
+
 .fido-paginacion {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: var(--gap-lg);
-    font-size: 0.85rem;
-    color: var(--on-surface-variant);
-}
-
-.fido-paginacion__info {
-    display: flex;
-    gap: var(--gap-lg);
-    align-items: center;
+    padding: 0.5rem 0.85rem;
+    border-top: 1px solid var(--ck-line);
+    background: var(--ck-bg2);
+    flex-shrink: 0;
 }
 
 .fido-paginacion__botones {
     display: flex;
-    gap: var(--gap-sm);
-}
-
-/* Botones deshabilitados */
-.hogar-boton:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
+    gap: 0.4rem;
 }
 
 /* ============================================================
-   11. Importar — resultado
+   11. Tabla Cockpit
    ============================================================ */
-.fido-importar-card {
-    max-width: 36rem;
+.ck-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.62rem;
+    font-family: var(--ck-fuente);
 }
 
-.fido-resultado {
-    margin-top: var(--gap-xl);
-    padding-top: var(--gap-lg);
-    border-top: 1px solid var(--surface-container);
+.ck-tabla thead {
+    position: sticky;
+    top: 0;
+    background: var(--ck-bg2);
+    z-index: 2;
 }
 
-.fido-resultado__stats {
+.ck-tabla thead th {
+    font-size: 0.48rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ck-on-variant);
+    padding: 0.4rem 0.7rem;
+    text-align: left;
+    border-bottom: 1px solid var(--ck-line);
+    font-weight: 400;
+    white-space: nowrap;
+}
+
+.ck-tabla tbody tr {
+    border-bottom: 1px solid var(--ck-line);
+    transition: background 0.1s;
+}
+
+.ck-tabla tbody tr:hover {
+    background: rgba(0, 229, 196, 0.04);
+}
+
+[data-tema-cockpit="light"] .ck-tabla tbody tr:hover {
+    background: rgba(26, 106, 96, 0.04);
+}
+
+.ck-tabla td {
+    padding: 0.35rem 0.7rem;
+    color: var(--ck-on-surface);
+    vertical-align: middle;
+}
+
+/* ============================================================
+   12. Importar
+   ============================================================ */
+.fido-importar-layout {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    overflow: hidden;
+}
+
+.fido-importar-form {
+    border-right: 1px solid var(--ck-line);
+    padding: 0.85rem;
     display: flex;
-    gap: var(--gap-lg);
-    font-size: 0.85rem;
-    margin-bottom: var(--gap-md);
-}
-
-.fido-resultado__detalles {
-    max-height: 15rem;
+    flex-direction: column;
+    gap: 0.75rem;
     overflow-y: auto;
-    font-size: 0.75rem;
 }
 
-.fido-resultado__linea {
-    padding: 0.25rem 0;
-    border-bottom: 1px solid var(--surface-container);
+.fido-importar-resultado {
+    padding: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.fido-resultado-detalles {
+    flex: 1;
+    overflow-y: auto;
+    margin-top: 0.5rem;
+    font-size: 0.58rem;
+    line-height: 1.6;
+    color: var(--ck-on-variant);
+}
+
+.ck-esperando {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    font-size: 0.65rem;
+    color: var(--ck-on-variant);
 }
 
 /* ============================================================
-   12. Categorias
+   13. Cards (Categorías, Ajustes)
    ============================================================ */
-.fido-cabecera-seccion {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--gap-lg);
+.ck-card {
+    border: 1px solid var(--ck-line);
+    border-radius: 4px;
+    background: var(--ck-bg2);
+    overflow: hidden;
+    flex-shrink: 0;
 }
 
-.fido-cabecera-seccion .fido-titulo {
-    margin-bottom: 0;
-}
-
-.fido-cat-cabecera {
+.ck-card-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.75rem 1.25rem;
-    border-bottom: 1px solid var(--surface-container);
+    padding: 0.6rem 0.85rem;
+    border-bottom: 1px solid var(--ck-line);
+    background: var(--ck-bg3);
 }
 
-.fido-cat-hijas {
-    padding: 0.5rem 1.25rem;
+.ck-card-title {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--ck-on-surface);
 }
 
-.fido-cat-hija {
+.ck-card-hijas {
+    padding: 0.4rem 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.ck-card-hija {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.25rem 0;
-    font-size: 0.85rem;
-    color: var(--on-surface-variant);
+    padding: 0.2rem 0;
+    font-size: 0.6rem;
+    border-bottom: 1px solid var(--ck-line);
+    color: var(--ck-on-variant);
+}
+
+.ck-lista-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.45rem 0.85rem;
+    border-bottom: 1px solid var(--ck-line);
+    font-size: 0.62rem;
+    gap: 0.5rem;
 }
 
 /* ============================================================
-   13. Reglas — grid del formulario
+   14. Formularios inline
    ============================================================ */
-.fido-regla-form {
-    margin-bottom: var(--gap-lg);
+.ck-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.ck-form-inline {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.85rem;
+    flex-wrap: wrap;
 }
 
 .fido-regla-grid {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--gap-md);
+    grid-template-columns: 1fr 1fr 6rem auto;
+    gap: 0.5rem;
     align-items: end;
-}
-
-@media (min-width: 768px) {
-    .fido-regla-grid {
-        grid-template-columns: 1fr 1fr 8rem auto;
-    }
-}
-
-/* ============================================================
-   14. Ajustes — listas y edicion
-   ============================================================ */
-.fido-lista {
-    margin-bottom: var(--gap-md);
-}
-
-.fido-lista__item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.35rem 0;
-    font-size: 0.85rem;
-    border-bottom: 1px solid var(--surface-container);
+    padding: 0.85rem;
 }
 
 .fido-cuenta-edicion {
-    padding: 0.5rem 0;
-    border-bottom: 1px solid var(--surface-container);
-}
-
-.fido-cuenta-edicion__grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--gap-sm);
-    font-size: 0.85rem;
-}
-
-@media (min-width: 768px) {
-    .fido-cuenta-edicion__grid {
-        grid-template-columns: 1fr 1fr 1fr auto auto auto;
-    }
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+    padding: 0.5rem 0.85rem;
+    border-bottom: 1px solid var(--ck-line);
+    flex-wrap: wrap;
 }
 
 .fido-cuenta-nueva {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--gap-sm);
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+    padding: 0.5rem 0.85rem;
+    flex-wrap: wrap;
 }
 
-@media (min-width: 768px) {
-    .fido-cuenta-nueva {
-        grid-template-columns: 1fr 1fr 1fr auto auto;
-    }
+.fido-vinculacion-form {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+    padding: 0.5rem 0.85rem;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--ck-line);
+    margin-top: 0.25rem;
+}
+
+.ck-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.62rem;
+    color: var(--ck-on-surface);
+    cursor: pointer;
+    white-space: nowrap;
 }
 
 /* ============================================================
-   15. Botones auxiliares
+   15. Inputs, selects
    ============================================================ */
-
-/* Boton icono (edit, delete en tablas) */
-.fido-btn-icono {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.15rem;
+.ck-input,
+.ck-select {
+    font-family: var(--ck-fuente);
+    font-size: 0.65rem;
+    color: var(--ck-on-surface);
+    background: transparent;
+    border: 1px solid var(--ck-line-bright);
+    border-radius: 3px;
+    padding: 0.3rem 0.6rem;
+    outline: none;
+    transition: border-color 0.15s;
 }
 
-.fido-btn-icono--primary { color: var(--primary); }
-.fido-btn-icono--peligro { color: var(--peligro); }
+.ck-input:focus,
+.ck-select:focus {
+    border-color: var(--ck-accent-dim);
+}
 
-/* Boton texto (sin fondo, tipo enlace) */
-.fido-btn-texto {
+.ck-input--sm,
+.ck-select--sm {
+    font-size: 0.6rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.ck-select {
+    cursor: pointer;
+}
+
+/* ============================================================
+   16. Botones
+   ============================================================ */
+.ck-btn {
+    font-family: var(--ck-fuente);
+    font-size: 0.62rem;
+    padding: 0.3rem 0.75rem;
+    background: transparent;
+    color: var(--ck-on-surface);
+    border: 1px solid var(--ck-line-bright);
+    border-radius: 3px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    letter-spacing: 0.04em;
+    transition: background 0.15s;
+    white-space: nowrap;
+}
+
+.ck-btn:hover {
+    background: rgba(0, 229, 196, 0.06);
+}
+
+.ck-btn--primary {
+    background: var(--ck-accent);
+    color: var(--ck-bg);
+    border-color: var(--ck-accent);
+}
+
+.ck-btn--primary:hover {
+    background: var(--ck-accent-dim);
+    border-color: var(--ck-accent-dim);
+}
+
+.ck-btn--sm {
+    font-size: 0.58rem;
+    padding: 0.2rem 0.5rem;
+}
+
+.ck-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.ck-btn-icono {
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 0.75rem;
+    padding: 0.1rem;
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+}
+
+.ck-btn-texto {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--ck-fuente);
+    font-size: 0.6rem;
     font-weight: 600;
 }
 
-.fido-btn-texto--primary { color: var(--primary); }
-.fido-btn-texto--peligro { color: var(--peligro); }
-
-/* Tamanos de boton */
-.fido-boton--sm { padding: 0.4rem 1rem; }
-.fido-boton--xs { padding: 0.3rem 0.8rem; font-size: 0.7rem; }
+.ck-btn-texto--accent { color: var(--ck-accent-dim); }
+.ck-btn-texto--danger { color: var(--ck-danger); }
 
 /* ============================================================
-   16. Crypto
+   17. Utilidades
    ============================================================ */
-.fido-crypto-img {
-    width: 100%;
-    height: auto;
-    border-radius: var(--radio-md);
+.ck-mono     { font-family: var(--ck-fuente); }
+.ck-muted    { color: var(--ck-on-variant); }
+.ck-small    { font-size: 0.58rem; }
+.ck-nowrap   { white-space: nowrap; }
+.ck-truncate { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.ck-stat {
+    font-size: 0.6rem;
+    color: var(--ck-on-variant);
+    white-space: nowrap;
 }
 
-/* ============================================================
-   17. Estado vacio
-   ============================================================ */
-.fido-vacio {
+.ck-stat--valor {
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.ck-badge {
+    font-family: var(--ck-fuente);
+    font-size: 0.5rem;
+    padding: 0.1rem 0.35rem;
+    border-radius: 2px;
+    background: rgba(0, 229, 196, 0.1);
+    color: var(--ck-accent-dim);
+    border: 1px solid rgba(0, 229, 196, 0.2);
+    letter-spacing: 0.05em;
+}
+
+.ck-vacio {
     text-align: center;
-    padding: var(--gap-xl) 0;
-    color: var(--on-surface-variant);
+    padding: 2rem 0;
+    color: var(--ck-on-variant);
+    font-size: 0.65rem;
 }
 
-/* ============================================================
-   18. Footer
-   ============================================================ */
-.fido-footer {
-    text-align: center;
-    font-size: 0.75rem;
-    padding: var(--gap-xl) 0;
-    margin-top: var(--gap-xl);
-    color: var(--on-surface-variant);
-    font-family: var(--fuente-cuerpo);
-}
-
-/* ============================================================
-   19. Responsive
-   ============================================================ */
-@media (max-width: 600px) {
-    .fido-resumen-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .fido-resumen-valor {
-        font-size: 1rem;
-    }
-
-    .fido-grid-2 {
-        grid-template-columns: 1fr;
-    }
-
-    .fido-paginacion {
-        flex-direction: column;
-        gap: var(--gap-md);
-        align-items: flex-start;
-    }
-
-    .fido-filtros--wrap {
-        gap: var(--gap-xs);
-    }
-
-    .fido-input--buscar {
-        width: 100%;
-    }
-
-    .fido-cuenta-nueva,
-    .fido-cuenta-edicion__grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* ============================================================
-   20. Scrollbar fina (complemento a scroll-fino de hogar.css)
-   ============================================================ */
-.fido-resultado__detalles::-webkit-scrollbar {
-    width: 6px;
-}
-
-.fido-resultado__detalles::-webkit-scrollbar-thumb {
-    background: var(--outline-variant);
+.ck-alerta {
+    padding: 0.5rem 0.85rem;
     border-radius: 3px;
+    font-size: 0.62rem;
+    margin: 0.5rem 0.85rem;
+}
+
+.ck-alerta--danger {
+    background: rgba(232, 84, 84, 0.1);
+    border: 1px solid rgba(232, 84, 84, 0.3);
+    color: var(--ck-danger);
+}
+
+.ck-acciones {
+    display: flex;
+    gap: 0.2rem;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ============================================================
+   18. Crypto
+   ============================================================ */
+.fido-crypto-layout {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr 240px;
+    overflow: hidden;
+}
+
+.fido-crypto-tabla {
+    border-right: 1px solid var(--ck-line);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.fido-crypto-side {
+    padding: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    overflow-y: auto;
+}
+
+/* ============================================================
+   19. Modal
+   ============================================================ */
+.fido-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.fido-modal {
+    background: var(--ck-bg2);
+    border: 1px solid var(--ck-line-bright);
+    border-radius: 4px;
+    width: 100%;
+    max-width: 480px;
+    padding: 1.25rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.fido-modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem;
+}
+
+.fido-modal-enter   { transition: opacity 0.2s ease-out; }
+.fido-modal-enter-start { opacity: 0; }
+.fido-modal-enter-end   { opacity: 1; }
+.fido-modal-leave   { transition: opacity 0.15s ease-in; }
+.fido-modal-leave-start { opacity: 1; }
+.fido-modal-leave-end   { opacity: 0; }
+
+/* ============================================================
+   20. Toast
+   ============================================================ */
+.fido-toast {
+    position: fixed;
+    top: 4.5rem;
+    right: 1rem;
+    z-index: 300;
+    padding: 0.6rem 1rem;
+    font-family: var(--ck-fuente);
+    font-size: 0.65rem;
+    border-radius: 3px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.fido-toast--ok {
+    background: rgba(58, 232, 160, 0.12);
+    color: var(--ck-success);
+    border: 1px solid rgba(58, 232, 160, 0.3);
+}
+
+.fido-toast--error {
+    background: rgba(232, 84, 84, 0.12);
+    color: var(--ck-danger);
+    border: 1px solid rgba(232, 84, 84, 0.3);
+}
+
+/* ============================================================
+   21. Footer
+   ============================================================ */
+#fido-footer {
+    height: 28px;
+    border-top: 1px solid var(--ck-line);
+    background: var(--ck-bg2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem;
+    flex-shrink: 0;
+    z-index: 10;
+}
+
+.fido-footer__status {
+    display: flex;
+    gap: 1.25rem;
+    align-items: center;
+}
+
+.fido-footer__dot {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+/* ============================================================
+   22. Responsive
+   ============================================================ */
+.fido-desktop-only { display: flex; }
+.fido-mobile-only  { display: none; }
+
+@media (max-width: 767px) {
+    body { overflow: auto; }
+
+    #fido-app { height: auto; min-height: 100vh; }
+    #fido-content { overflow: visible; }
+
+    .fido-desktop-only { display: none !important; }
+    .fido-mobile-only  { display: flex !important; }
+
+    .fido-panel-grid {
+        grid-template-columns: 1fr;
+        height: auto;
+        overflow: visible;
+    }
+    .fido-panel-col {
+        border-right: none;
+        border-bottom: 1px solid var(--ck-line);
+    }
+    .fido-panel-layout { height: auto; overflow: visible; }
+    .fido-seccion-full { height: auto; overflow: visible; }
+    .fido-filtros-bar { flex-wrap: wrap; }
+    .fido-filtros-bar__right { margin-left: 0; width: 100%; }
+    .fido-importar-layout { grid-template-columns: 1fr; }
+    .fido-crypto-layout   { grid-template-columns: 1fr; }
+    .fido-regla-grid { grid-template-columns: 1fr; }
+    .fido-tabla-wrap { overflow: auto; }
+    .fido-modal-grid { grid-template-columns: 1fr; }
 }

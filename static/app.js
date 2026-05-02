@@ -1,7 +1,17 @@
 /**
  * FiDo — Componente Alpine.js principal.
  * Gestiona toda la lógica del frontend SPA.
+ *
+ * Rediseño Cockpit (2026-05): sustituye ApexCharts por SVG vanilla.
+ * Añade helpers catColor() y catPct() para las minibars del panel.
  */
+
+/** Paleta de colores compartida entre minibars, donut y distribución crypto. */
+var COLORES_CAT = [
+    '#00e5c4', '#6366f1', '#f59e0b', '#ec4899',
+    '#06b6d4', '#84cc16', '#f97316', '#a855f7',
+];
+
 function fidoApp() {
     return {
         // Navegación
@@ -12,8 +22,6 @@ function fidoApp() {
         resumen: { ingresos: 0, gastos: 0, balance: 0, total_movimientos: 0 },
         datosPorCategoria: [],
         datosPorMes: [],
-        graficaCategoria: null,
-        graficaMes: null,
         filtroPanelMes: '',
         filtroPanelCuenta: '',
 
@@ -99,53 +107,102 @@ function fidoApp() {
                 ]);
 
                 this.$nextTick(() => {
-                    this.renderizarGraficaCategoria();
-                    this.renderizarGraficaMes();
+                    this.renderizarDonut();
+                    this.renderizarBarras();
                 });
             } catch (e) {
                 this.mostrarError('Error cargando panel: ' + e.message);
             }
         },
 
-        renderizarGraficaCategoria() {
-            const el = document.getElementById('graficaCategoria');
-            if (!el || !this.datosPorCategoria.length) return;
-            if (this.graficaCategoria) this.graficaCategoria.destroy();
+        /**
+         * Renderiza un donut SVG en #graficaCategoria con los datos de categorías.
+         * Sustituye a ApexCharts para evitar dependencia externa.
+         */
+        renderizarDonut() {
+            var el = document.getElementById('graficaCategoria');
+            if (!el) return;
+            var data = (this.datosPorCategoria || []).slice(0, 8);
+            if (!data.length) { el.innerHTML = ''; return; }
 
-            const colores = [
-                '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6',
-                '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1',
-                '#14B8A6', '#E11D48', '#A855F7',
-            ];
+            var total = data.reduce(function(s, d) { return s + d.total; }, 0);
+            if (total <= 0) { el.innerHTML = ''; return; }
 
-            this.graficaCategoria = new ApexCharts(el, {
-                chart: { type: 'donut', height: 300 },
-                series: this.datosPorCategoria.map(c => Math.round(c.total * 100) / 100),
-                labels: this.datosPorCategoria.map(c => (c.icono || '') + ' ' + c.nombre),
-                colors: colores.slice(0, this.datosPorCategoria.length),
-                legend: { position: 'right', fontSize: '11px' },
-                dataLabels: { enabled: false },
+            var cx = 50, cy = 50, r = 35, stroke = 10;
+            var cumAngle = -90;
+            var paths = '';
+
+            data.forEach(function(d, i) {
+                var angle   = (d.total / total) * 360;
+                var startA  = cumAngle * Math.PI / 180;
+                var endA    = (cumAngle + angle) * Math.PI / 180;
+                var x1 = cx + r * Math.cos(startA);
+                var y1 = cy + r * Math.sin(startA);
+                var x2 = cx + r * Math.cos(endA);
+                var y2 = cy + r * Math.sin(endA);
+                var large   = angle > 180 ? 1 : 0;
+                var color   = COLORES_CAT[i % COLORES_CAT.length];
+                paths += '<path d="M ' + x1.toFixed(2) + ' ' + y1.toFixed(2)
+                    + ' A ' + r + ' ' + r + ' 0 ' + large + ' 1 '
+                    + x2.toFixed(2) + ' ' + y2.toFixed(2)
+                    + '" fill="none" stroke="' + color + '" stroke-width="' + stroke + '" />';
+                cumAngle += angle;
             });
-            this.graficaCategoria.render();
+
+            var totalFmt = new Intl.NumberFormat('es-ES', {
+                minimumFractionDigits: 0, maximumFractionDigits: 0,
+            }).format(total);
+
+            el.innerHTML = '<svg viewBox="0 0 100 100" style="width:100%;max-width:130px;overflow:visible">'
+                + '<circle cx="' + cx + '" cy="' + cy + '" r="' + r
+                + '" fill="none" stroke="rgba(0,229,196,0.12)" stroke-width="' + (stroke + 1) + '" />'
+                + paths
+                + '<text x="' + cx + '" y="' + (cy - 4)
+                + '" text-anchor="middle" fill="#b8d8d0" font-family="JetBrains Mono,monospace" font-size="9" font-weight="700">'
+                + totalFmt + '</text>'
+                + '<text x="' + cx + '" y="' + (cy + 7)
+                + '" text-anchor="middle" fill="#3a6058" font-family="JetBrains Mono,monospace" font-size="5.5">gastos €</text>'
+                + '</svg>';
         },
 
-        renderizarGraficaMes() {
-            const el = document.getElementById('graficaMes');
-            if (!el || !this.datosPorMes.length) return;
-            if (this.graficaMes) this.graficaMes.destroy();
+        /**
+         * Renderiza un gráfico de barras SVG en #graficaMes (ingresos vs gastos por mes).
+         * Sustituye a ApexCharts para evitar dependencia externa.
+         */
+        renderizarBarras() {
+            var el = document.getElementById('graficaMes');
+            if (!el) return;
+            var data = (this.datosPorMes || []).slice(-6);
+            if (!data.length) { el.innerHTML = ''; return; }
 
-            this.graficaMes = new ApexCharts(el, {
-                chart: { type: 'bar', height: 300 },
-                series: [
-                    { name: 'Ingresos', data: this.datosPorMes.map(m => m.ingresos) },
-                    { name: 'Gastos', data: this.datosPorMes.map(m => m.gastos) },
-                ],
-                xaxis: { categories: this.datosPorMes.map(m => m.mes) },
-                colors: ['#10B981', '#EF4444'],
-                legend: { position: 'top' },
-                dataLabels: { enabled: false },
+            var H = 85, barW = 11, gap = 7, leftPad = 2;
+            var maxVal = Math.max.apply(null, data.map(function(d) {
+                return Math.max(d.ingresos || 0, d.gastos || 0);
+            }));
+            if (maxVal <= 0) maxVal = 1;
+
+            var cols    = data.length;
+            var totalW  = leftPad + gap + cols * (barW * 2 + gap);
+            var bars    = '';
+
+            data.forEach(function(d, i) {
+                var x  = leftPad + gap + i * (barW * 2 + gap);
+                var hI = ((d.ingresos || 0) / maxVal) * H;
+                var hG = ((d.gastos   || 0) / maxVal) * H;
+                bars += '<rect x="' + x + '" y="' + (H - hI).toFixed(1)
+                    + '" width="' + barW + '" height="' + hI.toFixed(1)
+                    + '" fill="#3ae8a0" opacity="0.75" rx="1" />';
+                bars += '<rect x="' + (x + barW) + '" y="' + (H - hG).toFixed(1)
+                    + '" width="' + barW + '" height="' + hG.toFixed(1)
+                    + '" fill="#e85454" opacity="0.75" rx="1" />';
+                var label = (d.mes || '').substring(0, 3);
+                bars += '<text x="' + (x + barW).toFixed(1) + '" y="' + (H + 11)
+                    + '" text-anchor="middle" fill="#3a6058"'
+                    + ' font-family="JetBrains Mono,monospace" font-size="6">' + label + '</text>';
             });
-            this.graficaMes.render();
+
+            el.innerHTML = '<svg viewBox="0 0 ' + totalW + ' ' + (H + 16)
+                + '" style="width:100%;overflow:visible">' + bars + '</svg>';
         },
 
         // ---- MOVIMIENTOS ----
@@ -523,6 +580,25 @@ function fidoApp() {
         emojiCrypto(simbolo) {
             const emojis = { BTC: '₿', ETH: 'Ξ', ADA: '💠', DOT: '⚫', SHIB: '🐶', SOL: '☀️', XRP: '💧' };
             return emojis[simbolo] || '🪙';
+        },
+
+        // ---- UTILIDADES DE PANEL ----
+
+        /**
+         * Devuelve el color de la paleta Cockpit para el índice i.
+         * Usado en minibars, donut y distribución crypto.
+         */
+        catColor(i) {
+            return COLORES_CAT[i % COLORES_CAT.length];
+        },
+
+        /**
+         * Devuelve el porcentaje de 'cat' relativo al máximo de datosPorCategoria (0-100).
+         */
+        catPct(cat) {
+            if (!this.datosPorCategoria.length) return 0;
+            var max = this.datosPorCategoria[0].total;
+            return max > 0 ? Math.min(100, (cat.total / max) * 100) : 0;
         },
 
         // ---- UTILIDADES ----

@@ -1,471 +1,450 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-tema-cockpit="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FiDo — Finanzas Domesticas</title>
+    <title>FiDo — Finanzas Domésticas</title>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <link rel="stylesheet" href="/static/hogar.css">
     <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
-<div x-data="fidoApp()" x-init="init()">
+<div id="fido-app" x-data="fidoApp()" x-init="init()">
 
-    <!-- ===== EFECTO LUMINA ===== -->
-    <div class="hogar-lumina"></div>
+    <!-- ===== TOAST ===== -->
+    <div x-show="mensaje" x-transition
+         class="fido-toast"
+         :class="tipoMensaje === 'ok' ? 'fido-toast--ok' : 'fido-toast--error'">
+        <span x-text="mensaje"></span>
+    </div>
 
-    <!-- ===== HEADER FLOTANTE ===== -->
-    <header class="hogar-header">
-        <div class="hogar-header__barra">
-            <a href="/" class="hogar-header__marca">
-                <span class="material-symbols-outlined filled hogar-header__icono-marca">bubble_chart</span>
-                <div>
-                    <div class="hogar-header__titulo">FiDo</div>
-                    <div class="hogar-header__subtitulo">Finanzas Domesticas</div>
+    <!-- ===== HEADER ===== -->
+    <header id="fido-header">
+        <div class="fido-header__left">
+            <a href="#" onclick="window.location=window.location.origin;return false" class="fido-header__marca">
+                <div class="fido-header__logo">
+                    <div class="fido-header__logo-dot"></div>
                 </div>
+                <span class="fido-header__marca-text">HOGAR<span class="fido-header__marca-os">OS</span></span>
             </a>
-            <button class="hogar-header__menu-btn" @click="drawerAbierto = !drawerAbierto">
-                <span class="material-symbols-outlined">menu</span>
+            <div class="fido-header__sep"></div>
+            <span class="fido-header__app">FIDO</span>
+            <span class="fido-header__sub fido-desktop-only">finanzas domésticas</span>
+            <div class="fido-header__sep fido-desktop-only"></div>
+            <!-- Nav secciones — solo desktop -->
+            <nav class="fido-nav fido-desktop-only">
+                <button @click="irA('panel')"       class="fido-nav__btn" :class="pestana === 'panel'       ? 'fido-nav__btn--activo' : ''">PANEL</button>
+                <button @click="irA('movimientos')" class="fido-nav__btn" :class="pestana === 'movimientos' ? 'fido-nav__btn--activo' : ''">MOVIMIENTOS</button>
+                <button @click="irA('importar')"    class="fido-nav__btn" :class="pestana === 'importar'    ? 'fido-nav__btn--activo' : ''">IMPORTAR</button>
+                <button @click="irA('categorias')"  class="fido-nav__btn" :class="pestana === 'categorias'  ? 'fido-nav__btn--activo' : ''">CATEGORÍAS</button>
+                <button @click="irA('reglas')"      class="fido-nav__btn" :class="pestana === 'reglas'      ? 'fido-nav__btn--activo' : ''">REGLAS</button>
+                <button @click="irA('ajustes')"     class="fido-nav__btn" :class="pestana === 'ajustes'     ? 'fido-nav__btn--activo' : ''">AJUSTES</button>
+                <button @click="irA('crypto')"      class="fido-nav__btn" :class="pestana === 'crypto'      ? 'fido-nav__btn--activo' : ''">CRYPTO</button>
+            </nav>
+            <!-- Sección activa móvil -->
+            <span class="fido-mobile-seccion fido-mobile-only" x-text="pestana.toUpperCase()"></span>
+        </div>
+        <div class="fido-header__right">
+            <button id="fido-tema-btn" class="fido-header__tema-btn" title="Cambiar tema">
+                <span id="fido-tema-icono" class="material-symbols-outlined" style="font-size:1rem">light_mode</span>
+            </button>
+            <div class="fido-header__reloj" id="fido-reloj">00:00:00</div>
+            <button class="fido-header__hamburguesa fido-mobile-only" @click="drawerAbierto = !drawerAbierto">
+                <span class="material-symbols-outlined" style="font-size:1.2rem">menu</span>
             </button>
         </div>
     </header>
 
-    <!-- ===== DRAWER DE NAVEGACION ===== -->
-    <div class="hogar-drawer-overlay" :class="drawerAbierto ? '' : 'oculto'" @click="drawerAbierto = false"></div>
-    <nav class="hogar-drawer" :class="drawerAbierto ? '' : 'oculto'" @keydown.escape.window="drawerAbierto = false">
-        <button class="hogar-drawer__cerrar" @click="drawerAbierto = false">
-            <span class="material-symbols-outlined">close</span>
-        </button>
-        <span class="hogar-drawer__titulo">Secciones</span>
-        <template x-for="p in [
-            {id:'panel', label:'Panel', icono:'bar_chart'},
-            {id:'movimientos', label:'Movimientos', icono:'receipt_long'},
-            {id:'importar', label:'Importar', icono:'upload_file'},
-            {id:'categorias', label:'Categorias', icono:'category'},
-            {id:'reglas', label:'Reglas', icono:'tune'},
-            {id:'ajustes', label:'Ajustes', icono:'settings'},
-            {id:'crypto', label:'Crypto', icono:'currency_bitcoin'},
-        ]">
-            <button @click="irA(p.id); drawerAbierto = false"
-                    :class="pestana === p.id ? 'hogar-drawer__enlace hogar-drawer__enlace--activo' : 'hogar-drawer__enlace'">
-                <span class="material-symbols-outlined" x-text="p.icono"></span>
-                <span x-text="p.label"></span>
-            </button>
-        </template>
-        <div class="hogar-drawer__separador"></div>
-        <button class="hogar-drawer__enlace" onclick="window.location=window.location.origin+'/red/'">
-            <span class="material-symbols-outlined">lan</span>
-            <span>Red</span>
-        </button>
-        <button class="hogar-drawer__enlace" onclick="window.location=window.location.origin+'/salud/'">
-            <span class="material-symbols-outlined">monitor_heart</span>
-            <span>Salud</span>
-        </button>
-        <div class="hogar-drawer__separador"></div>
-        <button class="hogar-drawer__enlace" onclick="window.location=window.location.origin">
-            <span class="material-symbols-outlined">roofing</span>
-            <span>Ir al Portal</span>
-        </button>
-        <button class="hogar-drawer__enlace" id="btnTemaFido">
-            <span class="material-symbols-outlined" id="iconoTema">dark_mode</span>
-            <span>Cambiar tema</span>
-        </button>
+    <!-- ===== DRAWER MÓVIL ===== -->
+    <div class="fido-drawer-overlay fido-mobile-only" x-show="drawerAbierto" @click="drawerAbierto = false" style="display:none"></div>
+    <nav class="fido-drawer fido-mobile-only" :class="drawerAbierto ? 'fido-drawer--abierto' : ''">
+        <button @click="drawerAbierto = false" class="fido-drawer__cerrar">&times;</button>
+        <button @click="irA('panel');       drawerAbierto = false" class="fido-drawer__item" :class="pestana==='panel'       ? 'fido-drawer__item--activo' : ''">PANEL</button>
+        <button @click="irA('movimientos'); drawerAbierto = false" class="fido-drawer__item" :class="pestana==='movimientos' ? 'fido-drawer__item--activo' : ''">MOVIMIENTOS</button>
+        <button @click="irA('importar');    drawerAbierto = false" class="fido-drawer__item" :class="pestana==='importar'    ? 'fido-drawer__item--activo' : ''">IMPORTAR</button>
+        <button @click="irA('categorias');  drawerAbierto = false" class="fido-drawer__item" :class="pestana==='categorias'  ? 'fido-drawer__item--activo' : ''">CATEGORÍAS</button>
+        <button @click="irA('reglas');      drawerAbierto = false" class="fido-drawer__item" :class="pestana==='reglas'      ? 'fido-drawer__item--activo' : ''">REGLAS</button>
+        <button @click="irA('ajustes');     drawerAbierto = false" class="fido-drawer__item" :class="pestana==='ajustes'     ? 'fido-drawer__item--activo' : ''">AJUSTES</button>
+        <button @click="irA('crypto');      drawerAbierto = false" class="fido-drawer__item" :class="pestana==='crypto'      ? 'fido-drawer__item--activo' : ''">CRYPTO</button>
     </nav>
 
-    <!-- ===== MENSAJE TOAST ===== -->
-    <div x-show="mensaje" x-transition
-         :class="tipoMensaje === 'ok' ? 'fido-toast--ok' : 'fido-toast--error'"
-         class="fido-toast">
-        <span x-text="mensaje"></span>
-    </div>
+    <!-- ===== CONTENIDO PRINCIPAL ===== -->
+    <main id="fido-content">
 
-    <main class="hogar-contenedor">
-
-        <!-- ===== PANEL (DASHBOARD) ===== -->
-        <div x-show="pestana === 'panel'" x-cloak>
-            <!-- Filtros del panel -->
-            <div class="fido-filtros">
+        <!-- ========== PANEL ========== -->
+        <div x-show="pestana === 'panel'" x-cloak class="fido-panel-layout">
+            <!-- Filtros -->
+            <div class="fido-panel-filtros">
+                <span class="ck-zl" style="margin-bottom:0">Resumen</span>
                 <input type="month" x-model="filtroPanelMes" @change="cargarPanel()"
-                       class="fido-input fido-input--pill">
+                       class="ck-input ck-input--sm">
                 <select x-model="filtroPanelCuenta" @change="cargarPanel()"
-                        class="fido-input fido-input--pill">
+                        class="ck-select ck-input--sm">
                     <option value="">Todas las cuentas</option>
                     <template x-for="c in cuentas" :key="c.id">
                         <option :value="c.id" x-text="c.nombre"></option>
                     </template>
                 </select>
             </div>
+            <!-- Grid 3 columnas -->
+            <div class="fido-panel-grid">
 
-            <!-- Tarjetas resumen -->
-            <div class="fido-resumen-grid">
-                <div class="hogar-tarjeta hogar-tarjeta--primary fido-resumen-tarjeta">
-                    <div class="hogar-tarjeta__label">Ingresos</div>
-                    <div class="fido-resumen-valor fido-resumen-valor--exito" x-text="formatoImporte(resumen.ingresos)"></div>
+                <!-- Columna 1: KPIs -->
+                <div class="fido-panel-col fido-panel-col--kpi">
+                    <div class="ck-kpi">
+                        <div class="ck-kpi__label">Balance</div>
+                        <div class="ck-kpi__valor ck-kpi__valor--lg"
+                             :style="resumen.balance >= 0 ? 'color:var(--ck-success)' : 'color:var(--ck-danger)'"
+                             x-text="formatoImporte(resumen.balance)"></div>
+                    </div>
+                    <div class="ck-kpi">
+                        <div class="ck-kpi__label">Ingresos</div>
+                        <div class="ck-kpi__valor" style="color:var(--ck-success)"
+                             x-text="formatoImporte(resumen.ingresos)"></div>
+                    </div>
+                    <div class="ck-kpi">
+                        <div class="ck-kpi__label">Gastos</div>
+                        <div class="ck-kpi__valor" style="color:var(--ck-danger)"
+                             x-text="formatoImporte(resumen.gastos)"></div>
+                    </div>
+                    <div class="ck-kpi" style="border-bottom:none">
+                        <div class="ck-kpi__label">Movimientos</div>
+                        <div class="ck-kpi__valor ck-kpi__valor--md"
+                             x-text="resumen.total_movimientos"></div>
+                    </div>
                 </div>
-                <div class="hogar-tarjeta hogar-tarjeta--tertiary fido-resumen-tarjeta">
-                    <div class="hogar-tarjeta__label">Gastos</div>
-                    <div class="fido-resumen-valor fido-resumen-valor--peligro" x-text="formatoImporte(resumen.gastos)"></div>
-                </div>
-                <div class="hogar-tarjeta fido-resumen-tarjeta">
-                    <div class="hogar-tarjeta__label">Balance</div>
-                    <div class="fido-resumen-valor"
-                         :class="resumen.balance >= 0 ? 'fido-resumen-valor--exito' : 'fido-resumen-valor--peligro'"
-                         x-text="formatoImporte(resumen.balance)"></div>
-                </div>
-                <div class="hogar-tarjeta hogar-tarjeta--secondary fido-resumen-tarjeta">
-                    <div class="hogar-tarjeta__label">Movimientos</div>
-                    <div class="fido-resumen-valor" x-text="resumen.total_movimientos"></div>
-                </div>
-            </div>
 
-            <!-- Graficas -->
-            <div class="fido-graficas-grid">
-                <div class="hogar-tarjeta" style="min-width:0;">
-                    <h3 class="fido-subtitulo">Gastos por categoria</h3>
-                    <div id="graficaCategoria" style="height:300px;"></div>
-                    <p x-show="datosPorCategoria.length === 0" class="fido-vacio">Sin datos</p>
+                <!-- Columna 2: Categorías + Donut -->
+                <div class="fido-panel-col">
+                    <div class="ck-zl">Gastos por categoría</div>
+                    <div class="fido-panel-cats">
+                        <template x-for="(cat, i) in datosPorCategoria.slice(0, 8)" :key="cat.nombre">
+                            <div class="ck-fila-cat">
+                                <span class="ck-fila-cat__nombre"
+                                      x-text="(cat.icono || '') + ' ' + cat.nombre"></span>
+                                <div class="ck-fila-cat__track">
+                                    <div class="ck-fila-cat__fill"
+                                         :style="'width:' + catPct(cat) + '%;background:' + catColor(i)"></div>
+                                </div>
+                                <span class="ck-fila-cat__valor"
+                                      :style="'color:' + catColor(i)"
+                                      x-text="formatoImporte(cat.total)"></span>
+                            </div>
+                        </template>
+                        <p x-show="datosPorCategoria.length === 0" class="ck-vacio" style="padding:1rem 0">Sin datos</p>
+                    </div>
+                    <div id="graficaCategoria" class="fido-panel-donut"></div>
                 </div>
-                <div class="hogar-tarjeta" style="min-width:0;">
-                    <h3 class="fido-subtitulo">Evolucion mensual</h3>
-                    <div id="graficaMes" style="height:300px;"></div>
-                    <p x-show="datosPorMes.length === 0" class="fido-vacio">Sin datos</p>
+
+                <!-- Columna 3: Evolución mensual + Crypto -->
+                <div class="fido-panel-col" style="border-right:none">
+                    <div class="ck-zl">Evolución mensual</div>
+                    <div id="graficaMes" class="fido-panel-barras"></div>
+                    <div class="fido-barras-leyenda">
+                        <div class="fido-barras-leyenda__item">
+                            <div class="fido-barras-leyenda__dot" style="background:var(--ck-success)"></div>
+                            <span>ingresos</span>
+                        </div>
+                        <div class="fido-barras-leyenda__item">
+                            <div class="fido-barras-leyenda__dot" style="background:var(--ck-danger)"></div>
+                            <span>gastos</span>
+                        </div>
+                    </div>
+                    <!-- Crypto resumen (si hay datos cargados) -->
+                    <div class="fido-panel-crypto" x-show="portafolioCrypto.length > 0">
+                        <div class="ck-zl" style="margin-top:0.4rem">Crypto · Kryptonite</div>
+                        <div class="fido-panel-crypto__kpis">
+                            <div>
+                                <div class="ck-kpi__label">Invertido</div>
+                                <div class="ck-kpi__valor ck-kpi__valor--sm"
+                                     x-text="fmtNum(totalCryptoInvertido()) + ' €'"></div>
+                            </div>
+                            <span style="color:var(--ck-on-variant);font-size:0.7rem">→</span>
+                            <div>
+                                <div class="ck-kpi__label">Actual</div>
+                                <div class="ck-kpi__valor ck-kpi__valor--sm" style="color:var(--ck-success)"
+                                     x-text="fmtNum(totalCryptoValor()) + ' €'"></div>
+                            </div>
+                            <div style="text-align:right">
+                                <div class="ck-kpi__label">Rent.</div>
+                                <div class="ck-kpi__valor ck-kpi__valor--sm"
+                                     :style="totalCryptoPct() >= 0 ? 'color:var(--ck-success)' : 'color:var(--ck-danger)'"
+                                     x-text="(totalCryptoPct() >= 0 ? '▲' : '▼') + Math.abs(totalCryptoPct()).toFixed(1) + '%'"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
             </div>
         </div>
 
-        <!-- ===== MOVIMIENTOS ===== -->
-        <div x-show="pestana === 'movimientos'" x-cloak>
-            <!-- Filtros -->
-            <div class="fido-filtros fido-filtros--wrap">
-                <input type="month" x-model="filtros.mes" @change="filtros.offset=0; cargarMovimientos()"
-                       class="fido-input fido-input--pill">
-                <select x-model="filtros.cuenta_id" @change="filtros.offset=0; cargarMovimientos()"
-                        class="fido-input fido-input--pill">
-                    <option value="">Todas las cuentas</option>
+        <!-- ========== MOVIMIENTOS ========== -->
+        <div x-show="pestana === 'movimientos'" x-cloak class="fido-seccion-full">
+            <!-- Barra de filtros -->
+            <div class="fido-filtros-bar">
+                <input type="month" x-model="filtros.mes"
+                       @change="filtros.offset=0; cargarMovimientos()"
+                       class="ck-input ck-input--sm">
+                <select x-model="filtros.cuenta_id"
+                        @change="filtros.offset=0; cargarMovimientos()"
+                        class="ck-select ck-input--sm">
+                    <option value="">Todas cuentas</option>
                     <template x-for="c in cuentas" :key="c.id">
                         <option :value="c.id" x-text="c.nombre"></option>
                     </template>
                 </select>
-                <select x-model="filtros.categoria_id" @change="filtros.offset=0; cargarMovimientos()"
-                        class="fido-input fido-input--pill">
-                    <option value="">Todas las categorias</option>
+                <select x-model="filtros.categoria_id"
+                        @change="filtros.offset=0; cargarMovimientos()"
+                        class="ck-select ck-input--sm">
+                    <option value="">Todas categorías</option>
                     <template x-for="grupo in categoriasAgrupadas()" :key="grupo.id">
                         <optgroup :label="(grupo.icono || '') + ' ' + grupo.nombre">
-                            <option :value="grupo.id" x-text="'&#9658; Todo ' + grupo.nombre" style="font-weight:600"></option>
+                            <option :value="grupo.id" style="font-weight:600"
+                                    :x-text="'▶ Todo ' + grupo.nombre"></option>
                             <template x-for="hija in grupo.hijas" :key="hija.id">
                                 <option :value="hija.id" x-text="hija.nombre"></option>
                             </template>
                         </optgroup>
                     </template>
                 </select>
-                <select x-model="filtros.tipo" @change="filtros.offset=0; cargarMovimientos()"
-                        class="fido-input fido-input--pill">
+                <select x-model="filtros.tipo"
+                        @change="filtros.offset=0; cargarMovimientos()"
+                        class="ck-select ck-input--sm">
                     <option value="">Gastos e ingresos</option>
                     <option value="gasto">Solo gastos</option>
                     <option value="ingreso">Solo ingresos</option>
                 </select>
-                <select x-model="filtros.estado" @change="filtros.offset=0; cargarMovimientos()"
-                        class="fido-input fido-input--pill">
+                <select x-model="filtros.estado"
+                        @change="filtros.offset=0; cargarMovimientos()"
+                        class="ck-select ck-input--sm">
                     <option value="">Todos</option>
                     <option value="revisar">⚠ Por revisar</option>
                     <option value="ok">✓ Confirmados</option>
                 </select>
-                <input type="text" x-model="filtros.buscar" @input.debounce.300ms="filtros.offset=0; cargarMovimientos()"
-                       placeholder="Buscar..."
-                       class="fido-input fido-input--pill fido-input--buscar">
-                <button @click="mostrarFormularioMovimiento = true; editandoMovimiento = null"
-                        class="hogar-boton hogar-boton--primario">
-                    <span class="material-symbols-outlined" style="font-size:1rem">add</span> Nuevo
-                </button>
-            </div>
-
-            <!-- Modal nuevo/editar movimiento -->
-            <div x-show="mostrarFormularioMovimiento"
-                 x-transition:enter="fido-transicion-entrada"
-                 x-transition:enter-start="fido-transicion-oculto"
-                 x-transition:enter-end="fido-transicion-visible"
-                 x-transition:leave="fido-transicion-salida"
-                 x-transition:leave-start="fido-transicion-visible"
-                 x-transition:leave-end="fido-transicion-oculto"
-                 @keydown.escape.window="if(mostrarFormularioMovimiento) cancelarEdicionMovimiento()"
-                 class="fido-modal-overlay">
-                <div @click.outside="cancelarEdicionMovimiento()" class="fido-modal">
-                    <h3 class="fido-subtitulo fido-modal__titulo"
-                        x-text="editandoMovimiento ? 'Editar movimiento' : 'Nuevo movimiento'"></h3>
-                    <div class="fido-form-stack">
-                        <div>
-                            <label class="fido-label">Fecha</label>
-                            <input type="date" x-model="nuevoMovimiento.fecha"
-                                   class="fido-input fido-input--form">
-                        </div>
-                        <div>
-                            <label class="fido-label">Importe</label>
-                            <input type="number" step="0.01" x-model="nuevoMovimiento.importe"
-                                   placeholder="-gasto, +ingreso"
-                                   class="fido-input fido-input--form">
-                        </div>
-                        <div>
-                            <label class="fido-label">Descripcion</label>
-                            <input type="text" x-model="nuevoMovimiento.descripcion"
-                                   placeholder="Descripcion del movimiento"
-                                   class="fido-input fido-input--form">
-                        </div>
-                        <div class="fido-grid-2">
-                            <div>
-                                <label class="fido-label">Cuenta</label>
-                                <select x-model="nuevoMovimiento.cuenta_id"
-                                        class="fido-input fido-input--form">
-                                    <option value="">Cuenta...</option>
-                                    <template x-for="c in cuentas" :key="c.id">
-                                        <option :value="c.id" x-text="c.nombre"></option>
-                                    </template>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="fido-label">Categoria</label>
-                                <select x-model="nuevoMovimiento.categoria_id"
-                                        class="fido-input fido-input--form">
-                                    <option value="">Auto-categorizar</option>
-                                    <template x-for="grupo in categoriasAgrupadas()" :key="grupo.id">
-                                        <optgroup :label="(grupo.icono || '') + ' ' + grupo.nombre">
-                                            <template x-for="hija in grupo.hijas" :key="hija.id">
-                                                <option :value="hija.id" x-text="hija.nombre"></option>
-                                            </template>
-                                        </optgroup>
-                                    </template>
-                                </select>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="fido-label">Notas</label>
-                            <input type="text" x-model="nuevoMovimiento.notas"
-                                   placeholder="Opcional"
-                                   class="fido-input fido-input--form">
-                        </div>
-                        <div>
-                            <label class="fido-label">Estado</label>
-                            <select x-model="nuevoMovimiento.estado" class="fido-input fido-input--form">
-                                <option value="ok">✓ Confirmado</option>
-                                <option value="revisar">⚠ Por revisar</option>
-                            </select>
-                        </div>
-                        <div class="fido-acciones-der">
-                            <button @click="cancelarEdicionMovimiento()" class="hogar-boton hogar-boton--secundario">Cancelar</button>
-                            <button @click="guardarMovimiento()" class="hogar-boton hogar-boton--primario">Guardar</button>
-                        </div>
-                    </div>
+                <input type="text" x-model="filtros.buscar"
+                       @input.debounce.300ms="filtros.offset=0; cargarMovimientos()"
+                       placeholder="buscar..."
+                       class="ck-input ck-input--sm" style="width:9rem">
+                <div class="fido-filtros-bar__right">
+                    <span class="ck-stat" x-text="movimientos.length + ' mov.'"></span>
+                    <span class="ck-stat ck-stat--valor"
+                          :style="sumaMovimientos >= 0 ? 'color:var(--ck-success)' : 'color:var(--ck-danger)'"
+                          x-text="'Σ ' + formatoImporte(sumaMovimientos)"></span>
+                    <button @click="mostrarFormularioMovimiento = true; editandoMovimiento = null"
+                            class="ck-btn ck-btn--primary ck-btn--sm">
+                        <span class="material-symbols-outlined" style="font-size:0.75rem">add</span> nuevo
+                    </button>
                 </div>
             </div>
-
-            <!-- Tabla de movimientos -->
-            <div class="hogar-tabla-wrap scroll-fino" style="overflow-x: auto;">
-                <table class="hogar-tabla">
+            <!-- Tabla -->
+            <div class="fido-tabla-wrap">
+                <table class="ck-tabla">
                     <thead>
                         <tr>
                             <th>Fecha</th>
-                            <th>Descripcion</th>
-                            <th>Categoria</th>
-                            <th class="fido-text-right">Importe</th>
+                            <th>Descripción</th>
+                            <th>Categoría</th>
+                            <th style="text-align:right">Importe</th>
                             <th>Cuenta</th>
-                            <th class="fido-text-center">Origen</th>
-                            <th class="fido-text-center">Acciones</th>
+                            <th style="text-align:center">Origen</th>
+                            <th style="text-align:center">Est.</th>
+                            <th style="text-align:center">—</th>
                         </tr>
                     </thead>
                     <tbody>
                         <template x-for="mov in movimientos" :key="mov.id">
                             <tr>
-                                <td class="fido-nowrap" x-text="mov.fecha"></td>
-                                <td x-text="mov.descripcion"></td>
-                                <td class="fido-text-muted fido-text-xs" x-text="nombreCategoria(mov.categoria_id)"></td>
-                                <td class="fido-text-right fido-mono fido-nowrap"
-                                    :style="mov.importe >= 0 ? 'color: var(--exito)' : 'color: var(--peligro)'"
+                                <td class="ck-nowrap" x-text="mov.fecha"></td>
+                                <td class="ck-truncate" x-text="mov.descripcion"></td>
+                                <td class="ck-muted ck-small" x-text="nombreCategoria(mov.categoria_id)"></td>
+                                <td class="ck-mono ck-nowrap"
+                                    style="text-align:right;font-weight:700"
+                                    :style="mov.importe >= 0 ? 'color:var(--ck-success)' : 'color:var(--ck-danger)'"
                                     x-text="formatoImporte(mov.importe)"></td>
-                                <td class="fido-text-xs" x-text="mov.nombre_cuenta"></td>
-                                <td class="fido-text-center">
-                                    <span class="hogar-badge"
-                                          :class="{
-                                              'hogar-badge--primary': mov.origen === 'web',
-                                              'hogar-badge--exito': mov.origen === 'csv',
-                                              'hogar-badge--peligro': mov.origen === 'telegram' || mov.origen === 'wallet',
-                                              'hogar-badge--secondary': mov.origen === 'ntfy',
-                                          }"
-                                          x-text="mov.origen"></span>
+                                <td class="ck-small" x-text="mov.nombre_cuenta"></td>
+                                <td style="text-align:center">
+                                    <span class="ck-badge" x-text="mov.origen"></span>
                                 </td>
-                                <td class="fido-text-center fido-nowrap">
-                                    <button @click="marcarEstado(mov.id, 'ok')"
-                                            x-show="mov.estado === 'revisar'"
-                                            class="fido-btn-icono"
-                                            style="color: var(--aviso)"
-                                            title="Marcar como revisado">
-                                        <span class="material-symbols-outlined" style="font-size:1.1rem">warning</span>
-                                    </button>
-                                    <button @click="marcarEstado(mov.id, 'revisar')"
-                                            x-show="mov.estado === 'ok'"
-                                            class="fido-btn-icono"
-                                            style="color: var(--exito)"
-                                            title="Marcar para revisar">
-                                        <span class="material-symbols-outlined" style="font-size:1.1rem">check_circle</span>
-                                    </button>
-                                    <button @click="toggleTransferenciaInterna(mov)"
-                                            class="fido-btn-icono"
-                                            :style="mov.es_transferencia_interna ? 'color: var(--aviso)' : 'color: var(--texto-muted); opacity: 0.4'"
-                                            :title="mov.es_transferencia_interna ? 'Desmarcar transferencia interna' : 'Marcar como transferencia interna'">
-                                        <span class="material-symbols-outlined" style="font-size:1.1rem">swap_horiz</span>
-                                    </button>
-                                    <button @click="editarMovimiento(mov)" class="fido-btn-icono fido-btn-icono--primary">
-                                        <span class="material-symbols-outlined" style="font-size:1.1rem">edit</span>
-                                    </button>
-                                    <button @click="borrarMovimiento(mov.id)" class="fido-btn-icono fido-btn-icono--peligro">
-                                        <span class="material-symbols-outlined" style="font-size:1.1rem">delete</span>
-                                    </button>
+                                <td style="text-align:center">
+                                    <span x-show="mov.estado === 'revisar'" class="danger-pulse"
+                                          style="color:var(--ck-warn)">⚠</span>
+                                    <span x-show="mov.estado === 'ok'"
+                                          style="color:var(--ck-success)">✓</span>
+                                </td>
+                                <td style="text-align:center">
+                                    <div class="ck-acciones">
+                                        <button @click="marcarEstado(mov.id, 'ok')"
+                                                x-show="mov.estado === 'revisar'"
+                                                class="ck-btn-icono" style="color:var(--ck-warn)"
+                                                title="Marcar revisado">
+                                            <span class="material-symbols-outlined" style="font-size:1rem">warning</span>
+                                        </button>
+                                        <button @click="marcarEstado(mov.id, 'revisar')"
+                                                x-show="mov.estado === 'ok'"
+                                                class="ck-btn-icono" style="color:var(--ck-success)"
+                                                title="Marcar para revisar">
+                                            <span class="material-symbols-outlined" style="font-size:1rem">check_circle</span>
+                                        </button>
+                                        <button @click="toggleTransferenciaInterna(mov)"
+                                                class="ck-btn-icono"
+                                                :style="mov.es_transferencia_interna ? 'color:var(--ck-warn)' : 'color:var(--ck-on-variant);opacity:0.4'"
+                                                title="Transferencia interna">
+                                            <span class="material-symbols-outlined" style="font-size:1rem">swap_horiz</span>
+                                        </button>
+                                        <button @click="editarMovimiento(mov)"
+                                                class="ck-btn-icono" style="color:var(--ck-accent-dim)">
+                                            <span class="material-symbols-outlined" style="font-size:1rem">edit</span>
+                                        </button>
+                                        <button @click="borrarMovimiento(mov.id)"
+                                                class="ck-btn-icono"
+                                                style="color:var(--ck-danger);opacity:0.7">
+                                            <span class="material-symbols-outlined" style="font-size:1rem">delete</span>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         </template>
                         <tr x-show="movimientos.length === 0">
-                            <td colspan="7" class="fido-vacio">No hay movimientos que coincidan con los filtros</td>
+                            <td colspan="8" class="ck-vacio">No hay movimientos que coincidan con los filtros</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-
-            <!-- Suma y paginacion -->
+            <!-- Paginación -->
             <div class="fido-paginacion">
-                <div class="fido-paginacion__info">
-                    <span x-text="'Mostrando ' + movimientos.length + ' de ' + totalMovimientos"></span>
-                    <span class="fido-mono fido-text-bold"
-                          :style="sumaMovimientos >= 0 ? 'color: var(--exito)' : 'color: var(--peligro)'"
-                          x-text="'&#931; ' + formatoImporte(sumaMovimientos)"></span>
-                </div>
+                <span class="ck-stat" x-text="'Mostrando ' + movimientos.length + ' de ' + totalMovimientos"></span>
                 <div class="fido-paginacion__botones">
                     <button @click="filtros.offset = Math.max(0, filtros.offset - 50); cargarMovimientos()"
                             :disabled="filtros.offset === 0"
-                            class="hogar-boton hogar-boton--secundario">Anterior</button>
+                            class="ck-btn ck-btn--sm">Anterior</button>
                     <button @click="filtros.offset += 50; cargarMovimientos()"
                             :disabled="filtros.offset + 50 >= totalMovimientos"
-                            class="hogar-boton hogar-boton--secundario">Siguiente</button>
+                            class="ck-btn ck-btn--sm">Siguiente</button>
                 </div>
             </div>
         </div>
 
-        <!-- ===== IMPORTAR ===== -->
-        <div x-show="pestana === 'importar'" x-cloak>
-            <div class="hogar-tarjeta fido-importar-card">
-                <h2 class="fido-titulo">Importar extracto bancario</h2>
-                <div class="fido-form-stack">
-                    <div>
-                        <label class="fido-label">Fichero CSV / TSV</label>
-                        <input type="file" id="ficheroCSV" accept=".csv,.tsv,.txt"
-                               class="fido-input fido-input--form">
-                    </div>
-                    <div>
-                        <label class="fido-label">Cuenta destino</label>
-                        <select x-model="importarCuentaId"
-                                class="fido-input fido-input--form">
-                            <option value="">Seleccionar cuenta...</option>
-                            <template x-for="c in cuentas" :key="c.id">
-                                <option :value="c.id" x-text="c.nombre"></option>
-                            </template>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="fido-label">Banco</label>
-                        <select x-model="importarBanco"
-                                class="fido-input fido-input--form">
-                            <option value="santander">Santander</option>
-                            <option value="caixabank">CaixaBank</option>
-                            <option value="revolut">Revolut</option>
-                        </select>
-                    </div>
-                    <div class="fido-filtros">
-                        <button @click="importarCSV()" :disabled="importando" class="hogar-boton hogar-boton--primario">
-                            <span x-show="!importando">Importar</span>
-                            <span x-show="importando">Importando...</span>
-                        </button>
-                        <button @click="recategorizar()" class="hogar-boton hogar-boton--secundario"
-                                title="Aplica las reglas de categorizacion a movimientos sin categoria">
-                            Recategorizar
-                        </button>
-                    </div>
+        <!-- ========== IMPORTAR ========== -->
+        <div x-show="pestana === 'importar'" x-cloak class="fido-importar-layout">
+            <!-- Formulario -->
+            <div class="fido-importar-form">
+                <div class="ck-zl">Importar extracto bancario</div>
+                <div class="ck-form-field">
+                    <div class="ck-label">FICHERO CSV / TSV</div>
+                    <input type="file" id="ficheroCSV" accept=".csv,.tsv,.txt"
+                           class="ck-input" style="width:100%">
                 </div>
-
-                <!-- Resultado -->
-                <div x-show="resultadoImportacion" class="fido-resultado">
-                    <h3 class="fido-subtitulo">Resultado</h3>
-                    <div class="fido-resultado__stats">
-                        <span style="color: var(--exito);">Importados: <strong x-text="resultadoImportacion?.importados"></strong></span>
-                        <span style="color: var(--aviso);">Duplicados: <strong x-text="resultadoImportacion?.duplicados"></strong></span>
-                        <span style="color: var(--peligro);">Errores: <strong x-text="resultadoImportacion?.errores"></strong></span>
-                    </div>
-                    <div class="fido-resultado__detalles scroll-fino">
-                        <template x-for="(d, i) in (resultadoImportacion?.detalles || [])" :key="i">
-                            <div class="fido-resultado__linea"
-                                 :style="{
-                                     'color: var(--exito)': d.estado === 'importado',
-                                     'color: var(--aviso)': d.estado === 'duplicado',
-                                     'color: var(--peligro)': d.estado === 'error',
-                                 }">
-                                <span x-text="d.estado"></span> —
-                                <span x-text="d.fecha"></span> —
-                                <span x-text="d.descripcion"></span>
-                                <span x-show="d.importe" x-text="formatoImporte(d.importe)"></span>
-                            </div>
+                <div class="ck-form-field">
+                    <div class="ck-label">BANCO</div>
+                    <select x-model="importarBanco" class="ck-select" style="width:100%">
+                        <option value="santander">Santander</option>
+                        <option value="caixabank">CaixaBank</option>
+                        <option value="revolut">Revolut</option>
+                    </select>
+                </div>
+                <div class="ck-form-field">
+                    <div class="ck-label">CUENTA DESTINO</div>
+                    <select x-model="importarCuentaId" class="ck-select" style="width:100%">
+                        <option value="">Seleccionar cuenta...</option>
+                        <template x-for="c in cuentas" :key="c.id">
+                            <option :value="c.id" x-text="c.nombre"></option>
                         </template>
-                    </div>
+                    </select>
+                </div>
+                <div style="display:flex;gap:0.5rem;margin-top:auto">
+                    <button @click="importarCSV()" :disabled="importando"
+                            class="ck-btn ck-btn--primary" style="flex:1;justify-content:center">
+                        <span x-show="!importando">$ importar</span>
+                        <span x-show="importando">⟳ importando...</span>
+                    </button>
+                    <button @click="recategorizar()" class="ck-btn" style="flex:1;justify-content:center">
+                        $ recategorizar
+                    </button>
                 </div>
             </div>
-        </div>
-
-        <!-- ===== CATEGORIAS ===== -->
-        <div x-show="pestana === 'categorias'" x-cloak>
-            <div class="fido-cabecera-seccion">
-                <h2 class="fido-titulo">Categorias</h2>
-                <button @click="crearCategoriaPadre()" class="hogar-boton hogar-boton--primario">
-                    <span class="material-symbols-outlined" style="font-size:1rem">add</span> Nueva categoria
-                </button>
-            </div>
-            <div class="fido-form-stack">
-                <template x-for="cat in categorias" :key="cat.id">
-                    <div class="hogar-tarjeta" style="padding: 0; overflow: hidden;">
-                        <div class="fido-cat-cabecera">
-                            <span class="fido-subtitulo">
-                                <span x-text="cat.icono"></span>
-                                <span x-text="cat.nombre"></span>
-                                <span class="fido-text-muted fido-text-xs" x-text="'(' + cat.hijas.length + ')'"></span>
-                            </span>
-                            <div class="fido-filtros">
-                                <button @click="crearSubcategoria(cat.id)"
-                                        class="fido-btn-texto fido-btn-texto--primary">+ Subcategoria</button>
-                                <button @click="borrarCategoria(cat.id)"
-                                        class="fido-btn-texto fido-btn-texto--peligro">Borrar</button>
+            <!-- Resultado -->
+            <div class="fido-importar-resultado">
+                <div class="ck-zl">Resultado</div>
+                <template x-if="resultadoImportacion">
+                    <div>
+                        <div style="display:flex;gap:2rem;margin-bottom:0.75rem">
+                            <div>
+                                <div class="ck-label">IMPORTADOS</div>
+                                <div class="ck-kpi__valor ck-kpi__valor--xl" style="color:var(--ck-success)"
+                                     x-text="resultadoImportacion.importados"></div>
+                            </div>
+                            <div>
+                                <div class="ck-label">DUPLICADOS</div>
+                                <div class="ck-kpi__valor ck-kpi__valor--xl" style="color:var(--ck-warn)"
+                                     x-text="resultadoImportacion.duplicados"></div>
+                            </div>
+                            <div>
+                                <div class="ck-label">ERRORES</div>
+                                <div class="ck-kpi__valor ck-kpi__valor--xl" style="color:var(--ck-danger)"
+                                     x-text="resultadoImportacion.errores"></div>
                             </div>
                         </div>
-                        <div class="fido-cat-hijas">
-                            <template x-for="hija in cat.hijas" :key="hija.id">
-                                <div class="fido-cat-hija">
-                                    <span x-text="'  &#9492; ' + hija.nombre"></span>
-                                    <button @click="borrarCategoria(hija.id)"
-                                            class="fido-btn-texto fido-btn-texto--peligro" style="opacity: 0.6;">&times;</button>
-                                </div>
+                        <div style="border-top:1px solid var(--ck-line);padding-top:0.5rem;font-size:0.6rem">
+                            <div style="color:var(--ck-success)">✓ proceso completado</div>
+                        </div>
+                        <div class="fido-resultado-detalles">
+                            <template x-for="(d, i) in (resultadoImportacion.detalles || []).slice(0, 50)" :key="i">
+                                <div :style="d.estado==='importado' ? 'color:var(--ck-success)' : d.estado==='duplicado' ? 'color:var(--ck-warn)' : 'color:var(--ck-danger)'"
+                                     x-text="d.estado + ' — ' + d.fecha + ' — ' + d.descripcion"></div>
                             </template>
                         </div>
                     </div>
                 </template>
+                <div x-show="!resultadoImportacion" class="ck-esperando">
+                    — esperando importación —<span class="cursor-blink" style="margin-left:0.3rem;color:var(--ck-accent-dim)">▌</span>
+                </div>
             </div>
         </div>
 
-        <!-- ===== REGLAS ===== -->
-        <div x-show="pestana === 'reglas'" x-cloak>
-            <h2 class="fido-titulo">Reglas de categorizacion</h2>
+        <!-- ========== CATEGORÍAS ========== -->
+        <div x-show="pestana === 'categorias'" x-cloak class="fido-seccion">
+            <div class="fido-seccion-header">
+                <div class="ck-zl" style="margin-bottom:0">Categorías</div>
+                <button @click="crearCategoriaPadre()" class="ck-btn ck-btn--primary ck-btn--sm">
+                    <span class="material-symbols-outlined" style="font-size:0.75rem">add</span> Nueva categoría
+                </button>
+            </div>
+            <template x-for="cat in categorias" :key="cat.id">
+                <div class="ck-card">
+                    <div class="ck-card-header">
+                        <span class="ck-card-title"
+                              x-text="(cat.icono || '') + ' ' + cat.nombre + ' (' + cat.hijas.length + ')'"></span>
+                        <div style="display:flex;gap:0.5rem">
+                            <button @click="crearSubcategoria(cat.id)"
+                                    class="ck-btn-texto ck-btn-texto--accent">+ Subcategoría</button>
+                            <button @click="borrarCategoria(cat.id)"
+                                    class="ck-btn-texto ck-btn-texto--danger">Borrar</button>
+                        </div>
+                    </div>
+                    <div class="ck-card-hijas">
+                        <template x-for="hija in cat.hijas" :key="hija.id">
+                            <div class="ck-card-hija">
+                                <span class="ck-muted" x-text="'└ ' + hija.nombre"></span>
+                                <button @click="borrarCategoria(hija.id)"
+                                        class="ck-btn-texto ck-btn-texto--danger"
+                                        style="opacity:0.6">&times;</button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </template>
+        </div>
 
-            <!-- Formulario nueva regla -->
-            <div class="hogar-tarjeta fido-regla-form">
+        <!-- ========== REGLAS ========== -->
+        <div x-show="pestana === 'reglas'" x-cloak class="fido-seccion">
+            <div class="ck-zl">Reglas de categorización</div>
+            <div class="ck-card" style="margin-bottom:0">
                 <div class="fido-regla-grid">
-                    <input type="text" x-model="nuevaRegla.patron" placeholder="Patron (ej: mercadona)"
-                           class="fido-input fido-input--form">
-                    <select x-model="nuevaRegla.categoria_id"
-                            class="fido-input fido-input--form">
-                        <option value="">Categoria...</option>
+                    <input type="text" x-model="nuevaRegla.patron"
+                           placeholder="Patrón (ej: mercadona)"
+                           class="ck-input ck-input--sm">
+                    <select x-model="nuevaRegla.categoria_id" class="ck-select ck-input--sm">
+                        <option value="">Categoría...</option>
                         <template x-for="grupo in categoriasAgrupadas()" :key="grupo.id">
                             <optgroup :label="(grupo.icono || '') + ' ' + grupo.nombre">
                                 <template x-for="hija in grupo.hijas" :key="hija.id">
@@ -474,324 +453,448 @@
                             </optgroup>
                         </template>
                     </select>
-                    <input type="number" x-model="nuevaRegla.prioridad" placeholder="Prioridad"
-                           class="fido-input fido-input--form">
-                    <button @click="guardarRegla()" class="hogar-boton hogar-boton--primario">Anadir</button>
+                    <input type="number" x-model="nuevaRegla.prioridad"
+                           placeholder="Prio." class="ck-input ck-input--sm">
+                    <button @click="guardarRegla()" class="ck-btn ck-btn--primary ck-btn--sm">Añadir</button>
                 </div>
             </div>
-
-            <!-- Tabla de reglas -->
-            <div class="hogar-tabla-wrap scroll-fino" style="overflow-x: auto;">
-                <table class="hogar-tabla">
+            <div class="fido-tabla-wrap" style="flex:1">
+                <table class="ck-tabla">
                     <thead>
                         <tr>
-                            <th>Patron</th>
-                            <th>Categoria</th>
-                            <th class="fido-text-center">Prioridad</th>
-                            <th class="fido-text-center">Acciones</th>
+                            <th>Patrón</th>
+                            <th>Categoría</th>
+                            <th style="text-align:center">Prio.</th>
+                            <th style="text-align:center">—</th>
                         </tr>
                     </thead>
                     <tbody>
                         <template x-for="r in reglas" :key="r.id">
                             <tr>
-                                <td class="fido-mono" x-text="r.patron"></td>
-                                <td class="fido-text-muted fido-text-xs" x-text="(r.nombre_categoria || '') + ' > ' + (r.nombre_subcategoria || '')"></td>
-                                <td class="fido-text-center" x-text="r.prioridad"></td>
-                                <td class="fido-text-center">
-                                    <button @click="borrarRegla(r.id)" class="fido-btn-icono fido-btn-icono--peligro">
-                                        <span class="material-symbols-outlined" style="font-size:1.1rem">delete</span>
+                                <td class="ck-mono" x-text="r.patron"></td>
+                                <td class="ck-muted ck-small"
+                                    x-text="(r.nombre_categoria || '') + ' › ' + (r.nombre_subcategoria || '')"></td>
+                                <td style="text-align:center" x-text="r.prioridad"></td>
+                                <td style="text-align:center">
+                                    <button @click="borrarRegla(r.id)"
+                                            class="ck-btn-icono" style="color:var(--ck-danger);opacity:0.7">
+                                        <span class="material-symbols-outlined" style="font-size:1rem">delete</span>
                                     </button>
                                 </td>
                             </tr>
                         </template>
+                        <tr x-show="reglas.length === 0">
+                            <td colspan="4" class="ck-vacio">Sin reglas definidas</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- ===== AJUSTES ===== -->
-        <div x-show="pestana === 'ajustes'" x-cloak>
-            <div class="fido-form-stack fido-form-stack--lg">
-                <!-- Miembros -->
-                <div class="hogar-tarjeta">
-                    <h3 class="fido-subtitulo">Miembros de la familia</h3>
-                    <div class="fido-lista">
-                        <template x-for="m in miembros" :key="m.id">
-                            <div class="fido-lista__item">
-                                <span><strong x-text="m.nombre"></strong>
-                                    <span x-show="m.telegram_chat_id" class="fido-text-muted fido-text-xs" x-text="'(Telegram: ' + m.telegram_chat_id + ')'"></span>
-                                </span>
-                            </div>
-                        </template>
-                    </div>
-                    <div class="fido-filtros">
-                        <input type="text" x-model="nuevoMiembro.nombre" placeholder="Nombre"
-                               class="fido-input fido-input--form fido-input--flex">
-                        <input type="text" x-model="nuevoMiembro.telegram_chat_id" placeholder="Chat ID Telegram"
-                               class="fido-input fido-input--form fido-input--flex">
-                        <button @click="guardarMiembro()" class="hogar-boton hogar-boton--primario fido-boton--sm">Anadir</button>
-                    </div>
-                </div>
+        <!-- ========== AJUSTES ========== -->
+        <div x-show="pestana === 'ajustes'" x-cloak class="fido-seccion">
 
-                <!-- Cuentas -->
-                <div class="hogar-tarjeta">
-                    <h3 class="fido-subtitulo">Cuentas bancarias</h3>
-                    <div class="fido-lista">
-                        <template x-for="c in cuentas" :key="c.id">
-                            <div>
-                                <!-- Vista normal -->
-                                <div x-show="!editandoCuenta || editandoCuenta.id !== c.id"
-                                     class="fido-lista__item">
-                                    <span>
-                                        <strong x-text="c.nombre"></strong>
-                                        <span x-show="c.banco" class="fido-text-muted fido-text-xs" x-text="'(' + c.banco + ')'"></span>
-                                        <span x-show="c.es_compartida" class="hogar-badge" style="background: var(--aviso-fondo); color: var(--aviso); font-size: 0.6rem;">compartida</span>
-                                    </span>
-                                    <span class="fido-filtros" style="gap: var(--gap-xs);">
-                                        <button @click="editarCuenta(c)" class="fido-btn-texto fido-btn-texto--primary">Editar</button>
-                                        <button @click="borrarCuenta(c)" class="fido-btn-texto fido-btn-texto--peligro" style="opacity:0.6;">Borrar</button>
-                                    </span>
-                                </div>
-                                <!-- Formulario edicion inline -->
-                                <div x-show="editandoCuenta && editandoCuenta.id === c.id" class="fido-cuenta-edicion">
-                                    <div class="fido-cuenta-edicion__grid">
-                                        <input type="text" x-model="editandoCuenta.nombre" placeholder="Nombre"
-                                               class="fido-input fido-input--form fido-input--sm">
-                                        <select x-model="editandoCuenta.banco"
-                                                class="fido-input fido-input--form fido-input--sm">
-                                            <option value="">Banco...</option>
-                                            <option value="santander">Santander</option>
-                                            <option value="caixabank">CaixaBank</option>
-                                            <option value="revolut">Revolut</option>
-                                        </select>
-                                        <select x-model="editandoCuenta.miembro_id"
-                                                class="fido-input fido-input--form fido-input--sm">
-                                            <option value="">Titular...</option>
-                                            <template x-for="m in miembros" :key="m.id">
-                                                <option :value="m.id" x-text="m.nombre"></option>
-                                            </template>
-                                        </select>
-                                        <label class="fido-checkbox-label">
-                                            <input type="checkbox" x-model="editandoCuenta.es_compartida"> Compartida
-                                        </label>
-                                        <button @click="actualizarCuenta()" class="hogar-boton hogar-boton--primario fido-boton--xs">Guardar</button>
-                                        <button @click="cancelarEdicionCuenta()" class="hogar-boton hogar-boton--secundario fido-boton--xs">Cancelar</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                    <div class="fido-cuenta-nueva">
-                        <input type="text" x-model="nuevaCuenta.nombre" placeholder="Nombre"
-                               class="fido-input fido-input--form">
-                        <select x-model="nuevaCuenta.banco"
-                                class="fido-input fido-input--form">
-                            <option value="">Banco...</option>
-                            <option value="santander">Santander</option>
-                            <option value="caixabank">CaixaBank</option>
-                            <option value="revolut">Revolut</option>
-                        </select>
-                        <select x-model="nuevaCuenta.miembro_id"
-                                class="fido-input fido-input--form">
-                            <option value="">Titular...</option>
-                            <template x-for="m in miembros" :key="m.id">
-                                <option :value="m.id" x-text="m.nombre"></option>
-                            </template>
-                        </select>
-                        <label class="fido-checkbox-label">
-                            <input type="checkbox" x-model="nuevaCuenta.es_compartida"> Compartida
-                        </label>
-                        <button @click="guardarCuenta()" class="hogar-boton hogar-boton--primario fido-boton--sm">Anadir</button>
-                    </div>
+            <!-- Miembros -->
+            <div class="ck-card">
+                <div class="ck-card-header">
+                    <div class="ck-zl" style="margin-bottom:0">Miembros de la familia</div>
                 </div>
-
-                <!-- Vinculaciones entre cuentas -->
-                <div class="hogar-tarjeta">
-                    <h3 class="fido-subtitulo">Cuentas vinculadas</h3>
-                    <p class="fido-text-muted fido-text-xs" style="margin-bottom: var(--gap-md);">
-                        Define qué cuentas están vinculadas entre sí. Las transferencias detectadas entre ellas
-                        se excluirán de ingresos y gastos en los informes.
-                    </p>
-                    <div class="fido-lista">
-                        <template x-for="v in vinculaciones" :key="v.id">
-                            <div class="fido-lista__item" style="flex-direction: column; align-items: flex-start; gap: var(--gap-xs);">
-                                <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-                                    <span>
-                                        <strong x-text="v.nombre_principal"></strong>
-                                        <span style="margin: 0 0.4rem; color: var(--texto-muted);">→</span>
-                                        <strong x-text="v.nombre_vinculada"></strong>
-                                    </span>
-                                    <button @click="borrarVinculacion(v.id)"
-                                            class="hogar-boton hogar-boton--peligro fido-boton--xs"
-                                            title="Eliminar vinculación">✕</button>
-                                </div>
-                                <span class="fido-text-muted fido-text-xs">
-                                    Patrón: "<span x-text="v.patron_principal"></span>"
-                                    <span style="margin: 0 0.3rem;">→</span>
-                                    "<span x-text="v.patron_vinculada"></span>"
-                                    · tolerancia <span x-text="v.tolerancia_dias"></span> día(s)
-                                </span>
-                            </div>
-                        </template>
-                        <div x-show="vinculaciones.length === 0" class="fido-text-muted fido-text-xs" style="padding: var(--gap-sm) 0;">
-                            Sin vinculaciones configuradas.
-                        </div>
+                <template x-for="m in miembros" :key="m.id">
+                    <div class="ck-lista-item">
+                        <span><strong x-text="m.nombre"></strong>
+                            <span x-show="m.telegram_chat_id" class="ck-muted ck-small"
+                                  x-text="' (Telegram: ' + m.telegram_chat_id + ')'"></span>
+                        </span>
                     </div>
-                    <div class="fido-cuenta-edicion__grid" style="margin-top: var(--gap-md);">
-                        <select x-model="nuevaVinculacion.cuenta_principal_id"
-                                class="fido-input fido-input--form fido-input--sm">
-                            <option value="">Cuenta principal...</option>
-                            <template x-for="c in cuentas" :key="c.id">
-                                <option :value="c.id" x-text="c.nombre"></option>
-                            </template>
-                        </select>
-                        <select x-model="nuevaVinculacion.cuenta_vinculada_id"
-                                class="fido-input fido-input--form fido-input--sm">
-                            <option value="">Cuenta vinculada...</option>
-                            <template x-for="c in cuentas" :key="c.id">
-                                <option :value="c.id" x-text="c.nombre"></option>
-                            </template>
-                        </select>
-                        <input type="text" x-model="nuevaVinculacion.patron_principal"
-                               placeholder="Patrón principal (LIKE)"
-                               class="fido-input fido-input--form fido-input--sm">
-                        <input type="text" x-model="nuevaVinculacion.patron_vinculada"
-                               placeholder="Patrón vinculada (LIKE)"
-                               class="fido-input fido-input--form fido-input--sm">
-                        <button @click="guardarVinculacion()" class="hogar-boton hogar-boton--primario fido-boton--xs">Añadir</button>
-                    </div>
-                </div>
-
-                <!-- Mapeo de tarjetas -->
-                <div class="hogar-tarjeta">
-                    <h3 class="fido-subtitulo">Mapeo de tarjetas</h3>
-                    <p class="fido-text-muted fido-text-xs" style="margin-bottom: var(--gap-md);">Asocia los ultimos 4 digitos de cada tarjeta a una cuenta (para la app Wallet Listener)</p>
-                    <div class="fido-lista">
-                        <template x-for="mt in mapeoTarjetas" :key="mt.id">
-                            <div class="fido-lista__item">
-                                <span>
-                                    <strong x-text="'*' + mt.ultimos4"></strong>
-                                    &rarr; <span x-text="mt.nombre_cuenta"></span>
-                                    <span x-show="mt.etiqueta" class="fido-text-muted fido-text-xs" x-text="'(' + mt.etiqueta + ')'"></span>
-                                </span>
-                                <button @click="borrarMapeo(mt.id)"
-                                        class="hogar-boton hogar-boton--peligro fido-boton--xs"
-                                        title="Eliminar mapeo">✕</button>
-                            </div>
-                        </template>
-                    </div>
-                    <div class="fido-filtros">
-                        <input type="text" x-model="nuevoMapeo.ultimos4" placeholder="Ultimos 4 digitos"
-                               maxlength="6"
-                               class="fido-input fido-input--form" style="width: 8rem;">
-                        <select x-model="nuevoMapeo.cuenta_id"
-                                class="fido-input fido-input--form fido-input--flex">
-                            <option value="">Cuenta...</option>
-                            <template x-for="c in cuentas" :key="c.id">
-                                <option :value="c.id" x-text="c.nombre"></option>
-                            </template>
-                        </select>
-                        <input type="text" x-model="nuevoMapeo.etiqueta" placeholder="Etiqueta"
-                               class="fido-input fido-input--form fido-input--flex">
-                        <button @click="guardarMapeo()" class="hogar-boton hogar-boton--primario fido-boton--sm">Anadir</button>
-                    </div>
+                </template>
+                <div class="ck-form-inline">
+                    <input type="text" x-model="nuevoMiembro.nombre" placeholder="Nombre"
+                           class="ck-input ck-input--sm" style="flex:1">
+                    <input type="text" x-model="nuevoMiembro.telegram_chat_id"
+                           placeholder="Chat ID Telegram"
+                           class="ck-input ck-input--sm" style="flex:1">
+                    <button @click="guardarMiembro()" class="ck-btn ck-btn--primary ck-btn--sm">Añadir</button>
                 </div>
             </div>
+
+            <!-- Cuentas -->
+            <div class="ck-card">
+                <div class="ck-card-header">
+                    <div class="ck-zl" style="margin-bottom:0">Cuentas bancarias</div>
+                </div>
+                <template x-for="c in cuentas" :key="c.id">
+                    <div>
+                        <div x-show="!editandoCuenta || editandoCuenta.id !== c.id" class="ck-lista-item">
+                            <span>
+                                <strong x-text="c.nombre"></strong>
+                                <span x-show="c.banco" class="ck-muted ck-small"
+                                      x-text="' (' + c.banco + ')'"></span>
+                                <span x-show="c.es_compartida" class="ck-badge"
+                                      style="color:var(--ck-warn);border-color:rgba(232,160,58,0.3)">compartida</span>
+                            </span>
+                            <div style="display:flex;gap:0.4rem">
+                                <button @click="editarCuenta(c)"
+                                        class="ck-btn-texto ck-btn-texto--accent">Editar</button>
+                                <button @click="borrarCuenta(c)"
+                                        class="ck-btn-texto ck-btn-texto--danger">Borrar</button>
+                            </div>
+                        </div>
+                        <div x-show="editandoCuenta && editandoCuenta.id === c.id"
+                             class="fido-cuenta-edicion">
+                            <input type="text" x-model="editandoCuenta.nombre" placeholder="Nombre"
+                                   class="ck-input ck-input--sm">
+                            <select x-model="editandoCuenta.banco" class="ck-select ck-input--sm">
+                                <option value="">Banco...</option>
+                                <option value="santander">Santander</option>
+                                <option value="caixabank">CaixaBank</option>
+                                <option value="revolut">Revolut</option>
+                            </select>
+                            <select x-model="editandoCuenta.miembro_id" class="ck-select ck-input--sm">
+                                <option value="">Titular...</option>
+                                <template x-for="m in miembros" :key="m.id">
+                                    <option :value="m.id" x-text="m.nombre"></option>
+                                </template>
+                            </select>
+                            <label class="ck-checkbox-label">
+                                <input type="checkbox" x-model="editandoCuenta.es_compartida"> Compartida
+                            </label>
+                            <button @click="actualizarCuenta()" class="ck-btn ck-btn--primary ck-btn--sm">Guardar</button>
+                            <button @click="cancelarEdicionCuenta()" class="ck-btn ck-btn--sm">Cancelar</button>
+                        </div>
+                    </div>
+                </template>
+                <div class="fido-cuenta-nueva">
+                    <input type="text" x-model="nuevaCuenta.nombre" placeholder="Nombre"
+                           class="ck-input ck-input--sm">
+                    <select x-model="nuevaCuenta.banco" class="ck-select ck-input--sm">
+                        <option value="">Banco...</option>
+                        <option value="santander">Santander</option>
+                        <option value="caixabank">CaixaBank</option>
+                        <option value="revolut">Revolut</option>
+                    </select>
+                    <select x-model="nuevaCuenta.miembro_id" class="ck-select ck-input--sm">
+                        <option value="">Titular...</option>
+                        <template x-for="m in miembros" :key="m.id">
+                            <option :value="m.id" x-text="m.nombre"></option>
+                        </template>
+                    </select>
+                    <label class="ck-checkbox-label">
+                        <input type="checkbox" x-model="nuevaCuenta.es_compartida"> Compartida
+                    </label>
+                    <button @click="guardarCuenta()" class="ck-btn ck-btn--primary ck-btn--sm">Añadir</button>
+                </div>
+            </div>
+
+            <!-- Vinculaciones -->
+            <div class="ck-card">
+                <div class="ck-card-header">
+                    <div class="ck-zl" style="margin-bottom:0">Cuentas vinculadas</div>
+                </div>
+                <p class="ck-muted ck-small" style="padding:0.5rem 0.85rem;margin:0">
+                    Define qué cuentas están vinculadas entre sí. Las transferencias detectadas entre ellas se excluirán de los informes.
+                </p>
+                <template x-for="v in vinculaciones" :key="v.id">
+                    <div class="ck-lista-item">
+                        <span>
+                            <strong x-text="v.nombre_principal"></strong>
+                            <span style="margin:0 0.4rem;color:var(--ck-on-variant)">→</span>
+                            <strong x-text="v.nombre_vinculada"></strong>
+                            <span class="ck-muted ck-small"
+                                  x-text="' · «' + v.patron_principal + '» → «' + v.patron_vinculada + '»'"></span>
+                        </span>
+                        <button @click="borrarVinculacion(v.id)"
+                                class="ck-btn-icono" style="color:var(--ck-danger)" title="Eliminar">✕</button>
+                    </div>
+                </template>
+                <div x-show="vinculaciones.length === 0"
+                     class="ck-muted ck-small" style="padding:0.5rem 0.85rem">Sin vinculaciones configuradas.</div>
+                <div class="fido-vinculacion-form">
+                    <select x-model="nuevaVinculacion.cuenta_principal_id" class="ck-select ck-input--sm">
+                        <option value="">Cuenta principal...</option>
+                        <template x-for="c in cuentas" :key="c.id">
+                            <option :value="c.id" x-text="c.nombre"></option>
+                        </template>
+                    </select>
+                    <select x-model="nuevaVinculacion.cuenta_vinculada_id" class="ck-select ck-input--sm">
+                        <option value="">Cuenta vinculada...</option>
+                        <template x-for="c in cuentas" :key="c.id">
+                            <option :value="c.id" x-text="c.nombre"></option>
+                        </template>
+                    </select>
+                    <input type="text" x-model="nuevaVinculacion.patron_principal"
+                           placeholder="Patrón principal" class="ck-input ck-input--sm" style="width:9rem">
+                    <input type="text" x-model="nuevaVinculacion.patron_vinculada"
+                           placeholder="Patrón vinculada" class="ck-input ck-input--sm" style="width:9rem">
+                    <button @click="guardarVinculacion()" class="ck-btn ck-btn--primary ck-btn--sm">Añadir</button>
+                </div>
+            </div>
+
+            <!-- Mapeo de tarjetas -->
+            <div class="ck-card">
+                <div class="ck-card-header">
+                    <div class="ck-zl" style="margin-bottom:0">Mapeo de tarjetas</div>
+                </div>
+                <p class="ck-muted ck-small" style="padding:0.5rem 0.85rem;margin:0">
+                    Asocia los últimos 4 dígitos de cada tarjeta a una cuenta (para el listener NTFY).
+                </p>
+                <template x-for="mt in mapeoTarjetas" :key="mt.id">
+                    <div class="ck-lista-item">
+                        <span>
+                            <strong x-text="'*' + mt.ultimos4"></strong>
+                            <span style="margin:0 0.3rem;color:var(--ck-on-variant)">→</span>
+                            <span x-text="mt.nombre_cuenta"></span>
+                            <span x-show="mt.etiqueta" class="ck-muted ck-small"
+                                  x-text="' (' + mt.etiqueta + ')'"></span>
+                        </span>
+                        <button @click="borrarMapeo(mt.id)"
+                                class="ck-btn-icono" style="color:var(--ck-danger)" title="Eliminar">✕</button>
+                    </div>
+                </template>
+                <div class="ck-form-inline" style="padding:0.5rem 0.85rem">
+                    <input type="text" x-model="nuevoMapeo.ultimos4"
+                           placeholder="Últimos 4 dígitos" maxlength="6"
+                           class="ck-input ck-input--sm" style="width:7rem">
+                    <select x-model="nuevoMapeo.cuenta_id" class="ck-select ck-input--sm" style="flex:1">
+                        <option value="">Cuenta...</option>
+                        <template x-for="c in cuentas" :key="c.id">
+                            <option :value="c.id" x-text="c.nombre"></option>
+                        </template>
+                    </select>
+                    <input type="text" x-model="nuevoMapeo.etiqueta"
+                           placeholder="Etiqueta" class="ck-input ck-input--sm" style="flex:1">
+                    <button @click="guardarMapeo()" class="ck-btn ck-btn--primary ck-btn--sm">Añadir</button>
+                </div>
+            </div>
+
         </div>
 
-        <!-- ===== CRYPTO ===== -->
-        <div x-show="pestana === 'crypto'" x-cloak>
-            <div x-show="cargandoCrypto" class="fido-vacio">&#9203; Cargando datos crypto...</div>
-            <div x-show="errorCrypto" class="hogar-alerta hogar-alerta--error" x-text="errorCrypto"></div>
-            <div x-show="!cargandoCrypto">
-
-                <!-- Portfolio -->
-                <div class="hogar-tabla-wrap scroll-fino" style="overflow-x: auto; margin-bottom: var(--gap-xl);">
-                    <table class="hogar-tabla">
+        <!-- ========== CRYPTO ========== -->
+        <div x-show="pestana === 'crypto'" x-cloak class="fido-crypto-layout">
+            <!-- Tabla portfolio -->
+            <div class="fido-crypto-tabla">
+                <div class="fido-filtros-bar fido-filtros-bar--mini">
+                    <div class="ck-zl" style="margin-bottom:0">Portfolio · Kryptonite</div>
+                    <span class="ck-muted ck-small" style="margin-left:auto"
+                          x-show="!cargandoCrypto && !errorCrypto">live</span>
+                </div>
+                <div x-show="cargandoCrypto" class="ck-vacio">⏳ Cargando datos crypto...</div>
+                <div x-show="errorCrypto" class="ck-alerta ck-alerta--danger" x-text="errorCrypto"></div>
+                <div x-show="!cargandoCrypto" class="fido-tabla-wrap">
+                    <table class="ck-tabla">
                         <thead>
                             <tr>
                                 <th></th>
-                                <th>Simbolo</th>
-                                <th class="fido-text-right">Inv. &euro;</th>
-                                <th class="fido-text-right">Valor &euro;</th>
-                                <th class="fido-text-right">%</th>
+                                <th>Símbolo</th>
+                                <th style="text-align:right">Inv. €</th>
+                                <th style="text-align:right">Valor €</th>
+                                <th style="text-align:right">Rent.</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <template x-for="c in portafolioCrypto" :key="c.simbolo">
+                            <template x-for="(c, i) in portafolioCrypto" :key="c.simbolo">
                                 <tr>
                                     <td x-text="emojiCrypto(c.simbolo)"></td>
-                                    <td class="fido-text-bold" x-text="c.simbolo"></td>
-                                    <td class="fido-text-right fido-mono" x-text="fmtNum(c.coste_total_inversion)"></td>
-                                    <td class="fido-text-right fido-mono" x-text="fmtNum(c.valor_actual_inversion)"></td>
-                                    <td class="fido-text-right fido-mono fido-text-bold"
-                                        :style="c.rentabilidad_porcentaje >= 0 ? 'color: var(--exito)' : 'color: var(--peligro)'"
-                                        x-text="(c.rentabilidad_porcentaje >= 0 ? '&#9650;' : '&#9660;') + Math.abs(c.rentabilidad_porcentaje).toFixed(1) + '%'"></td>
+                                    <td class="ck-mono" style="font-weight:700"
+                                        :style="'color:' + catColor(i)" x-text="c.simbolo"></td>
+                                    <td style="text-align:right" class="ck-muted"
+                                        x-text="fmtNum(c.coste_total_inversion)"></td>
+                                    <td style="text-align:right;font-weight:700"
+                                        x-text="fmtNum(c.valor_actual_inversion)"></td>
+                                    <td style="text-align:right;font-weight:700"
+                                        :style="c.rentabilidad_porcentaje >= 0 ? 'color:var(--ck-success)' : 'color:var(--ck-danger)'"
+                                        x-text="(c.rentabilidad_porcentaje >= 0 ? '▲' : '▼') + Math.abs(c.rentabilidad_porcentaje).toFixed(1) + '%'"></td>
                                 </tr>
                             </template>
-                            <tr x-show="portafolioCrypto.length === 0">
-                                <td colspan="5" class="fido-vacio">Sin datos</td>
+                            <tr x-show="portafolioCrypto.length === 0 && !cargandoCrypto">
+                                <td colspan="5" class="ck-vacio">Sin datos</td>
+                            </tr>
+                            <tr x-show="portafolioCrypto.length > 0"
+                                style="border-top:1px solid var(--ck-line-bright)">
+                                <td colspan="2" class="ck-muted ck-small"
+                                    style="text-transform:uppercase;letter-spacing:0.08em">Total</td>
+                                <td style="text-align:right;font-weight:700"
+                                    x-text="fmtNum(totalCryptoInvertido())"></td>
+                                <td style="text-align:right;font-weight:700"
+                                    x-text="fmtNum(totalCryptoValor())"></td>
+                                <td style="text-align:right;font-weight:700"
+                                    :style="totalCryptoPct() >= 0 ? 'color:var(--ck-success)' : 'color:var(--ck-danger)'"
+                                    x-text="(totalCryptoPct() >= 0 ? '▲' : '▼') + Math.abs(totalCryptoPct()).toFixed(1) + '%'"></td>
                             </tr>
                         </tbody>
-                        <tfoot x-show="portafolioCrypto.length > 0">
-                            <tr>
-                                <td colspan="2" class="fido-text-bold">Total</td>
-                                <td class="fido-text-right fido-mono fido-text-bold" x-text="fmtNum(totalCryptoInvertido())"></td>
-                                <td class="fido-text-right fido-mono fido-text-bold" x-text="fmtNum(totalCryptoValor())"></td>
-                                <td class="fido-text-right fido-mono fido-text-bold"
-                                    :style="totalCryptoPct() >= 0 ? 'color: var(--exito)' : 'color: var(--peligro)'"
-                                    x-text="(totalCryptoPct() >= 0 ? '&#9650;' : '&#9660;') + Math.abs(totalCryptoPct()).toFixed(1) + '%'"></td>
-                            </tr>
-                        </tfoot>
                     </table>
                 </div>
-
-                <!-- Grafica comparativa 24h -->
-                <div class="hogar-tarjeta">
-                    <h3 class="fido-subtitulo">Comparativa 24h</h3>
+                <!-- Gráfica 24h -->
+                <div x-show="grafica24" style="padding:0.5rem 0.85rem;flex-shrink:0">
+                    <div class="ck-zl" style="margin-bottom:0.4rem">Comparativa 24h</div>
                     <img x-show="grafica24" :src="'data:image/png;base64,' + grafica24"
-                         alt="Comparativa 24h" class="fido-crypto-img">
-                    <p x-show="!grafica24" class="fido-vacio">Sin datos de grafica</p>
+                         alt="Comparativa 24h"
+                         style="width:100%;height:auto;border-radius:3px">
+                </div>
+            </div>
+            <!-- Sidebar distribución -->
+            <div class="fido-crypto-side" x-show="portafolioCrypto.length > 0 && !cargandoCrypto">
+                <div class="ck-zl">Distribución</div>
+                <template x-for="(c, i) in portafolioCrypto" :key="c.simbolo">
+                    <div>
+                        <div style="display:flex;justify-content:space-between;margin-bottom:0.15rem">
+                            <span class="ck-mono" style="font-size:0.6rem"
+                                  :style="'color:' + catColor(i)" x-text="c.simbolo"></span>
+                            <span class="ck-mono ck-small"
+                                  :style="c.rentabilidad_porcentaje >= 0 ? 'color:var(--ck-success)' : 'color:var(--ck-danger)'"
+                                  x-text="(c.rentabilidad_porcentaje >= 0 ? '▲' : '▼') + Math.abs(c.rentabilidad_porcentaje).toFixed(1) + '%'"></span>
+                        </div>
+                        <div style="height:4px;background:var(--ck-line);border-radius:2px;overflow:hidden">
+                            <div :style="'height:100%;border-radius:2px;background:' + catColor(i) + ';width:' + (totalCryptoValor() > 0 ? (c.valor_actual_inversion / totalCryptoValor() * 100) : 0) + '%'"></div>
+                        </div>
+                    </div>
+                </template>
+                <div style="margin-top:auto;border-top:1px solid var(--ck-line);padding-top:0.6rem">
+                    <div class="ck-label">RENTABILIDAD TOTAL</div>
+                    <div class="ck-kpi__valor ck-kpi__valor--xl"
+                         :style="totalCryptoPct() >= 0 ? 'color:var(--ck-success)' : 'color:var(--ck-danger)'"
+                         x-text="(totalCryptoPct() >= 0 ? '▲' : '▼') + Math.abs(totalCryptoPct()).toFixed(1) + '%'"></div>
+                    <div class="ck-muted ck-small" style="margin-top:0.2rem"
+                         x-text="'+' + fmtNum(totalCryptoValor() - totalCryptoInvertido()) + ' € ganados'"></div>
                 </div>
             </div>
         </div>
 
     </main>
 
-    <!-- Footer -->
-    <footer class="fido-footer">
-        FiDo v1.0.0 — Finanzas Domesticas
+    <!-- ===== MODAL NUEVO / EDITAR MOVIMIENTO ===== -->
+    <div x-show="mostrarFormularioMovimiento"
+         x-transition:enter="fido-modal-enter"
+         x-transition:enter-start="fido-modal-enter-start"
+         x-transition:enter-end="fido-modal-enter-end"
+         x-transition:leave="fido-modal-leave"
+         x-transition:leave-start="fido-modal-leave-start"
+         x-transition:leave-end="fido-modal-leave-end"
+         @keydown.escape.window="if(mostrarFormularioMovimiento) cancelarEdicionMovimiento()"
+         class="fido-modal-overlay">
+        <div @click.outside="cancelarEdicionMovimiento()" class="fido-modal">
+            <div class="ck-zl" style="margin-bottom:0.75rem"
+                 x-text="editandoMovimiento ? 'Editar movimiento' : 'Nuevo movimiento'"></div>
+            <div class="fido-modal-grid">
+                <div class="ck-form-field">
+                    <div class="ck-label">FECHA</div>
+                    <input type="date" x-model="nuevoMovimiento.fecha"
+                           class="ck-input" style="width:100%">
+                </div>
+                <div class="ck-form-field">
+                    <div class="ck-label">IMPORTE</div>
+                    <input type="number" step="0.01" x-model="nuevoMovimiento.importe"
+                           placeholder="-gasto, +ingreso"
+                           class="ck-input" style="width:100%">
+                </div>
+                <div class="ck-form-field" style="grid-column:1/-1">
+                    <div class="ck-label">DESCRIPCIÓN</div>
+                    <input type="text" x-model="nuevoMovimiento.descripcion"
+                           placeholder="Descripción del movimiento"
+                           class="ck-input" style="width:100%">
+                </div>
+                <div class="ck-form-field">
+                    <div class="ck-label">CUENTA</div>
+                    <select x-model="nuevoMovimiento.cuenta_id" class="ck-select" style="width:100%">
+                        <option value="">Cuenta...</option>
+                        <template x-for="c in cuentas" :key="c.id">
+                            <option :value="c.id" x-text="c.nombre"></option>
+                        </template>
+                    </select>
+                </div>
+                <div class="ck-form-field">
+                    <div class="ck-label">CATEGORÍA</div>
+                    <select x-model="nuevoMovimiento.categoria_id" class="ck-select" style="width:100%">
+                        <option value="">Auto-categorizar</option>
+                        <template x-for="grupo in categoriasAgrupadas()" :key="grupo.id">
+                            <optgroup :label="(grupo.icono || '') + ' ' + grupo.nombre">
+                                <template x-for="hija in grupo.hijas" :key="hija.id">
+                                    <option :value="hija.id" x-text="hija.nombre"></option>
+                                </template>
+                            </optgroup>
+                        </template>
+                    </select>
+                </div>
+                <div class="ck-form-field" style="grid-column:1/-1">
+                    <div class="ck-label">NOTAS</div>
+                    <input type="text" x-model="nuevoMovimiento.notas"
+                           placeholder="Opcional"
+                           class="ck-input" style="width:100%">
+                </div>
+                <div class="ck-form-field">
+                    <div class="ck-label">ESTADO</div>
+                    <select x-model="nuevoMovimiento.estado" class="ck-select" style="width:100%">
+                        <option value="ok">✓ Confirmado</option>
+                        <option value="revisar">⚠ Por revisar</option>
+                    </select>
+                </div>
+                <div class="ck-form-field" style="grid-column:1/-1;display:flex;justify-content:flex-end;gap:0.5rem">
+                    <button @click="cancelarEdicionMovimiento()" class="ck-btn ck-btn--sm">Cancelar</button>
+                    <button @click="guardarMovimiento()" class="ck-btn ck-btn--primary ck-btn--sm">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer id="fido-footer">
+        <div class="fido-footer__status">
+            <div class="fido-footer__dot">
+                <div class="status-dot status-dot--ok"></div>
+                <span class="ck-label" style="margin-bottom:0">API</span>
+                <span style="font-size:0.48rem;color:var(--ck-success);font-weight:700">online</span>
+            </div>
+            <div class="fido-footer__dot">
+                <div class="status-dot status-dot--ok"></div>
+                <span class="ck-label" style="margin-bottom:0">BD</span>
+                <span style="font-size:0.48rem;color:var(--ck-success);font-weight:700">ok</span>
+            </div>
+            <div class="fido-footer__dot">
+                <div class="status-dot status-dot--ok"></div>
+                <span class="ck-label" style="margin-bottom:0">NTFY</span>
+                <span style="font-size:0.48rem;color:var(--ck-success);font-weight:700">escuchando</span>
+            </div>
+            <div class="fido-footer__dot" id="fido-dot-krypto">
+                <div class="status-dot status-dot--warn"></div>
+                <span class="ck-label" style="margin-bottom:0">KRYPTO</span>
+                <span style="font-size:0.48rem;color:var(--ck-warn);font-weight:700">—</span>
+            </div>
+        </div>
+        <span style="font-size:0.42rem;color:var(--ck-on-variant);letter-spacing:0.1em">
+            FIDO v1.0 · HOGAROS ECOSYSTEM · /finanzas/
+        </span>
     </footer>
 
 </div>
 
 <script src="api.js?v=2"></script>
-<script src="app.js?v=5"></script>
+<script src="app.js?v=6"></script>
 <script>
-    /* Toggle tema claro/oscuro */
-    (function initTema() {
-        if (localStorage.getItem("hogar-tema") === "oscuro") {
-            document.documentElement.setAttribute("data-tema", "oscuro");
-        }
-        actualizarIconoTema();
+    /* Tema Cockpit */
+    (function() {
+        var tema = localStorage.getItem('hogar-cockpit-tema') || 'dark';
+        document.documentElement.setAttribute('data-tema-cockpit', tema);
+        var icono = document.getElementById('fido-tema-icono');
+        if (icono) icono.textContent = tema === 'dark' ? 'light_mode' : 'dark_mode';
     })();
 
-    document.getElementById("btnTemaFido").addEventListener("click", function() {
-        var oscuro = document.documentElement.getAttribute("data-tema") === "oscuro";
-        if (oscuro) {
-            document.documentElement.removeAttribute("data-tema");
-            localStorage.setItem("hogar-tema", "claro");
-        } else {
-            document.documentElement.setAttribute("data-tema", "oscuro");
-            localStorage.setItem("hogar-tema", "oscuro");
-        }
-        actualizarIconoTema();
+    document.getElementById('fido-tema-btn').addEventListener('click', function() {
+        var actual = document.documentElement.getAttribute('data-tema-cockpit');
+        var nuevo  = actual === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-tema-cockpit', nuevo);
+        localStorage.setItem('hogar-cockpit-tema', nuevo);
+        document.getElementById('fido-tema-icono').textContent = nuevo === 'dark' ? 'light_mode' : 'dark_mode';
     });
 
-    function actualizarIconoTema() {
-        var oscuro = document.documentElement.getAttribute("data-tema") === "oscuro";
-        document.getElementById("iconoTema").textContent = oscuro ? "light_mode" : "dark_mode";
+    /* Reloj */
+    function actualizarReloj() {
+        var n = new Date();
+        var h = String(n.getHours()).padStart(2, '0');
+        var m = String(n.getMinutes()).padStart(2, '0');
+        var s = String(n.getSeconds()).padStart(2, '0');
+        document.getElementById('fido-reloj').textContent = h + ':' + m + ':' + s;
     }
+    actualizarReloj();
+    setInterval(actualizarReloj, 1000);
 </script>
 </body>
 </html>
