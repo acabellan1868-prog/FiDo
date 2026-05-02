@@ -12,6 +12,10 @@
 /* ============================================================
    1. Layout principal
    ============================================================ */
+html {
+    font-size: 150%;
+}
+
 body {
     margin: 0;
     background: var(--ck-bg);
@@ -36,7 +40,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 48px;
+    height: 3.5rem;
     padding: 0 1rem;
     border-bottom: 1px solid var(--ck-line);
     background: var(--ck-bg2);
@@ -994,7 +998,7 @@ body {
    21. Footer
    ============================================================ */
 #fido-footer {
-    height: 28px;
+    height: 2.2rem;
     border-top: 1px solid var(--ck-line);
     background: var(--ck-bg2);
     display: flex;
