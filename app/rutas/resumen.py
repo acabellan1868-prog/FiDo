@@ -43,6 +43,7 @@ def _crear_filtro_cuenta(cuenta_id: int | None, cuenta_nombre: str | None, banco
 @ruta.get("")
 def resumen(
     periodo: str = "mes",
+    mes: str | None = None,
     cuenta_id: int | None = None,
     cuenta_nombre: str | None = None,
     banco: str | None = None,
@@ -50,8 +51,9 @@ def resumen(
     """
     Devuelve el resumen financiero del mes o semana actual para el portal hogarOS.
 
-    - `periodo=mes` (por defecto): mes en curso.
+    - `periodo=mes` (por defecto): mes en curso, o el mes indicado en `mes`.
     - `periodo=semana`: desde el lunes de la semana actual hasta hoy.
+    - `mes`: mes concreto en formato YYYY-MM (solo con periodo=mes). Si se omite, usa el mes actual.
 
     Puede filtrarse por cuenta con `cuenta_id` o con `cuenta_nombre` y `banco`.
     """
@@ -66,10 +68,20 @@ def resumen(
         filtro_fecha = "date(m.fecha) BETWEEN ? AND ?"
         parametros = [fecha_ini, fecha_fin] + parametros_cuenta
     else:
-        mes_actual = hoy.strftime("%Y-%m")
-        etiqueta = f"{_MESES[hoy.month]} {hoy.year}"
+        # Usar el mes indicado o el mes actual
+        if mes:
+            try:
+                anyo, num_mes = int(mes[:4]), int(mes[5:7])
+                etiqueta = f"{_MESES[num_mes]} {anyo}"
+                mes_clave = mes[:7]  # YYYY-MM
+            except (ValueError, IndexError):
+                mes_clave = hoy.strftime("%Y-%m")
+                etiqueta = f"{_MESES[hoy.month]} {hoy.year}"
+        else:
+            mes_clave = hoy.strftime("%Y-%m")
+            etiqueta = f"{_MESES[hoy.month]} {hoy.year}"
         filtro_fecha = "strftime('%Y-%m', m.fecha) = ?"
-        parametros = [mes_actual] + parametros_cuenta
+        parametros = [mes_clave] + parametros_cuenta
 
     fila = bd.consultar_uno(f"""
         SELECT
