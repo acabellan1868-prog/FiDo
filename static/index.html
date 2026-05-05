@@ -19,40 +19,37 @@
     </div>
 
     <!-- ===== HEADER ===== -->
-    <header id="fido-header">
-        <div class="fido-header__left">
-            <a href="#" onclick="window.location=window.location.origin;return false" class="fido-header__marca">
-                <div class="fido-header__logo">
-                    <div class="fido-header__logo-dot"></div>
-                </div>
-                <span class="fido-header__marca-text">HOGAR<span class="fido-header__marca-os">OS</span></span>
+    <header class="ck-header">
+        <div class="ck-hdr-izq">
+            <a href="#" onclick="window.location=window.location.origin;return false" class="ck-marca-box" style="text-decoration:none">
+                <div class="ck-marca-dot"></div>
             </a>
-            <div class="fido-header__sep"></div>
-            <span class="fido-header__app">FIDO</span>
-            <span class="fido-header__sub fido-desktop-only">finanzas domésticas</span>
-            <div class="fido-header__sep fido-desktop-only"></div>
-            <!-- Nav secciones — solo desktop -->
-            <nav class="fido-nav fido-desktop-only">
-                <button @click="irA('panel')"       class="fido-nav__btn" :class="pestana === 'panel'       ? 'fido-nav__btn--activo' : ''">PANEL</button>
-                <button @click="irA('movimientos')" class="fido-nav__btn" :class="pestana === 'movimientos' ? 'fido-nav__btn--activo' : ''">MOVIMIENTOS</button>
-                <button @click="irA('importar')"    class="fido-nav__btn" :class="pestana === 'importar'    ? 'fido-nav__btn--activo' : ''">IMPORTAR</button>
-                <button @click="irA('categorias')"  class="fido-nav__btn" :class="pestana === 'categorias'  ? 'fido-nav__btn--activo' : ''">CATEGORÍAS</button>
-                <button @click="irA('reglas')"      class="fido-nav__btn" :class="pestana === 'reglas'      ? 'fido-nav__btn--activo' : ''">REGLAS</button>
-                <button @click="irA('ajustes')"     class="fido-nav__btn" :class="pestana === 'ajustes'     ? 'fido-nav__btn--activo' : ''">AJUSTES</button>
-                <button @click="irA('crypto')"      class="fido-nav__btn" :class="pestana === 'crypto'      ? 'fido-nav__btn--activo' : ''">CRYPTO</button>
+            <div>
+                <div class="ck-marca-txt">HOGAR<span>OS</span></div>
+                <div class="ck-marca-sub">finanzas domésticas</div>
+            </div>
+            <div class="ck-sep"></div>
+            <span style="font-size:0.75rem;font-weight:700;color:var(--ck-accent);letter-spacing:0.15em;flex-shrink:0">FIDO</span>
+            <div class="ck-sep fido-desktop-only"></div>
+            <nav class="ck-nav fido-desktop-only">
+                <button @click="irA('panel')"       :class="pestana === 'panel'       ? 'activo' : ''">PANEL</button>
+                <button @click="irA('movimientos')" :class="pestana === 'movimientos' ? 'activo' : ''">MOVIMIENTOS</button>
+                <button @click="irA('importar')"    :class="pestana === 'importar'    ? 'activo' : ''">IMPORTAR</button>
+                <button @click="irA('categorias')"  :class="pestana === 'categorias'  ? 'activo' : ''">CATEGORÍAS</button>
+                <button @click="irA('reglas')"      :class="pestana === 'reglas'      ? 'activo' : ''">REGLAS</button>
+                <button @click="irA('ajustes')"     :class="pestana === 'ajustes'     ? 'activo' : ''">AJUSTES</button>
+                <button @click="irA('crypto')"      :class="pestana === 'crypto'      ? 'activo' : ''">CRYPTO</button>
             </nav>
-            <!-- Sección activa móvil -->
-            <span class="fido-mobile-seccion fido-mobile-only" x-text="pestana.toUpperCase()"></span>
         </div>
-        <div class="fido-header__right">
-            <button id="fido-tema-btn" class="fido-header__tema-btn" title="Cambiar tema">
+        <div class="ck-hdr-der">
+            <button id="fido-tema-btn" class="ck-tema-btn" title="Cambiar tema">
                 <span id="fido-tema-icono" class="material-symbols-outlined" style="font-size:1rem">light_mode</span>
             </button>
-            <div class="fido-header__reloj">
-                <div id="fido-reloj-hora">00:00</div>
-                <div id="fido-reloj-fecha" style="font-size: 0.5rem; color: inherit; margin-top: -2px;">—</div>
+            <div class="ck-reloj">
+                <div class="ck-reloj__hora" id="fido-reloj-hora">--:--:--</div>
+                <div class="ck-reloj__fecha" id="fido-reloj-fecha"></div>
             </div>
-            <button class="fido-header__hamburguesa fido-mobile-only" @click="drawerAbierto = !drawerAbierto">
+            <button class="ck-tema-btn fido-mobile-only" @click="drawerAbierto = !drawerAbierto">
                 <span class="material-symbols-outlined" style="font-size:1.2rem">menu</span>
             </button>
         </div>
