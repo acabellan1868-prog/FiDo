@@ -891,8 +891,9 @@
     /* Reloj */
     function actualizarReloj() {
         var ahora = new Date();
-        document.getElementById('fido-reloj-hora').textContent = ahora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-        document.getElementById('fido-reloj-fecha').textContent = ahora.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
+        document.getElementById('fido-reloj-hora').textContent = ahora.toLocaleTimeString('es-ES');
+        var fecha = ahora.toLocaleDateString('es-ES', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
+        document.getElementById('fido-reloj-fecha').textContent = fecha;
     }
     actualizarReloj();
     setInterval(actualizarReloj, 1000);
