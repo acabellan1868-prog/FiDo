@@ -1,0 +1,23 @@
+04-08 07:26:39.023 I 1@1: Flow beginning
+04-08 07:26:39.024 I 1@2: Notification posted?
+04-08 07:27:07.277 I 1@2: Resumed after restart
+04-08 07:27:07.278 I 1@2: Notification posted?
+04-08 07:45:28.843 I 1@2: Resumed after restart
+04-08 07:45:28.845 I 1@2: Notification posted?
+04-08 09:17:24.691 I 1@2: Stopped by user
+04-08 09:17:39.878 I 2@1: Flow beginning
+04-08 09:17:39.882 I 2@2: Notification posted?
+04-08 09:17:39.885 F 2@2: java.lang.IllegalStateException: Notification listener service not running
+04-08 09:17:39.886 I 2@2: Stopped by failure
+04-08 09:18:00.356 I 3@1: Flow beginning
+04-08 09:18:00.361 I 3@2: Notification posted?
+04-08 09:18:00.362 F 3@2: java.lang.IllegalStateException: Notification listener service not running
+04-08 09:18:00.363 I 3@2: Stopped by failure
+04-08 10:57:20.583 I 4@1: Flow beginning
+04-08 10:57:20.583 I 4@2: Notification posted?
+04-08 10:57:20.584 F 4@2: java.lang.IllegalStateException: Notification listener service not running
+04-08 10:57:20.584 I 4@2: Stopped by failure
+04-08 10:59:57.076 I 5@1: Flow beginning
+04-08 10:59:57.079 I 5@2: Notification posted?
+04-08 20:14:16.891 I 5@2: Resumed after restart
+04-08 20:14:16.893 I 5@2: Notification posted?

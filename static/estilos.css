@@ -34,120 +34,12 @@ body {
 }
 
 /* ============================================================
-   2. Header
+   2. Header — usa .hogar-header-app de hogar.css
    ============================================================ */
-#fido-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 3.5rem;
-    padding: 0 1rem;
-    border-bottom: 1px solid var(--ck-line);
-    background: var(--ck-bg2);
-    flex-shrink: 0;
-    z-index: 10;
+/* Ajustes de escala para Cockpit */
+html {
+    font-size: 150%;
 }
-
-.fido-header__left {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    min-width: 0;
-    flex: 1;
-}
-
-.fido-header__right {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-shrink: 0;
-}
-
-.fido-header__marca {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    text-decoration: none;
-    cursor: pointer;
-    background: none;
-    border: none;
-    padding: 0;
-}
-
-.fido-header__logo {
-    width: 20px;
-    height: 20px;
-    border: 1px solid var(--ck-accent);
-    border-radius: 3px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.fido-header__logo-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--ck-accent);
-}
-
-.fido-header__marca-text {
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: var(--ck-accent-dim);
-    letter-spacing: 0.1em;
-}
-
-.fido-header__marca-os {
-    color: var(--ck-on-variant);
-}
-
-.fido-header__sep {
-    width: 1px;
-    height: 16px;
-    background: var(--ck-line);
-    flex-shrink: 0;
-}
-
-.fido-header__app {
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: var(--ck-accent);
-    letter-spacing: 0.12em;
-    flex-shrink: 0;
-}
-
-.fido-header__sub {
-    font-size: 0.48rem;
-    color: var(--ck-on-variant);
-    letter-spacing: 0.08em;
-}
-
-.fido-header__reloj {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--ck-accent);
-    letter-spacing: 0.06em;
-    white-space: nowrap;
-}
-
-.fido-header__tema-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--ck-on-variant);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 4px;
-    transition: background 0.2s;
-}
-
-.fido-header__tema-btn:hover {
-    background: rgba(128, 128, 128, 0.15);
 }
 
 .fido-header__hamburguesa {

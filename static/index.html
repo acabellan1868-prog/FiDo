@@ -18,38 +18,36 @@
         <span x-text="mensaje"></span>
     </div>
 
-    <!-- ===== HEADER ===== -->
-    <header id="fido-header">
-        <div class="fido-header__left">
-            <a href="#" onclick="window.location=window.location.origin;return false" class="fido-header__marca">
-                <div class="fido-header__logo">
-                    <div class="fido-header__logo-dot"></div>
-                </div>
-                <span class="fido-header__marca-text">HOGAR<span class="fido-header__marca-os">OS</span></span>
+    <!-- ===== HEADER UNIFICADO ===== -->
+    <header class="hogar-header-app">
+        <div class="hogar-header-app__left">
+            <a href="#" onclick="window.location=window.location.origin;return false" class="hogar-header-app__marca">
+                <span class="hogar-header-app__marca-icon">🏠</span>
+                <span class="hogar-header-app__marca-text">HogarOS</span>
             </a>
-            <div class="fido-header__sep"></div>
-            <span class="fido-header__app">FIDO</span>
-            <span class="fido-header__sub fido-desktop-only">finanzas domésticas</span>
-            <div class="fido-header__sep fido-desktop-only"></div>
+            <div class="hogar-header-app__sep"></div>
+            <span class="hogar-header-app__app">FIDO</span>
+            <span class="hogar-header-app__sub fido-desktop-only">finanzas domésticas</span>
+            <div class="hogar-header-app__sep fido-desktop-only"></div>
             <!-- Nav secciones — solo desktop -->
-            <nav class="fido-nav fido-desktop-only">
-                <button @click="irA('panel')"       class="fido-nav__btn" :class="pestana === 'panel'       ? 'fido-nav__btn--activo' : ''">PANEL</button>
-                <button @click="irA('movimientos')" class="fido-nav__btn" :class="pestana === 'movimientos' ? 'fido-nav__btn--activo' : ''">MOVIMIENTOS</button>
-                <button @click="irA('importar')"    class="fido-nav__btn" :class="pestana === 'importar'    ? 'fido-nav__btn--activo' : ''">IMPORTAR</button>
-                <button @click="irA('categorias')"  class="fido-nav__btn" :class="pestana === 'categorias'  ? 'fido-nav__btn--activo' : ''">CATEGORÍAS</button>
-                <button @click="irA('reglas')"      class="fido-nav__btn" :class="pestana === 'reglas'      ? 'fido-nav__btn--activo' : ''">REGLAS</button>
-                <button @click="irA('ajustes')"     class="fido-nav__btn" :class="pestana === 'ajustes'     ? 'fido-nav__btn--activo' : ''">AJUSTES</button>
-                <button @click="irA('crypto')"      class="fido-nav__btn" :class="pestana === 'crypto'      ? 'fido-nav__btn--activo' : ''">CRYPTO</button>
+            <nav class="hogar-header-app__nav fido-desktop-only">
+                <button @click="irA('panel')"       class="hogar-header-app__nav-btn" :class="pestana === 'panel'       ? 'hogar-header-app__nav-btn--activo' : ''">Panel</button>
+                <button @click="irA('movimientos')" class="hogar-header-app__nav-btn" :class="pestana === 'movimientos' ? 'hogar-header-app__nav-btn--activo' : ''">Movimientos</button>
+                <button @click="irA('importar')"    class="hogar-header-app__nav-btn" :class="pestana === 'importar'    ? 'hogar-header-app__nav-btn--activo' : ''">Importar</button>
+                <button @click="irA('categorias')"  class="hogar-header-app__nav-btn" :class="pestana === 'categorias'  ? 'hogar-header-app__nav-btn--activo' : ''">Categorías</button>
+                <button @click="irA('reglas')"      class="hogar-header-app__nav-btn" :class="pestana === 'reglas'      ? 'hogar-header-app__nav-btn--activo' : ''">Reglas</button>
+                <button @click="irA('ajustes')"     class="hogar-header-app__nav-btn" :class="pestana === 'ajustes'     ? 'hogar-header-app__nav-btn--activo' : ''">Ajustes</button>
+                <button @click="irA('crypto')"      class="hogar-header-app__nav-btn" :class="pestana === 'crypto'      ? 'hogar-header-app__nav-btn--activo' : ''">Crypto</button>
             </nav>
             <!-- Sección activa móvil -->
             <span class="fido-mobile-seccion fido-mobile-only" x-text="pestana.toUpperCase()"></span>
         </div>
-        <div class="fido-header__right">
-            <button id="fido-tema-btn" class="fido-header__tema-btn" title="Cambiar tema">
+        <div class="hogar-header-app__right">
+            <button id="fido-tema-btn" class="hogar-header-app__btn" title="Cambiar tema">
                 <span id="fido-tema-icono" class="material-symbols-outlined" style="font-size:1rem">light_mode</span>
             </button>
-            <div class="fido-header__reloj" id="fido-reloj">00:00:00</div>
-            <button class="fido-header__hamburguesa fido-mobile-only" @click="drawerAbierto = !drawerAbierto">
+            <div class="hogar-header-app__clock" id="fido-reloj">00:00:00</div>
+            <button class="hogar-header-app__btn fido-mobile-only" @click="drawerAbierto = !drawerAbierto">
                 <span class="material-symbols-outlined" style="font-size:1.2rem">menu</span>
             </button>
         </div>
