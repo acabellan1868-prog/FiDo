@@ -4,6 +4,32 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-05-05
+
+### Adopción del header Cockpit unificado de hogar.css
+
+La cabecera de FiDo tenía sus propias clases (`fido-header__*`) con dimensiones
+diferentes a las del portal hogarOS: altura 3.5rem (≈52px con font-size 150%)
+en lugar de 48px, padding menor, reloj sin fecha, y fuentes distintas.
+
+**Cambios realizados:**
+
+- `static/index.html`: reemplazado `<header id="fido-header">` por `<header class="ck-header">`.
+  Ahora usa exactamente la misma estructura HTML que el portal:
+  `.ck-hdr-izq` / `.ck-hdr-der`, `.ck-marca-box`, `.ck-marca-txt`, `.ck-sep`,
+  `.ck-nav` con `<button>` (en lugar de `<a>`), `.ck-reloj__hora` + `.ck-reloj__fecha`,
+  `.ck-tema-btn`.
+
+- `static/estilos.css`: eliminados todos los estilos propios del header
+  (~100 líneas de `.fido-header__*`, `.fido-nav__*`, etc.).
+
+- Reloj actualizado: muestra hora con segundos (`HH:MM:SS`) y fecha en
+  mayúsculas con año (`MAR, 05 MAY 2026`), idéntico al portal.
+
+**Resultado:** la cabecera de FiDo es visualmente idéntica a la del portal.
+Los estilos viven en `hogar.css` — cualquier cambio de diseño en el header
+se propaga automáticamente a todas las apps que lo adopten.
+
 ## 2026-05-01
 
 ### Transferencias internas — cuentas vinculadas

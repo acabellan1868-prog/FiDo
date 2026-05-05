@@ -131,5 +131,22 @@ las últimas 12 horas para no perder movimientos durante caídas breves.
 Ver la guía completa de configuración en `docs/macrodroid-ntfy.md` (MacroDroid, gratuito).
 La guía original de Tasker sigue disponible en `docs/tasker-ntfy.md`.
 
-## hogar.css
-Nginx reescribe `/static/` → `/finanzas/static/` y lo sirve desde `portal/static/` de hogarOS. FiDo no sirve `hogar.css` por sí mismo.
+## hogar.css y header compartido
+
+Nginx reescribe `/static/` → `/finanzas/static/` y lo sirve desde `portal/static/` de hogarOS.
+FiDo no sirve `hogar.css` por sí mismo.
+
+### Header — clases de hogar.css
+
+FiDo usa las clases del header Cockpit definidas en `hogar.css` (sección 7b), las mismas
+que el portal hogarOS. **No hay estilos de cabecera en `estilos.css`.**
+
+Clases en uso: `.ck-header`, `.ck-hdr-izq`, `.ck-hdr-der`, `.ck-marca-box`, `.ck-marca-dot`,
+`.ck-marca-txt`, `.ck-marca-sub`, `.ck-sep`, `.ck-nav`, `.ck-reloj`, `.ck-reloj__hora`,
+`.ck-reloj__fecha`, `.ck-tema-btn`.
+
+La nav usa `<button>` con Alpine.js (`:class="pestana === 'X' ? 'activo' : ''"`) en lugar
+de `<a>` como en el portal.
+
+Ver la estructura completa y el snippet del reloj en `hogarOS/CLAUDE.md`
+(sección "Header Cockpit compartido").
