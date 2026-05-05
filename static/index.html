@@ -48,7 +48,10 @@
             <button id="fido-tema-btn" class="fido-header__tema-btn" title="Cambiar tema">
                 <span id="fido-tema-icono" class="material-symbols-outlined" style="font-size:1rem">light_mode</span>
             </button>
-            <div class="fido-header__reloj" id="fido-reloj">00:00:00</div>
+            <div class="fido-header__reloj">
+                <div id="fido-reloj-hora">00:00</div>
+                <div id="fido-reloj-fecha" style="font-size: 0.5rem; color: inherit; margin-top: -2px;">—</div>
+            </div>
             <button class="fido-header__hamburguesa fido-mobile-only" @click="drawerAbierto = !drawerAbierto">
                 <span class="material-symbols-outlined" style="font-size:1.2rem">menu</span>
             </button>
@@ -887,11 +890,9 @@
 
     /* Reloj */
     function actualizarReloj() {
-        var n = new Date();
-        var h = String(n.getHours()).padStart(2, '0');
-        var m = String(n.getMinutes()).padStart(2, '0');
-        var s = String(n.getSeconds()).padStart(2, '0');
-        document.getElementById('fido-reloj').textContent = h + ':' + m + ':' + s;
+        var ahora = new Date();
+        document.getElementById('fido-reloj-hora').textContent = ahora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        document.getElementById('fido-reloj-fecha').textContent = ahora.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
     }
     actualizarReloj();
     setInterval(actualizarReloj, 1000);

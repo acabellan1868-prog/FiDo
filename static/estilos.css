@@ -154,12 +154,21 @@ body {
 }
 
 .fido-header__reloj {
-    font-size: 0.85rem;
-    font-weight: 700;
+    font-size: 13px;
     color: var(--ck-accent);
-    letter-spacing: 0.06em;
-    white-space: nowrap;
-    font-family: var(--ck-fuente);
+    font-family: monospace;
+    line-height: 1;
+}
+
+#fido-reloj-hora {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+#fido-reloj-fecha {
+    font-size: 10px;
+    color: var(--ck-on-variant);
+    margin-top: 1px;
 }
 
 .fido-header__tema-btn {
