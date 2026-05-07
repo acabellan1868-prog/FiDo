@@ -181,7 +181,7 @@ body {
 .fido-panel-grid {
     flex: 1;
     display: grid;
-    grid-template-columns: 210px 1fr 230px;
+    grid-template-columns: 1fr 2fr 1fr;
     min-height: 0;
     overflow: hidden;
 }
