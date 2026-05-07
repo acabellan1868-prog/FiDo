@@ -4,6 +4,23 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-05-07 — Mejoras responsive y corrección de bugs en móvil
+
+### `static/estilos.css` — Font-size adaptativo
+
+- `html { font-size }` cambiado de fijo `150%` (declarado dos veces por duplicado) a tres escalones: `150%` (≥1301px), `125%` (portátiles ≤1300px), `100%` (tablet/móvil ≤900px). Eliminada la declaración duplicada.
+
+### `static/estilos.css` — Fix overlay bloqueaba toda interacción en portrait
+
+- Causa raíz: `.fido-mobile-only { display: flex !important; }` en la media query de ≤767px sobreescribía el `display: none` que Alpine.js pone mediante `x-show` en el overlay del drawer. El overlay quedaba fijo sobre toda la pantalla en portrait, impidiendo cualquier toque.
+- Fix: quitado el `!important` de `.fido-mobile-only`. Sin él, el `display: none` inline de Alpine prevalece cuando el drawer está cerrado.
+
+### `static/estilos.css` — Columnas del panel proporcionales
+
+- `.fido-panel-grid` cambiado de `grid-template-columns: 210px 1fr 230px` (anchos fijos en píxeles) a `1fr 2fr 1fr` (proporcional), alineando las proporciones con las del portal hogarOS.
+
+---
+
 ## 2026-05-05
 
 ### Adopción del header Cockpit unificado de hogar.css
