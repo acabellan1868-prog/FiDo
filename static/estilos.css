@@ -13,8 +13,10 @@
    1. Layout principal
    ============================================================ */
 html {
-    font-size: 150%;
+    font-size: 150%;                       /* monitores ≥1301px */
 }
+@media (max-width: 1300px) { html { font-size: 125%; } }  /* portátiles */
+@media (max-width: 900px)  { html { font-size: 100%; } }  /* tablet/móvil */
 
 body {
     margin: 0;
@@ -37,10 +39,7 @@ body {
    2. Header — estilos en hogar.css (.ck-header, .ck-reloj, .ck-nav…)
    ============================================================ */
 
-/* Ajustes de escala para Cockpit */
-html {
-    font-size: 150%;
-}
+/* Ajustes de escala para Cockpit — font-size definido arriba */
 
 .fido-header__hamburguesa {
     background: none;
