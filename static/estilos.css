@@ -925,7 +925,7 @@ body {
     #fido-content { overflow: visible; }
 
     .fido-desktop-only { display: none !important; }
-    .fido-mobile-only  { display: flex !important; }
+    .fido-mobile-only  { display: flex; }  /* sin !important para que x-show de Alpine pueda ocultar */
 
     .fido-panel-grid {
         grid-template-columns: 1fr;
