@@ -73,12 +73,14 @@ async def importar_csv(
                 "SELECT * FROM movimientos WHERE huella = ?", (huella,)
             )
             if not existentes:
-                # Fallback: mismo importe, misma cuenta y fecha ±1 día
+                # Fallback fuzzy: mismo importe + misma descripción + fecha ±1 día.
+                # Cubre el caso de extractos solapados donde fecha_op y fecha_valor
+                # difieren en 1 día. Sin descripción sería demasiado agresivo.
                 existentes = bd.consultar_todos(
                     """SELECT * FROM movimientos
-                       WHERE importe = ? AND cuenta_id = ?
+                       WHERE importe = ? AND cuenta_id = ? AND descripcion = ?
                        AND fecha BETWEEN date(?, '-1 day') AND date(?, '+1 day')""",
-                    (movimiento.importe, movimiento.cuenta_id,
+                    (movimiento.importe, movimiento.cuenta_id, movimiento.descripcion,
                      movimiento.fecha, movimiento.fecha)
                 )
             if existentes:
