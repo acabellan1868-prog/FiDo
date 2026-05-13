@@ -388,7 +388,7 @@
                             <div style="color:var(--ck-success)">✓ proceso completado</div>
                         </div>
                         <div class="fido-resultado-detalles">
-                            <template x-for="(d, i) in (resultadoImportacion.detalles || []).slice(0, 50)" :key="i">
+                            <template x-for="(d, i) in (resultadoImportacion.detalles || [])" :key="i">
                                 <div :style="d.estado==='importado' ? 'color:var(--ck-success)' : d.estado==='duplicado' ? 'color:var(--ck-warn)' : 'color:var(--ck-danger)'"
                                      x-text="d.estado + ' — ' + d.fecha + ' — ' + d.descripcion"></div>
                             </template>
