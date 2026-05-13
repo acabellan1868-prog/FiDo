@@ -234,18 +234,19 @@
                             class="ck-btn ck-btn--primary ck-btn--sm">
                         <span class="material-symbols-outlined" style="font-size:0.75rem">add</span> nuevo
                     </button>
+                    <div style="position:relative;display:inline-flex">
+                        <button @click="borrarSeleccionados()"
+                                :disabled="!movSeleccionados.length"
+                                class="ck-btn-icono"
+                                style="color:var(--ck-danger)"
+                                title="Borrar seleccionados">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                        <span x-show="movSeleccionados.length > 0"
+                              x-text="movSeleccionados.length"
+                              style="position:absolute;top:-4px;right:-4px;background:var(--ck-danger);color:#fff;border-radius:50%;font-size:0.55rem;min-width:1rem;height:1rem;display:flex;align-items:center;justify-content:center;pointer-events:none"></span>
+                    </div>
                 </div>
-            </div>
-            <!-- Barra selección múltiple -->
-            <div class="fido-seleccion-barra" x-show="movSeleccionados.length > 0">
-                <span class="ck-label" x-text="movSeleccionados.length + ' seleccionado(s)'"></span>
-                <button @click="borrarSeleccionados()"
-                        class="ck-btn-icono"
-                        style="color:var(--ck-danger);font-size:1.3rem"
-                        title="Borrar seleccionados">
-                    <span class="material-symbols-outlined">delete</span>
-                </button>
-                <button @click="movSeleccionados = []" class="ck-btn ck-btn--sm">cancelar</button>
             </div>
             <!-- Tabla -->
             <div class="fido-tabla-wrap">
@@ -254,8 +255,8 @@
                         <tr>
                             <th style="width:2rem;text-align:center">
                                 <input type="checkbox"
-                                       :checked="todosSeleccionados()"
-                                       @change="toggleTodos()"
+                                       :checked="movimientos.length > 0 && movimientos.every(m => movSeleccionados.map(Number).includes(m.id))"
+                                       @change="movimientos.every(m => movSeleccionados.map(Number).includes(m.id)) ? (movSeleccionados = movSeleccionados.filter(id => !movimientos.map(m=>m.id).includes(Number(id)))) : (movSeleccionados = [...new Set([...movSeleccionados.map(Number), ...movimientos.map(m=>m.id)])])"
                                        title="Seleccionar todos">
                             </th>
                             <th>Fecha</th>
