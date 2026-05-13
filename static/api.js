@@ -52,6 +52,16 @@ const API = {
         return true;
     },
 
+    async borrarLote(ids) {
+        const resp = await fetch(this._url('/movimientos/borrar-lote'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ids }),
+        });
+        if (!resp.ok) throw new Error(await resp.text());
+        return resp.json();
+    },
+
     async subirCSV(fichero, cuentaId, banco) {
         const formulario = new FormData();
         formulario.append('fichero', fichero);

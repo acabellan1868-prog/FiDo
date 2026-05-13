@@ -33,6 +33,7 @@ function fidoApp() {
         editandoMovimiento: null,
         mostrarFormularioMovimiento: false,
         nuevoMovimiento: { fecha: '', importe: '', descripcion: '', cuenta_id: '', categoria_id: '', origen: 'web', notas: '', estado: 'ok' },
+        movSeleccionados: [],
 
         // Estado de importación
         resultadoImportacion: null,
@@ -285,7 +286,44 @@ function fidoApp() {
             if (!confirm('¿Seguro que quieres borrar este movimiento?')) return;
             try {
                 await API.borrar('/movimientos/' + id);
+                this.movSeleccionados = this.movSeleccionados.filter(s => s !== id);
                 this.mostrarOk('Movimiento borrado');
+                await this.cargarMovimientos();
+            } catch (e) {
+                this.mostrarError('Error: ' + e.message);
+            }
+        },
+
+        toggleSeleccionar(id) {
+            const i = this.movSeleccionados.indexOf(id);
+            if (i === -1) this.movSeleccionados.push(id);
+            else this.movSeleccionados.splice(i, 1);
+        },
+
+        todosSeleccionados() {
+            return this.movimientos.length > 0 &&
+                   this.movimientos.every(m => this.movSeleccionados.includes(m.id));
+        },
+
+        toggleTodos() {
+            if (this.todosSeleccionados()) {
+                this.movSeleccionados = this.movSeleccionados.filter(
+                    id => !this.movimientos.some(m => m.id === id)
+                );
+            } else {
+                this.movimientos.forEach(m => {
+                    if (!this.movSeleccionados.includes(m.id)) this.movSeleccionados.push(m.id);
+                });
+            }
+        },
+
+        async borrarSeleccionados() {
+            if (!this.movSeleccionados.length) return;
+            if (!confirm(`¿Borrar ${this.movSeleccionados.length} movimiento(s)?`)) return;
+            try {
+                await API.borrarLote(this.movSeleccionados);
+                this.movSeleccionados = [];
+                this.mostrarOk('Movimientos borrados');
                 await this.cargarMovimientos();
             } catch (e) {
                 this.mostrarError('Error: ' + e.message);

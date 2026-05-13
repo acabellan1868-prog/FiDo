@@ -2,8 +2,13 @@
 
 from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
+from pydantic import BaseModel
 from app.modelos import MovimientoCrear, MovimientoActualizar, MovimientoRespuesta
 from app import bd
+
+
+class LoteIds(BaseModel):
+    ids: list[int]
 
 ruta = APIRouter()
 
@@ -201,6 +206,16 @@ def recategorizar_sin_categoria():
             actualizados += 1
 
     return {"total_sin_categoria": len(sin_cat), "recategorizados": actualizados}
+
+
+@ruta.post("/borrar-lote")
+def borrar_lote(lote: LoteIds):
+    """Borra varios movimientos en una sola operación."""
+    if not lote.ids:
+        return {"borrados": 0}
+    placeholders = ",".join("?" * len(lote.ids))
+    bd.ejecutar(f"DELETE FROM movimientos WHERE id IN ({placeholders})", tuple(lote.ids))
+    return {"borrados": len(lote.ids)}
 
 
 @ruta.delete("/{movimiento_id}", status_code=204)

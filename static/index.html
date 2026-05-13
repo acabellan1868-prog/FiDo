@@ -236,11 +236,28 @@
                     </button>
                 </div>
             </div>
+            <!-- Barra selección múltiple -->
+            <div class="fido-seleccion-barra" x-show="movSeleccionados.length > 0">
+                <span class="ck-label" x-text="movSeleccionados.length + ' seleccionado(s)'"></span>
+                <button @click="borrarSeleccionados()"
+                        class="ck-btn ck-btn--sm"
+                        style="color:var(--ck-danger)">
+                    <span class="material-symbols-outlined" style="font-size:0.85rem">delete</span>
+                    borrar seleccionados
+                </button>
+                <button @click="movSeleccionados = []" class="ck-btn ck-btn--sm">cancelar</button>
+            </div>
             <!-- Tabla -->
             <div class="fido-tabla-wrap">
                 <table class="ck-tabla">
                     <thead>
                         <tr>
+                            <th style="width:2rem;text-align:center">
+                                <input type="checkbox"
+                                       :checked="todosSeleccionados()"
+                                       @change="toggleTodos()"
+                                       title="Seleccionar todos">
+                            </th>
                             <th>Fecha</th>
                             <th>Descripción</th>
                             <th>Categoría</th>
@@ -253,7 +270,12 @@
                     </thead>
                     <tbody>
                         <template x-for="mov in movimientos" :key="mov.id">
-                            <tr>
+                            <tr :class="movSeleccionados.includes(mov.id) ? 'fido-fila-seleccionada' : ''">
+                                <td style="text-align:center">
+                                    <input type="checkbox"
+                                           :checked="movSeleccionados.includes(mov.id)"
+                                           @change="toggleSeleccionar(mov.id)">
+                                </td>
                                 <td class="ck-nowrap" x-text="mov.fecha"></td>
                                 <td class="ck-truncate" x-text="mov.descripcion"></td>
                                 <td class="ck-muted ck-small" x-text="nombreCategoria(mov.categoria_id)"></td>
@@ -305,7 +327,7 @@
                             </tr>
                         </template>
                         <tr x-show="movimientos.length === 0">
-                            <td colspan="8" class="ck-vacio">No hay movimientos que coincidan con los filtros</td>
+                            <td colspan="9" class="ck-vacio">No hay movimientos que coincidan con los filtros</td>
                         </tr>
                     </tbody>
                 </table>
