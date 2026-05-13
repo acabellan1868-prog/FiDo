@@ -4,6 +4,19 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-05-13 — Corrección parser Santander: soporte CSV con separador coma
+
+### `app/parsers/santander.py`
+- El parser solo admitía tabulador y punto y coma como separadores. El nuevo
+  formato de exportación del Santander usa coma (`,`) con campos entrecomillados
+  cuando contienen comas internas (conceptos, importes como `"-165,00"`).
+- Cambiado el parseo línea a línea por `csv.reader` (módulo estándar), que
+  gestiona correctamente los campos entrecomillados con cualquier separador.
+- Añadido método `_detectar_separador`: prueba `\t`, `;` y `,` en orden.
+- El parseo de importes y fechas no cambia; ya soportaba el formato sin `EUR`.
+
+---
+
 ## 2026-05-07 — Mejoras responsive y corrección de bugs en móvil
 
 ### `static/estilos.css` — Font-size adaptativo

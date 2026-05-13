@@ -1,10 +1,12 @@
 """FiDo — Parser para extractos del Banco Santander.
 
-Formato detectado del extracto real (PDF/XLS):
-- Columnas: Fecha operación, Fecha valor, Operación, Importe, Saldo
+Formatos soportados:
+- Separadores: coma (,), punto y coma (;) o tabulador (\t)
+- Columnas: Fecha operación, Fecha valor, Concepto/Operación, Importe [EUR], Saldo
 - Fechas: DD/MM/YYYY
-- Importes: punto como separador de miles, coma como decimal, sufijo EUR
-  Ejemplos: -13,00 EUR | 1.200,00 EUR | -4,95 EUR
+- Importes: punto como separador de miles, coma como decimal, sufijo EUR opcional
+  Ejemplos: -13,00 EUR | 1.200,00 EUR | "-165,00" | "1.338,88"
+- Los campos con comas internas van entrecomillados en el CSV de coma
 - Tipos de operación:
   - Pago Movil En [comercio], [ciudad], Tarj. :*XXXXXX
   - Transaccion Contactless En [comercio], [ciudad], Tarj. :*XXXXXX
@@ -18,6 +20,8 @@ Formato detectado del extracto real (PDF/XLS):
   - Devolucion Pago Movil En...
 """
 
+import csv
+import io
 import re
 from typing import Iterator
 from app.modelos import MovimientoCrear
@@ -28,29 +32,21 @@ class ParserSantander(ParserBase):
     """Parser para ficheros CSV/TSV exportados desde Santander."""
 
     def parsear(self, contenido: str, cuenta_id: int) -> Iterator[MovimientoCrear]:
-        """Parsea el contenido línea a línea."""
-        lineas = contenido.strip().split("\n")
+        """Parsea el contenido usando csv.reader para manejar campos entrecomillados."""
+        # Detectar delimitador en la primera línea no vacía
+        sep = self._detectar_separador(contenido)
 
-        for linea in lineas:
-            linea = linea.strip()
-            if not linea:
-                continue
+        lector = csv.reader(io.StringIO(contenido), delimiter=sep)
 
-            # Detectar delimitador (tabulador o punto y coma)
-            if "\t" in linea:
-                campos = linea.split("\t")
-            else:
-                campos = linea.split(";")
-
-            # Saltar cabeceras y líneas con pocos campos
+        for campos in lector:
             if len(campos) < 4:
                 continue
-            if any(cab in campos[0].lower() for cab in ["fecha", "date", "operación"]):
+            # Saltar líneas de cabecera
+            if any(cab in campos[0].lower() for cab in ["fecha", "date", "operación", "operacion"]):
                 continue
 
             try:
                 fecha_op = self._parsear_fecha(campos[0].strip())
-                # La fecha valor puede estar en campo 1 o fusionada
                 if len(campos) >= 5:
                     fecha_valor = self._parsear_fecha(campos[1].strip())
                     descripcion = campos[2].strip()
@@ -72,8 +68,18 @@ class ParserSantander(ParserBase):
                     origen="csv",
                 )
             except (ValueError, IndexError):
-                # Saltar líneas que no se pueden parsear
                 continue
+
+    def _detectar_separador(self, contenido: str) -> str:
+        """Detecta el separador de campos en la primera línea no vacía."""
+        for linea in contenido.splitlines():
+            if linea.strip():
+                if "\t" in linea:
+                    return "\t"
+                if ";" in linea:
+                    return ";"
+                return ","
+        return ","
 
     def _parsear_fecha(self, texto: str) -> str:
         """Convierte DD/MM/YYYY a YYYY-MM-DD."""
