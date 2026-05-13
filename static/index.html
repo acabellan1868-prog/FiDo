@@ -240,10 +240,10 @@
             <div class="fido-seleccion-barra" x-show="movSeleccionados.length > 0">
                 <span class="ck-label" x-text="movSeleccionados.length + ' seleccionado(s)'"></span>
                 <button @click="borrarSeleccionados()"
-                        class="ck-btn ck-btn--sm"
-                        style="color:var(--ck-danger)">
-                    <span class="material-symbols-outlined" style="font-size:0.85rem">delete</span>
-                    borrar seleccionados
+                        class="ck-btn-icono"
+                        style="color:var(--ck-danger);font-size:1.3rem"
+                        title="Borrar seleccionados">
+                    <span class="material-symbols-outlined">delete</span>
                 </button>
                 <button @click="movSeleccionados = []" class="ck-btn ck-btn--sm">cancelar</button>
             </div>
@@ -255,7 +255,7 @@
                             <th style="width:2rem;text-align:center">
                                 <input type="checkbox"
                                        :checked="todosSeleccionados()"
-                                       @change="toggleTodos()"
+                                       @click.prevent="toggleTodos()"
                                        title="Seleccionar todos">
                             </th>
                             <th>Fecha</th>
@@ -274,7 +274,7 @@
                                 <td style="text-align:center">
                                     <input type="checkbox"
                                            :checked="movSeleccionados.includes(mov.id)"
-                                           @change="toggleSeleccionar(mov.id)">
+                                           @click.prevent="toggleSeleccionar(mov.id)">
                                 </td>
                                 <td class="ck-nowrap" x-text="mov.fecha"></td>
                                 <td class="ck-truncate" x-text="mov.descripcion"></td>
