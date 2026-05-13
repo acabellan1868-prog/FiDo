@@ -294,26 +294,20 @@ function fidoApp() {
             }
         },
 
-        toggleSeleccionar(id) {
-            const i = this.movSeleccionados.indexOf(id);
-            if (i === -1) this.movSeleccionados.push(id);
-            else this.movSeleccionados.splice(i, 1);
-        },
-
         todosSeleccionados() {
-            return this.movimientos.length > 0 &&
-                   this.movimientos.every(m => this.movSeleccionados.includes(m.id));
+            if (!this.movimientos.length) return false;
+            const sel = this.movSeleccionados.map(Number);
+            return this.movimientos.every(m => sel.includes(m.id));
         },
 
         toggleTodos() {
             if (this.todosSeleccionados()) {
-                this.movSeleccionados = this.movSeleccionados.filter(
-                    id => !this.movimientos.some(m => m.id === id)
-                );
+                const ids = this.movimientos.map(m => m.id);
+                this.movSeleccionados = this.movSeleccionados.filter(id => !ids.includes(Number(id)));
             } else {
-                this.movimientos.forEach(m => {
-                    if (!this.movSeleccionados.includes(m.id)) this.movSeleccionados.push(m.id);
-                });
+                const sel = new Set(this.movSeleccionados.map(Number));
+                this.movimientos.forEach(m => sel.add(m.id));
+                this.movSeleccionados = [...sel];
             }
         },
 
@@ -321,7 +315,7 @@ function fidoApp() {
             if (!this.movSeleccionados.length) return;
             if (!confirm(`¿Borrar ${this.movSeleccionados.length} movimiento(s)?`)) return;
             try {
-                await API.borrarLote(this.movSeleccionados);
+                await API.borrarLote(this.movSeleccionados.map(Number));
                 this.movSeleccionados = [];
                 this.mostrarOk('Movimientos borrados');
                 await this.cargarMovimientos();

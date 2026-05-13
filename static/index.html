@@ -255,7 +255,7 @@
                             <th style="width:2rem;text-align:center">
                                 <input type="checkbox"
                                        :checked="todosSeleccionados()"
-                                       @click.prevent="toggleTodos()"
+                                       @change="toggleTodos()"
                                        title="Seleccionar todos">
                             </th>
                             <th>Fecha</th>
@@ -270,11 +270,11 @@
                     </thead>
                     <tbody>
                         <template x-for="mov in movimientos" :key="mov.id">
-                            <tr :class="movSeleccionados.includes(mov.id) ? 'fido-fila-seleccionada' : ''">
+                            <tr :class="movSeleccionados.map(Number).includes(mov.id) ? 'fido-fila-seleccionada' : ''">
                                 <td style="text-align:center">
                                     <input type="checkbox"
-                                           :checked="movSeleccionados.includes(mov.id)"
-                                           @click.prevent="toggleSeleccionar(mov.id)">
+                                           x-model="movSeleccionados"
+                                           :value="mov.id">
                                 </td>
                                 <td class="ck-nowrap" x-text="mov.fecha"></td>
                                 <td class="ck-truncate" x-text="mov.descripcion"></td>
