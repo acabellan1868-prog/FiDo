@@ -2,14 +2,16 @@
 
 ## Estado actual
 
-**Fecha:** 2026-04-08
+**Fecha:** 2026-05-14
 
-El flow de Automate (LlamaLab) está creado con 6 bloques y el topic NTFY configurado.
-La prueba con `curl` es exitosa — el servidor recibe y procesa movimientos correctamente.
-Pendiente corregir dos regex en el flow y hacer la prueba end-to-end con notificación bancaria real.
+Selección múltiple y borrado en bloque de movimientos funcionando: checkbox por
+fila, checkbox de "seleccionar todos" en cabecera, badge contador sobre el
+botón de borrar, y confirmación antes de borrar.
 
-**Nota 2026-04-25:** `GET /api/resumen` acepta filtros de cuenta para que hogarOS pueda
-mostrar la lectura mensual de `Cuenta Antonio (Caixa)` sin duplicar transferencias internas.
+Fase 4 (captura automática desde el móvil) sigue pendiente: el flow de Automate
+tiene los 6 bloques configurados y la prueba con `curl` fue exitosa, pero los
+dos regex (`importe_raw` y `ultima4`) están pendientes de corregir en la app
+del móvil, y la prueba end-to-end con notificación bancaria real no se ha hecho.
 
 **Próximo paso:** Corregir regex de `importe_raw` y `ultima4` en Automate, luego probar con un pago real con tarjeta.
 
@@ -41,6 +43,7 @@ mostrar la lectura mensual de `Cuenta Antonio (Caixa)` sin duplicar transferenci
 - [x] Filtros avanzados: categoría padre/sub, tipo gasto/ingreso, suma total (2026-03-24)
 - [x] Migración al design system Living Sanctuary (hogar.css) (2026-03-29)
 - [x] Drawer lateral con navegación entre apps (2026-03-22)
+- [x] Selección múltiple y borrado en bloque de movimientos (2026-05-14)
 
 ### Fase 4 — Captura automática desde el móvil (en curso)
 

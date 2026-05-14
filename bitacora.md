@@ -4,6 +4,15 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-05-14 — Fix caché api.js
+
+Bumped `api.js?v=2` → `?v=3` en `static/index.html` para forzar que el
+navegador descargue la versión actualizada del fichero (que incluye `borrarLote`).
+Sin este cambio, el navegador servía la versión cacheada anterior y `borrarSeleccionados`
+lanzaba `API.borrarLote is not a function`.
+
+---
+
 ## 2026-05-14 — Fix selección múltiple y borrado en bloque (segunda iteración)
 
 Tras el primer intento fallido, se diagnosticó y corrigió de forma definitiva.
