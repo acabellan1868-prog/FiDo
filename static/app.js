@@ -286,7 +286,7 @@ function fidoApp() {
             if (!confirm('¿Seguro que quieres borrar este movimiento?')) return;
             try {
                 await API.borrar('/movimientos/' + id);
-                this.movSeleccionados = this.movSeleccionados.filter(s => s !== id);
+                this.movSeleccionados = this.movSeleccionados.filter(s => Number(s) !== id);
                 this.mostrarOk('Movimiento borrado');
                 await this.cargarMovimientos();
             } catch (e) {
@@ -294,36 +294,11 @@ function fidoApp() {
             }
         },
 
-        /** Alterna la selección de un movimiento individual. */
-        toggleMovimiento(id) {
-            if (this.movSeleccionados.includes(id)) {
-                this.movSeleccionados = this.movSeleccionados.filter(x => x !== id);
-            } else {
-                this.movSeleccionados.push(id);
-            }
-        },
-
-        todosSeleccionados() {
-            if (!this.movimientos.length) return false;
-            return this.movimientos.every(m => this.movSeleccionados.includes(m.id));
-        },
-
-        toggleTodos() {
-            if (this.todosSeleccionados()) {
-                const ids = this.movimientos.map(m => m.id);
-                this.movSeleccionados = this.movSeleccionados.filter(id => !ids.includes(id));
-            } else {
-                const sel = new Set(this.movSeleccionados);
-                this.movimientos.forEach(m => sel.add(m.id));
-                this.movSeleccionados = [...sel];
-            }
-        },
-
         async borrarSeleccionados() {
             if (!this.movSeleccionados.length) return;
             if (!confirm(`¿Borrar ${this.movSeleccionados.length} movimiento(s)?`)) return;
             try {
-                await API.borrarLote(this.movSeleccionados);
+                await API.borrarLote(this.movSeleccionados.map(Number));
                 this.movSeleccionados = [];
                 this.mostrarOk('Movimientos borrados');
                 await this.cargarMovimientos();

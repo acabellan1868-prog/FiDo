@@ -4,6 +4,40 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-05-14 — Fix selección múltiple y borrado en bloque (segunda iteración)
+
+Tras el primer intento fallido, se diagnosticó y corrigió de forma definitiva.
+
+### Diagnóstico final
+
+La causa era que Alpine.js al usar `x-model` con `:value="mov.id"` (número)
+siempre almacena el valor del DOM como cadena (`el.value`). Los métodos
+`toggleTodos()` y la expresión inline de la cabecera insertaban números en el
+array. La mezcla cadena/número hacía que `includes()` fallara.
+
+El segundo intento (`:checked` + `@change` con `toggleMovimiento`) usaba
+`push()` sobre el array reactivo, que en Alpine 3 puede no disparar el
+re-renderizado. Además eliminaba `x-model` sin resolver el problema de fondo.
+
+### Solución definitiva
+
+- **Fila individual:** vuelve a `x-model="movSeleccionados"` pero con
+  `:value="String(mov.id)"`. Alpine almacena cadenas → comparaciones consistentes.
+- **Cabecera:** expresión inline con `$event.target.checked` para leer el estado
+  real del clic (sin ambigüedad de timing), y comparación `includes(String(m.id))`.
+- **Clase de fila:** `movSeleccionados.includes(String(mov.id))` (cadena).
+- **API:** `movSeleccionados.map(Number)` al llamar `borrarLote` (el backend
+  espera enteros).
+- Eliminados `toggleMovimiento`, `todosSeleccionados`, `toggleTodos` — ya
+  no se usan.
+
+Verificado en preview con datos de prueba:
+- Selección individual: array recibe cadenas, botón de borrar se habilita.
+- Seleccionar/deseleccionar todos: funcionan en ambas direcciones.
+- IDs enviados al backend son números.
+
+---
+
 ## 2026-05-14 — Fix selección múltiple y borrado en bloque de movimientos
 
 Los checkboxes y el botón de borrado en bloque añadidos el día anterior no

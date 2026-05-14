@@ -255,8 +255,8 @@
                         <tr>
                             <th style="width:2rem;text-align:center">
                                 <input type="checkbox"
-                                       :checked="todosSeleccionados()"
-                                       @change="toggleTodos()"
+                                       :checked="movimientos.length > 0 && movimientos.every(m => movSeleccionados.includes(String(m.id)))"
+                                       @change="$event.target.checked ? (movSeleccionados = [...new Set([...movSeleccionados, ...movimientos.map(m => String(m.id))])]) : (movSeleccionados = movSeleccionados.filter(s => !movimientos.map(m => String(m.id)).includes(s)))"
                                        title="Seleccionar todos">
                             </th>
                             <th>Fecha</th>
@@ -271,11 +271,11 @@
                     </thead>
                     <tbody>
                         <template x-for="mov in movimientos" :key="mov.id">
-                            <tr :class="movSeleccionados.includes(mov.id) ? 'fido-fila-seleccionada' : ''">
+                            <tr :class="movSeleccionados.includes(String(mov.id)) ? 'fido-fila-seleccionada' : ''">
                                 <td style="text-align:center">
                                     <input type="checkbox"
-                                           :checked="movSeleccionados.includes(mov.id)"
-                                           @change="toggleMovimiento(mov.id)">
+                                           x-model="movSeleccionados"
+                                           :value="String(mov.id)">
                                 </td>
                                 <td class="ck-nowrap" x-text="mov.fecha"></td>
                                 <td class="ck-truncate" x-text="mov.descripcion"></td>
@@ -890,7 +890,7 @@
 </div>
 
 <script src="api.js?v=2"></script>
-<script src="app.js?v=6"></script>
+<script src="app.js?v=7"></script>
 <script>
     /* Tema Cockpit */
     (function() {
