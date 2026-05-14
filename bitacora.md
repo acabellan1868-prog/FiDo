@@ -4,6 +4,46 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-05-14 — Fix selección múltiple y borrado en bloque de movimientos
+
+Los checkboxes y el botón de borrado en bloque añadidos el día anterior no
+funcionaban de forma fiable: el check de "seleccionar todos" no marcaba las
+filas individuales y el borrado en bloque parecía no hacer nada.
+
+### Causa raíz
+
+Mezcla de tipos en `movSeleccionados`. Alpine.js, al usar
+`x-model="movSeleccionados"` con `:value="mov.id"`, guarda el `el.value` del DOM
+(siempre cadena). Pero `toggleTodos()` y la expresión inline del check de
+cabecera insertaban números. La comparación interna de Alpine
+(`arr.includes(el.value)`) fallaba al confrontar `[1,2,3]` con `"1"`, dejando
+las filas visualmente sin marcar aunque sus IDs estuvieran en el array.
+
+### Solución
+
+Eliminar `x-model` en los checkboxes y usar binding explícito con
+`:checked` + `@change`. Así el array siempre contiene números y el comparador
+es nuestro, no el de Alpine.
+
+### `static/index.html`
+
+- Checkbox de fila: sustituido `x-model="movSeleccionados" :value="mov.id"` por
+  `:checked="movSeleccionados.includes(mov.id)" @change="toggleMovimiento(mov.id)"`.
+- Checkbox de cabecera: sustituidas las expresiones inline complejas
+  (`movimientos.every(...) ? (...) : (...)`) por llamadas a métodos:
+  `:checked="todosSeleccionados()" @change="toggleTodos()"`.
+- `:class` de la fila simplificado: `movSeleccionados.includes(mov.id)` (sin
+  `.map(Number)`).
+
+### `static/app.js`
+
+- Nuevo método `toggleMovimiento(id)`: añade o quita el id del array.
+- `todosSeleccionados()`, `toggleTodos()` y `borrarSeleccionados()` limpiados
+  de los `.map(Number)` defensivos — ya no hacen falta porque el array es
+  homogéneo (siempre números).
+
+---
+
 ## 2026-05-13 — Corrección parser Santander: soporte CSV con separador coma
 
 ### `app/parsers/santander.py`
