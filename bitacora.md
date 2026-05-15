@@ -4,6 +4,41 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-05-15 — Implementación Fase 4: captura de gastos vía Google Drive + Claude Vision
+
+### Solución final acordada
+
+Se descarta todo el pipeline Node-RED → n8n → OCR. Solución mucho más simple:
+
+1. Usuario captura pantalla de la notificación (Wallet, Revolut, banco)
+2. La sube a Google Drive: `Proyectos/Desarrollo/hogarOS/FiDo/gastosPendientes/`
+3. Claude (agente con cron) revisa la carpeta cada 30 minutos
+4. Lee la imagen directamente (Claude es multimodal, no necesita OCR)
+5. Extrae importe, descripción y últimos 4 dígitos
+6. Llama a `POST /finanzas/api/movimientos` en FiDo
+7. Copia la imagen a `gastosPendientes/procesadas/` para no reprocesar
+
+### Carpetas Drive
+
+- **Pendientes:** ID `1Hzd7V4N5Gwy9_0Zy3GQsudQdOiKI_Pvn`
+- **Procesadas:** ID `1qhHxIFMCogIJGjLAjy8KwKBwRaP_FgFf`
+- **Cuenta:** acabellan.1868@gmail.com
+
+### Cron (Claude Code)
+
+El agente se programa con `CronCreate` al iniciar sesión. Se ejecuta a las :17 y :47 de cada hora.
+**⚠️ El cron es session-only — hay que recrearlo cada sesión de Claude Code.**
+
+Para recrearlo al inicio de sesión, ejecutar en Claude Code:
+> "Reactiva el cron de FiDo para procesar gastos de Drive cada 30 minutos"
+
+### Estado
+
+- Cron activo (job `6c4047b9`) — se pierde al cerrar Claude Code
+- Pendiente: prueba end-to-end con captura real
+
+---
+
 ## 2026-05-15 — Cambio Fase 4: OCR Tesseract en lugar de Claude Vision API
 
 ### Decisión

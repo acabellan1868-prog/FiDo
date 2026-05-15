@@ -68,11 +68,14 @@ Tesseract OCR es gratuito, open source, y suficiente para imágenes claras de no
 - [x] Flujo de revisión en la UI: icono ⚠/✓ en tabla, campo en modal (2026-04-07)
 - [x] Gestión de datos sensibles: `.env` / `.env.example` (2026-04-07)
 
-**Nuevo flujo (pendiente) — OCR Tesseract:**
-- [ ] Flow n8n: webhook → descarga foto Telegram → Tesseract OCR → Code (parse) → FiDo API 🤖
-- [ ] Prueba con captura real de notificación (Wallet/Revolut) para validar OCR 👤
-- [ ] Ajustar regex si es necesario basándose en resultados OCR 🤖
-- [ ] Nodo switch en Node-RED: foto → webhook FiDo / texto → flujo Kryptonite 🤖
+**Nuevo flujo — Drive + Claude Vision (implementado 2026-05-15):**
+- [x] Carpeta Drive `gastosPendientes` creada 🤖
+- [x] Carpeta Drive `procesadas` creada 🤖
+- [x] Cron Claude Code configurado (cada 30 min, :17 y :47) 🤖
+- [ ] Prueba end-to-end: subir captura real → verificar que aparece en FiDo 👤
+- [ ] Añadir al CLAUDE.md instrucción para recrear el cron al iniciar sesión 🤖
+
+**⚠️ El cron es session-only — recrear cada sesión con:** "Reactiva el cron de FiDo"
 
 ### Fase 5 — Futuro
 
