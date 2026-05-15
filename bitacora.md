@@ -4,6 +4,45 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-05-15 — Rediseño Fase 4: descarte de Automate + NTFY, nuevo enfoque Telegram + Claude Vision
+
+### Decisión
+
+El flow de Automate (LlamaLab) para capturar notificaciones de Google Wallet fue
+descartado definitivamente. Android bloquea el acceso al contenido de notificaciones
+de apps financieras, por lo que las variables `descripcion` y `notif_mensaje` del
+flow llegaban vacías. No es un problema de configuración — es una restricción del SO.
+
+El mismo problema aplica a MacroDroid y Tasker sin el plugin AutoNotification de pago.
+El enfoque basado en SMS también fue descartado: los bancos no mandan SMS por gastos
+pequeños (ej. 2,50€ en una cafetería).
+
+### Nuevo enfoque acordado
+
+1. El usuario hace una captura de pantalla de la notificación de pago (banco o Google Wallet)
+2. La envía al bot de Telegram existente
+3. Node-RED (que ya hace polling de Telegram) detecta que el mensaje es una foto
+4. Node-RED pasa el `file_id` a un webhook nuevo de n8n
+5. n8n descarga la imagen desde Telegram → envía a Claude Vision API (Anthropic) con
+   un prompt que extrae JSON: `{importe, descripcion, ultimos4, fecha}`
+6. n8n llama a `POST /movimientos` en FiDo con los datos extraídos
+7. n8n responde al usuario en Telegram confirmando el alta
+
+### Estado al cerrar sesión
+
+- Cuenta en console.anthropic.com verificada (plan gratuito, suficiente para el uso previsto)
+- API key **aún no creada** — será lo primero en la próxima sesión
+- Bot de Telegram y routing Node-RED → n8n ya existen (se usan para Kryptonite)
+- No se ha tocado código
+
+### Próximos pasos concretos
+
+1. Crear API key en `console.anthropic.com` → guardarla como secret en n8n
+2. Montar flow n8n: Webhook → HTTP (getFile Telegram) → HTTP (Claude Vision) → Code (parsear JSON) → HTTP (FiDo API) → Telegram respuesta
+3. Añadir nodo switch en Node-RED para separar mensajes foto (→ webhook FiDo) de texto (→ flujo Kryptonite)
+
+---
+
 ## 2026-05-14 — Fix caché api.js
 
 Bumped `api.js?v=2` → `?v=3` en `static/index.html` para forzar que el

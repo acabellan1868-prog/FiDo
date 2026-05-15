@@ -2,18 +2,24 @@
 
 ## Estado actual
 
-**Fecha:** 2026-05-14
+**Fecha:** 2026-05-15
 
-Selección múltiple y borrado en bloque de movimientos funcionando: checkbox por
-fila, checkbox de "seleccionar todos" en cabecera, badge contador sobre el
-botón de borrar, y confirmación antes de borrar.
+El enfoque de Automate + NTFY para captura automática de notificaciones bancarias
+ha sido descartado: Android impide que apps de automatización lean el contenido
+de notificaciones de apps financieras (Google Wallet, banca). El flow de Automate
+queda obsoleto.
 
-Fase 4 (captura automática desde el móvil) sigue pendiente: el flow de Automate
-tiene los 6 bloques configurados y la prueba con `curl` fue exitosa, pero los
-dos regex (`importe_raw` y `ultima4`) están pendientes de corregir en la app
-del móvil, y la prueba end-to-end con notificación bancaria real no se ha hecho.
+**Nuevo enfoque acordado (Fase 4 rediseñada):** captura manual mínima vía foto.
+El usuario hace una captura de pantalla de la notificación/confirmación de pago
+y la envía al bot de Telegram. Node-RED la recibe (ya hace polling), pasa el
+`file_id` a un webhook de n8n, que descarga la imagen, la envía a Claude Vision
+(API de Anthropic) para extraer importe/comercio/últimos 4 dígitos, y llama a
+la API de FiDo para guardar el movimiento. Telegram responde confirmando el alta.
 
-**Próximo paso:** Corregir regex de `importe_raw` y `ultima4` en Automate, luego probar con un pago real con tarjeta.
+**Próximo paso:**
+1. Crear la API key en `console.anthropic.com` (cuenta ya existe, plan gratuito suficiente)
+2. Montar el flow en n8n: webhook → descarga foto de Telegram → Claude Vision → FiDo API
+3. Añadir nodo switch en Node-RED para separar mensajes de foto (FiDo) de texto (Kryptonite)
 
 ---
 
@@ -45,16 +51,24 @@ del móvil, y la prueba end-to-end con notificación bancaria real no se ha hech
 - [x] Drawer lateral con navegación entre apps (2026-03-22)
 - [x] Selección múltiple y borrado en bloque de movimientos (2026-05-14)
 
-### Fase 4 — Captura automática desde el móvil (en curso)
+### Fase 4 — Captura automática desde el móvil (rediseñada)
 
+> ⚠ El enfoque original (Automate + NTFY) fue descartado el 2026-05-15.
+> Android impide leer el contenido de notificaciones de apps financieras.
+> Nuevo enfoque: foto de pantalla → Telegram → n8n → Claude Vision → FiDo API.
+
+**Infraestructura NTFY ya construida (reutilizable):**
 - [x] Listener NTFY en segundo plano dentro de FiDo (2026-04-06)
 - [x] Migración de BD para soportar origen 'ntfy' (2026-04-06)
 - [x] Campo `estado` (ok | revisar) con asignación automática (2026-04-07)
 - [x] Flujo de revisión en la UI: icono ⚠/✓ en tabla, campo en modal (2026-04-07)
-- [x] Gestión de datos sensibles: `.env` / `.env.example` en todos los proyectos (2026-04-07)
-- [x] Guías de configuración: `docs/macrodroid-ntfy.md`, `docs/tasker-ntfy.md` y `docs/automate-ntfy.md` (2026-04-07)
-- [ ] Configurar app de automatización en el móvil (Tasker / MacroDroid / Automate)
-- [ ] Pruebas end-to-end con notificaciones bancarias reales
+- [x] Gestión de datos sensibles: `.env` / `.env.example` (2026-04-07)
+
+**Nuevo flujo (pendiente):**
+- [ ] Crear API key en console.anthropic.com 👤
+- [ ] Flow n8n: webhook → descarga foto Telegram → Claude Vision → FiDo API 🤖
+- [ ] Nodo switch en Node-RED: foto → webhook FiDo / texto → flujo Kryptonite 🤖
+- [ ] Prueba end-to-end con captura real de notificación bancaria 👤
 
 ### Fase 5 — Futuro
 
