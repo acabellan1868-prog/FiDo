@@ -9,16 +9,20 @@ ha sido descartado: Android impide que apps de automatización lean el contenido
 de notificaciones de apps financieras (Google Wallet, banca). El flow de Automate
 queda obsoleto.
 
-**Nuevo enfoque acordado (Fase 4 rediseñada):** captura manual mínima vía foto.
+**Nuevo enfoque acordado (Fase 4 rediseñada v2):** captura manual mínima vía foto + OCR.
 El usuario hace una captura de pantalla de la notificación/confirmación de pago
 y la envía al bot de Telegram. Node-RED la recibe (ya hace polling), pasa el
-`file_id` a un webhook de n8n, que descarga la imagen, la envía a Claude Vision
-(API de Anthropic) para extraer importe/comercio/últimos 4 dígitos, y llama a
-la API de FiDo para guardar el movimiento. Telegram responde confirmando el alta.
+`file_id` a un webhook de n8n. n8n descarga la imagen, **aplica Tesseract OCR gratuito**
+para extraer texto, parsea con regex para obtener importe/comercio/últimos 4 dígitos,
+y llama a la API de FiDo para guardar el movimiento. Telegram responde confirmando.
+
+**Cambio de Claude Vision API a Tesseract OCR:**
+Anthropic ahora requiere créditos pagos ($5+ USD) incluso para "plan gratuito".
+Tesseract OCR es gratuito, open source, y suficiente para imágenes claras de notificaciones.
 
 **Próximo paso:**
-1. Crear la API key en `console.anthropic.com` (cuenta ya existe, plan gratuito suficiente)
-2. Montar el flow en n8n: webhook → descarga foto de Telegram → Claude Vision → FiDo API
+1. Montar el flow en n8n: webhook → descarga foto de Telegram → Tesseract OCR → Code (parse regex) → FiDo API
+2. Probar con captura real de notificación
 3. Añadir nodo switch en Node-RED para separar mensajes de foto (FiDo) de texto (Kryptonite)
 
 ---
@@ -64,11 +68,11 @@ la API de FiDo para guardar el movimiento. Telegram responde confirmando el alta
 - [x] Flujo de revisión en la UI: icono ⚠/✓ en tabla, campo en modal (2026-04-07)
 - [x] Gestión de datos sensibles: `.env` / `.env.example` (2026-04-07)
 
-**Nuevo flujo (pendiente):**
-- [ ] Crear API key en console.anthropic.com 👤
-- [ ] Flow n8n: webhook → descarga foto Telegram → Claude Vision → FiDo API 🤖
+**Nuevo flujo (pendiente) — OCR Tesseract:**
+- [ ] Flow n8n: webhook → descarga foto Telegram → Tesseract OCR → Code (parse) → FiDo API 🤖
+- [ ] Prueba con captura real de notificación (Wallet/Revolut) para validar OCR 👤
+- [ ] Ajustar regex si es necesario basándose en resultados OCR 🤖
 - [ ] Nodo switch en Node-RED: foto → webhook FiDo / texto → flujo Kryptonite 🤖
-- [ ] Prueba end-to-end con captura real de notificación bancaria 👤
 
 ### Fase 5 — Futuro
 

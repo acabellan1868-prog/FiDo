@@ -4,6 +4,36 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-05-15 — Cambio Fase 4: OCR Tesseract en lugar de Claude Vision API
+
+### Decisión
+
+Tras intentar crear API key en console.anthropic.com, se descubrió que Anthropic
+ya no permite crear nuevas keys con plan "gratuito" — ahora requiere créditos pagos
+($5 USD mínimo).
+
+Se opta por **Tesseract OCR gratuito** en su lugar:
+- Es código abierto, sin costes
+- Para imágenes claras de notificaciones bancarias, el OCR debería ser suficiente
+- n8n tiene nodo integrado para Tesseract (sin instalación adicional en contenedor)
+
+### Flujo revisado
+
+1. Usuario → captura pantalla de Wallet/Revolut → Telegram
+2. Node-RED → detecta foto → pasa file_id a webhook n8n
+3. **n8n → descarga imagen → Tesseract OCR** (nodo integrado)
+4. n8n → parsea texto con regex/Code → extrae `{importe, descripcion, ultimos4, fecha}`
+5. n8n → POST `/movimientos` a FiDo API
+6. n8n → Telegram responde confirmando el alta
+
+### Próximos pasos
+
+1. Montar flow n8n: Webhook → HTTP (descarga imagen Telegram) → Tesseract → Code (parsear) → HTTP (FiDo API) → Telegram
+2. Probar con captura real de notificación para ajustar regex si es necesario
+3. Añadir nodo switch en Node-RED para separar fotos (FiDo) de texto (Kryptonite)
+
+---
+
 ## 2026-05-15 — Rediseño Fase 4: descarte de Automate + NTFY, nuevo enfoque Telegram + Claude Vision
 
 ### Decisión
