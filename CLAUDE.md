@@ -131,6 +131,45 @@ las últimas 12 horas para no perder movimientos durante caídas breves.
 Ver la guía completa de configuración en `docs/macrodroid-ntfy.md` (MacroDroid, gratuito).
 La guía original de Tasker sigue disponible en `docs/tasker-ntfy.md`.
 
+## Captura automática de gastos — Drive + Claude Vision (Fase 4)
+
+El flujo activo para capturar gastos desde el móvil:
+
+1. Usuario sube captura de pantalla a Google Drive
+2. Tarea `fido-gastos-drive` en Cowork corre a :17 y :47 cada hora (persiste entre sesiones)
+3. Claude lee la imagen, extrae datos y llama a `POST /finanzas/api/movimientos`
+
+### Carpetas Drive (cuenta acabellan.1868@gmail.com)
+
+| Carpeta | Drive ID |
+|---------|----------|
+| Pendientes | `1Hzd7V4N5Gwy9_0Zy3GQsudQdOiKI_Pvn` |
+| Procesadas | `1qhHxIFMCogIJGjLAjy8KwKBwRaP_FgFf` |
+
+### Mapeo tarjeta → cuenta_id
+
+| Últimos 4 | cuenta_id | Descripción |
+|-----------|-----------|-------------|
+| 9625 | 8 | Cuenta Antonio (Revolut) |
+| 5911 | 5 | Cuenta Antonio (Caixa) |
+| 5155 | 3 | Cuenta Común |
+| (otros) | 5 | Caixa por defecto |
+
+### Parámetros del POST
+
+```json
+{
+  "importe": -7.10,
+  "descripcion": "BAR CASA MIGUEL",
+  "cuenta_id": 8,
+  "fecha": "2026-04-15",
+  "origen": "ntfy",
+  "estado": "revisar"
+}
+```
+
+---
+
 ## hogar.css y header compartido
 
 Nginx reescribe `/static/` → `/finanzas/static/` y lo sirve desde `portal/static/` de hogarOS.

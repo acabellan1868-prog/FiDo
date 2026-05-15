@@ -4,6 +4,24 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-05-15 — Prueba end-to-end Fase 4 superada ✅
+
+### Resultado
+
+La tarea programada `fido-gastos-drive` procesó correctamente la captura real:
+
+- **Imagen:** `Screenshot_2026-04-15-14-25-58-698_com.miui.home.jpg`
+- **Datos extraídos:** BAR CASA MIGUEL, -7.10€, tarjeta Revolut 9625
+- **Cuenta resuelta:** cuenta_id 8 (Revolut) por mapeo de tarjeta
+- **Movimiento creado:** ID 852 en FiDo con `estado: revisar`
+- **Imagen copiada** a carpeta procesadas (ID `1qhHxIFMCogIJGjLAjy8KwKBwRaP_FgFf`)
+
+La tarea se creó a través de Cowork Scheduled Tasks y **persiste entre sesiones** — no es necesario recrearla manualmente al iniciar sesión.
+
+El flujo completo está operativo. Fase 4 cerrada.
+
+---
+
 ## 2026-05-15 — Implementación Fase 4: captura de gastos vía Google Drive + Claude Vision
 
 ### Solución final acordada

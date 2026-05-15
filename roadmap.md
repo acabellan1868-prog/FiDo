@@ -4,26 +4,19 @@
 
 **Fecha:** 2026-05-15
 
-El enfoque de Automate + NTFY para captura automática de notificaciones bancarias
-ha sido descartado: Android impide que apps de automatización lean el contenido
-de notificaciones de apps financieras (Google Wallet, banca). El flow de Automate
-queda obsoleto.
+**Fase 4 completada ✅** — captura automática de gastos desde el móvil funcionando.
 
-**Nuevo enfoque acordado (Fase 4 rediseñada v2):** captura manual mínima vía foto + OCR.
-El usuario hace una captura de pantalla de la notificación/confirmación de pago
-y la envía al bot de Telegram. Node-RED la recibe (ya hace polling), pasa el
-`file_id` a un webhook de n8n. n8n descarga la imagen, **aplica Tesseract OCR gratuito**
-para extraer texto, parsea con regex para obtener importe/comercio/últimos 4 dígitos,
-y llama a la API de FiDo para guardar el movimiento. Telegram responde confirmando.
+**Flujo activo:**
+1. Usuario hace captura de pantalla de la notificación (Google Wallet, Revolut…)
+2. La sube a Google Drive: `Proyectos/Desarrollo/hogarOS/FiDo/gastosPendientes/`
+3. Tarea programada `fido-gastos-drive` en Cowork corre cada 30 min (:17 y :47)
+4. Claude lee la imagen directamente (multimodal), extrae importe/comercio/tarjeta
+5. Resuelve la cuenta por mapeo de tarjeta (ver CLAUDE.md) y llama a la API de FiDo
+6. Copia la imagen a la carpeta `procesadas/` para no reprocesar
 
-**Cambio de Claude Vision API a Tesseract OCR:**
-Anthropic ahora requiere créditos pagos ($5+ USD) incluso para "plan gratuito".
-Tesseract OCR es gratuito, open source, y suficiente para imágenes claras de notificaciones.
+**Prueba end-to-end superada:** BAR CASA MIGUEL -7.10€ (Revolut 9625 → cuenta_id 8).
 
-**Próximo paso:**
-1. Montar el flow en n8n: webhook → descarga foto de Telegram → Tesseract OCR → Code (parse regex) → FiDo API
-2. Probar con captura real de notificación
-3. Añadir nodo switch en Node-RED para separar mensajes de foto (FiDo) de texto (Kryptonite)
+**Próximo paso:** Fase 5 (resúmenes, exportación, presupuestos) o mejoras de usabilidad.
 
 ---
 
@@ -71,11 +64,9 @@ Tesseract OCR es gratuito, open source, y suficiente para imágenes claras de no
 **Nuevo flujo — Drive + Claude Vision (implementado 2026-05-15):**
 - [x] Carpeta Drive `gastosPendientes` creada 🤖
 - [x] Carpeta Drive `procesadas` creada 🤖
-- [x] Cron Claude Code configurado (cada 30 min, :17 y :47) 🤖
-- [ ] Prueba end-to-end: subir captura real → verificar que aparece en FiDo 👤
-- [ ] Añadir al CLAUDE.md instrucción para recrear el cron al iniciar sesión 🤖
-
-**⚠️ El cron es session-only — recrear cada sesión con:** "Reactiva el cron de FiDo"
+- [x] Tarea programada `fido-gastos-drive` creada en Cowork (persiste entre sesiones) 🤖
+- [x] Prueba end-to-end: captura real de BAR CASA MIGUEL -7.10€ procesada correctamente 👤🤖
+- [x] Mapeo de tarjetas documentado en CLAUDE.md 🤖
 
 ### Fase 5 — Futuro
 
