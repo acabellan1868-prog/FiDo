@@ -219,6 +219,24 @@ body {
     height: auto;
 }
 
+.fido-donut-tooltip {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ck-bg3);
+    border: 1px solid var(--ck-line);
+    border-radius: 3px;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.62rem;
+    color: var(--ck-on-surface);
+    white-space: nowrap;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+    pointer-events: none;
+}
+
 .fido-panel-barras {
     flex: 1;
     min-height: 0;

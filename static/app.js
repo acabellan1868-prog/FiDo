@@ -117,8 +117,8 @@ function fidoApp() {
         },
 
         /**
-         * Renderiza un donut SVG en #graficaCategoria con los datos de categorías.
-         * Sustituye a ApexCharts para evitar dependencia externa.
+         * Renderiza un donut SVG interactivo en #graficaCategoria con los datos de categorías.
+         * Tooltips en hover (PC) y touch (móvil).
          */
         renderizarDonut() {
             var el = document.getElementById('graficaCategoria');
@@ -143,10 +143,18 @@ function fidoApp() {
                 var y2 = cy + r * Math.sin(endA);
                 var large   = angle > 180 ? 1 : 0;
                 var color   = COLORES_CAT[i % COLORES_CAT.length];
-                paths += '<path d="M ' + x1.toFixed(2) + ' ' + y1.toFixed(2)
+                var pct = ((d.total / total) * 100).toFixed(1);
+                var totalFmt = new Intl.NumberFormat('es-ES', {
+                    minimumFractionDigits: 2, maximumFractionDigits: 2,
+                }).format(d.total);
+
+                paths += '<path class="fido-donut-sector" data-cat="' + (d.nombre || '')
+                    + '" data-total="' + totalFmt + '" data-pct="' + pct + '" d="M '
+                    + x1.toFixed(2) + ' ' + y1.toFixed(2)
                     + ' A ' + r + ' ' + r + ' 0 ' + large + ' 1 '
                     + x2.toFixed(2) + ' ' + y2.toFixed(2)
-                    + '" fill="none" stroke="' + color + '" stroke-width="' + stroke + '" />';
+                    + '" fill="none" stroke="' + color + '" stroke-width="' + stroke + '" '
+                    + 'style="cursor:pointer;stroke-opacity:0.8;transition:stroke-width 0.2s" />';
                 cumAngle += angle;
             });
 
@@ -154,16 +162,55 @@ function fidoApp() {
                 minimumFractionDigits: 0, maximumFractionDigits: 0,
             }).format(total);
 
-            el.innerHTML = '<svg viewBox="0 0 100 100" style="width:100%;max-width:380px;overflow:visible">'
+            el.innerHTML = '<div style="position:relative;display:inline-block;width:100%;max-width:380px">'
+                + '<svg viewBox="0 0 100 100" style="width:100%;overflow:visible">'
                 + '<circle cx="' + cx + '" cy="' + cy + '" r="' + r
                 + '" fill="none" stroke="rgba(0,229,196,0.12)" stroke-width="' + (stroke + 1) + '" />'
                 + paths
                 + '<text x="' + cx + '" y="' + (cy - 4)
-                + '" text-anchor="middle" fill="#b8d8d0" font-family="JetBrains Mono,monospace" font-size="9" font-weight="700">'
+                + '" text-anchor="middle" fill="#b8d8d0" font-family="JetBrains Mono,monospace" font-size="9" font-weight="700" class="fido-donut-total">'
                 + totalFmt + '</text>'
                 + '<text x="' + cx + '" y="' + (cy + 7)
                 + '" text-anchor="middle" fill="#3a6058" font-family="JetBrains Mono,monospace" font-size="5.5">gastos €</text>'
-                + '</svg>';
+                + '</svg>'
+                + '<div class="fido-donut-tooltip" style="display:none"></div>'
+                + '</div>';
+
+            // Agregar eventos interactivos después de renderizar
+            setTimeout(() => this.activarInteractividadDonut(), 0);
+        },
+
+        activarInteractividadDonut() {
+            var sectores = document.querySelectorAll('.fido-donut-sector');
+            var tooltip = document.querySelector('.fido-donut-tooltip');
+            if (!tooltip) return;
+
+            var mostrarTooltip = function(sector) {
+                var cat = sector.getAttribute('data-cat');
+                var total = sector.getAttribute('data-total');
+                var pct = sector.getAttribute('data-pct');
+                tooltip.textContent = cat + ' • ' + total + ' € (' + pct + '%)';
+                tooltip.style.display = 'block';
+                sector.style.strokeWidth = '13';
+            };
+
+            var ocultarTooltip = function(sector) {
+                tooltip.style.display = 'none';
+                sector.style.strokeWidth = '10';
+            };
+
+            sectores.forEach(function(sector) {
+                sector.addEventListener('mouseenter', function() { mostrarTooltip(this); });
+                sector.addEventListener('mouseleave', function() { ocultarTooltip(this); });
+                sector.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    mostrarTooltip(this);
+                });
+                sector.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    ocultarTooltip(this);
+                });
+            });
         },
 
         /**
