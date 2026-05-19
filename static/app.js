@@ -154,7 +154,7 @@ function fidoApp() {
                 minimumFractionDigits: 0, maximumFractionDigits: 0,
             }).format(total);
 
-            el.innerHTML = '<svg viewBox="0 0 100 100" style="width:100%;max-width:280px;overflow:visible">'
+            el.innerHTML = '<svg viewBox="0 0 100 100" style="width:100%;max-width:380px;overflow:visible">'
                 + '<circle cx="' + cx + '" cy="' + cy + '" r="' + r
                 + '" fill="none" stroke="rgba(0,229,196,0.12)" stroke-width="' + (stroke + 1) + '" />'
                 + paths

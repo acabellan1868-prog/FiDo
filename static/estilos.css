@@ -215,7 +215,7 @@ body {
     align-items: center;
     flex-shrink: 0;
     padding-top: 0.5rem;
-    min-height: 220px;
+    min-height: 280px;
     height: auto;
 }
 
@@ -937,13 +937,13 @@ body {
 /* Tablet — pantallas medianas (768px a 1200px) */
 @media (max-width: 1300px) {
     .fido-panel-donut {
-        min-height: 180px;
+        min-height: 240px;
     }
 }
 
 @media (max-width: 900px) {
     .fido-panel-donut {
-        min-height: 160px;
+        min-height: 220px;
     }
 }
 
