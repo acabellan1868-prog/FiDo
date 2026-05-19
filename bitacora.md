@@ -4,16 +4,23 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
-## 2026-05-19 — Gráfico circular responsive optimizado
+## 2026-05-19 — Gráfico circular interactivo y responsive
 
-Ajustadas las dimensiones del gráfico donut en pantalla principal para mejor visibilidad en todos los tamaños.
+Mejoras significativas en el gráfico donut de gastos por categoría:
 
-**Cambios:**
-- CSS: `.fido-panel-donut` ahora tiene `min-height: 220px` (Desktop), 180px (Tablet), 200px (Mobile)
-- JavaScript: SVG `max-width` de 130px → 280px para permitir más espacio en pantallas grandes
-- Media queries añadidas para adaptar la altura según breakpoints
+**Dimensiones ampliadas:**
+- SVG `max-width`: 130px → 380px (casi 3× el original)
+- min-height Desktop: 220px → 280px
+- min-height Tablet: 180px → 240px
+- min-height Mobile: 160px → 220px
 
-**Resultado:** El gráfico ahora es mucho más legible en Desktop (más que duplicó su tamaño) mientras mantiene proporciones correctas en Tablet y Mobile.
+**Interactividad (nueva):**
+- Cada sector muestra tooltip al pasar cursor (PC) o tocar (móvil)
+- Tooltip: categoría + total € + porcentaje
+- Efecto visual: sector se engrosa al interactuar
+- Touch-friendly para pantallas táctiles
+
+**Resultado:** Gráfico mucho más grande, legible e interactivo en todos los dispositivos.
 
 ---
 
