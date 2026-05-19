@@ -4,6 +4,19 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-05-19 — Gráfico circular responsive optimizado
+
+Ajustadas las dimensiones del gráfico donut en pantalla principal para mejor visibilidad en todos los tamaños.
+
+**Cambios:**
+- CSS: `.fido-panel-donut` ahora tiene `min-height: 220px` (Desktop), 180px (Tablet), 200px (Mobile)
+- JavaScript: SVG `max-width` de 130px → 280px para permitir más espacio en pantallas grandes
+- Media queries añadidas para adaptar la altura según breakpoints
+
+**Resultado:** El gráfico ahora es mucho más legible en Desktop (más que duplicó su tamaño) mientras mantiene proporciones correctas en Tablet y Mobile.
+
+---
+
 ## 2026-05-19 — Sistema de captura semiautomática en producción ✅
 
 Implementación completa del flujo Drive → Cowork Scheduler → Windows Task Scheduler → FiDo.

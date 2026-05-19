@@ -215,6 +215,8 @@ body {
     align-items: center;
     flex-shrink: 0;
     padding-top: 0.5rem;
+    min-height: 220px;
+    height: auto;
 }
 
 .fido-panel-barras {
@@ -932,6 +934,19 @@ body {
 .fido-desktop-only { display: flex; }
 .fido-mobile-only  { display: none; }
 
+/* Tablet — pantallas medianas (768px a 1200px) */
+@media (max-width: 1300px) {
+    .fido-panel-donut {
+        min-height: 180px;
+    }
+}
+
+@media (max-width: 900px) {
+    .fido-panel-donut {
+        min-height: 160px;
+    }
+}
+
 @media (max-width: 767px) {
     body { overflow: auto; }
 
@@ -949,6 +964,9 @@ body {
     .fido-panel-col {
         border-right: none;
         border-bottom: 1px solid var(--ck-line);
+    }
+    .fido-panel-donut {
+        min-height: 200px;
     }
     .fido-panel-layout { height: auto; overflow: visible; }
     .fido-seccion-full { height: auto; overflow: visible; }
