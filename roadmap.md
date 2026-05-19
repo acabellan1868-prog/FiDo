@@ -18,6 +18,8 @@
 
 **Próximo paso:** Fase 5 (resúmenes, exportación, presupuestos) o mejoras de usabilidad.
 
+Ver documentación detallada en `capturaGastosIA.md`.
+
 ---
 
 ## Fases

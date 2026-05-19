@@ -4,6 +4,19 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-05-19 — Sistema de captura semiautomática en producción ✅
+
+Implementación completa del flujo Drive → Cowork Scheduler → Windows Task Scheduler → FiDo.
+Documentado en `capturaGastosIA.md`.
+
+Componentes en producción:
+- Cowork scheduler "FiDo — Procesar gastos Drive": lee imágenes de Drive, extrae datos con visión IA, escribe scripts .ps1 en `C:\fido-queue\`
+- Windows Task Scheduler "FiDo-Cola": ejecuta los .ps1 cada 15 min y registra en `fido-cola.log`
+- Mapeo tarjeta→cuenta: 9625→Revolut, 5911→Caixa, 5155→Común; fallback por banco cuando no hay número
+- Gestión de imágenes con fondo oscuro: fallback a download_file_content + base64
+
+---
+
 ## 2026-05-15 — Prueba end-to-end Fase 4 superada ✅
 
 ### Resultado
