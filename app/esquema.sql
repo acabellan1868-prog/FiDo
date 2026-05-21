@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS movimientos (
     descripcion_original TEXT,
     categoria_id INTEGER REFERENCES categorias(id),
     cuenta_id INTEGER NOT NULL REFERENCES cuentas(id),
-    origen TEXT NOT NULL CHECK(origen IN ('telegram', 'wallet', 'csv', 'web', 'ntfy')),
+    origen TEXT NOT NULL CHECK(origen IN ('telegram', 'wallet', 'csv', 'web', 'ntfy', 'drive')),
     origen_ref TEXT,
     huella TEXT,
     notas TEXT,

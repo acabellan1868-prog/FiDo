@@ -4,6 +4,15 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-05-21 — Añadido 'drive' al CHECK constraint de origen en movimientos
+
+Añadido el valor `'drive'` al CHECK constraint del campo `origen` en la tabla `movimientos`.
+La tarea programada `fido-gastos-drive` inserta movimientos con `origen='drive'` y fallaba
+con un SQLite constraint error (HTTP 500 por nginx). Cambio aplicado en `app/esquema.sql`
+(línea 53) y en la definición inline de `app/bd.py` (línea 96).
+
+---
+
 ## 2026-05-19 — Gráfico circular interactivo y responsive
 
 Mejoras significativas en el gráfico donut de gastos por categoría:
