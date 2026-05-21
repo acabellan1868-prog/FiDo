@@ -67,8 +67,12 @@ def migrar_bd():
     Se ejecuta en cada arranque y es idempotente (seguro de llamar varias veces).
 
     Migraciones incluidas:
-      v1→v2: Añade 'ntfy' al CHECK de movimientos.origen para soportar
-              movimientos recibidos desde NTFY (intermediario de transporte).
+      v1→v2: Añade 'ntfy' al CHECK de movimientos.origen.
+      v3:    Añade columna 'estado' (ok|revisar).
+      v4:    Añade columna 'es_transferencia_interna' y tabla cuentas_vinculadas.
+      v5:    Añade 'drive' al CHECK de movimientos.origen. Necesaria porque la BD
+             de producción puede tener 'ntfy' pero no 'drive' si la migración v1→v2
+             se ejecutó antes de que se añadiera 'drive' al bloque inline.
     """
     conexion = obtener_conexion()
 
@@ -139,6 +143,49 @@ def migrar_bd():
                 tolerancia_dias      INTEGER NOT NULL DEFAULT 1,
                 UNIQUE(cuenta_principal_id, cuenta_vinculada_id)
             );
+        """)
+
+    # Migración v5: añadir 'drive' al CHECK de origen si no está.
+    # La BD de producción puede tener 'ntfy' pero no 'drive' si la migración v1→v2
+    # se ejecutó antes de añadir 'drive' al bloque inline de esa migración.
+    fila_v5 = conexion.execute(
+        "SELECT sql FROM sqlite_master WHERE type='table' AND name='movimientos'"
+    ).fetchone()
+    if fila_v5 and "'drive'" not in fila_v5[0]:
+        conexion.executescript("""
+            ALTER TABLE movimientos RENAME TO movimientos_v5;
+
+            CREATE TABLE movimientos (
+                id                       INTEGER PRIMARY KEY AUTOINCREMENT,
+                fecha                    TEXT    NOT NULL,
+                fecha_valor              TEXT,
+                importe                  REAL    NOT NULL,
+                descripcion              TEXT    NOT NULL,
+                descripcion_original     TEXT,
+                categoria_id             INTEGER REFERENCES categorias(id),
+                cuenta_id                INTEGER NOT NULL REFERENCES cuentas(id),
+                origen                   TEXT    NOT NULL
+                                         CHECK(origen IN ('telegram','wallet','csv','web','ntfy','drive')),
+                origen_ref               TEXT,
+                huella                   TEXT,
+                notas                    TEXT,
+                creado_en                TEXT    NOT NULL DEFAULT (datetime('now')),
+                estado                   TEXT    NOT NULL DEFAULT 'ok',
+                es_transferencia_interna INTEGER NOT NULL DEFAULT 0
+            );
+
+            INSERT INTO movimientos
+                SELECT id, fecha, fecha_valor, importe, descripcion, descripcion_original,
+                       categoria_id, cuenta_id, origen, origen_ref, huella, notas,
+                       creado_en, estado, es_transferencia_interna
+                FROM movimientos_v5;
+
+            DROP TABLE movimientos_v5;
+
+            CREATE INDEX IF NOT EXISTS idx_movimientos_fecha     ON movimientos(fecha);
+            CREATE INDEX IF NOT EXISTS idx_movimientos_cuenta    ON movimientos(cuenta_id);
+            CREATE INDEX IF NOT EXISTS idx_movimientos_categoria ON movimientos(categoria_id);
+            CREATE INDEX IF NOT EXISTS idx_movimientos_huella    ON movimientos(huella);
         """)
 
     conexion.close()

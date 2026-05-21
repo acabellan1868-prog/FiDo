@@ -4,12 +4,52 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
-## 2026-05-21 — Añadido 'drive' al CHECK constraint de origen en movimientos
+## 2026-05-21 — Fix migración v5: 'drive' en CHECK de origen no se aplicaba en producción
+
+### Incidencia
+
+La tarea programada `fido-gastos-drive` fallaba con HTTP 500 al insertar movimientos
+con `origen='drive'`. La BD de producción rechazaba el valor por violar el CHECK constraint.
+
+### Causa raíz
+
+La migración v1→v2 (que añadía `'ntfy'` al CHECK) tenía el valor `'drive'` en su bloque
+inline. Sin embargo, la condición de guarda era:
+
+```python
+if fila and "'ntfy'" not in fila[0]:
+```
+
+La BD de producción ya tenía `'ntfy'` (la migración v1→v2 se ejecutó antes de que se
+añadiera `'drive'` al bloque), así que la condición era `False` y el bloque nunca
+volvía a ejecutarse. `'drive'` nunca llegaba al CHECK constraint de la BD real.
+
+### Solución
+
+Añadida migración v5 en `app/bd.py` con su propia condición de guarda:
+
+```python
+if fila_v5 and "'drive'" not in fila_v5[0]:
+```
+
+Recrea la tabla con el CHECK completo `('telegram','wallet','csv','web','ntfy','drive')`
+usando nombres de columna explícitos en el INSERT para mayor seguridad. La migración es
+idempotente: si `'drive'` ya está en el esquema, no hace nada.
+
+### Estado post-fix
+
+- `origen='drive'` y `estado='revisar'` son valores válidos en la BD tras el arranque.
+- El cambio anterior en `app/esquema.sql` (línea 53) sigue siendo correcto para nuevas
+  instalaciones. El fix en `bd.py` cubre las BDs de producción existentes.
+
+---
+
+## 2026-05-21 — Añadido 'drive' al CHECK constraint de origen en movimientos (parcial)
 
 Añadido el valor `'drive'` al CHECK constraint del campo `origen` en la tabla `movimientos`.
-La tarea programada `fido-gastos-drive` inserta movimientos con `origen='drive'` y fallaba
-con un SQLite constraint error (HTTP 500 por nginx). Cambio aplicado en `app/esquema.sql`
-(línea 53) y en la definición inline de `app/bd.py` (línea 96).
+Cambio aplicado en `app/esquema.sql` (línea 53) y en la definición inline de `app/bd.py`
+(línea 96). **Nota:** este cambio no era suficiente para BDs de producción existentes;
+la migración v5 añadida el mismo día es la que realmente aplica el fix (ver entrada anterior).
 
 ---
 
