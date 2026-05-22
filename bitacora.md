@@ -4,6 +4,38 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-05-22 — Arregla bug 400 con caracteres acentuados en descripciones
+
+### Incidencia
+
+La rutina `fido-gastos-drive` reportaba HTTP 400 cuando procesaba imágenes con descripciones
+que contenían caracteres acentuados en mayúsculas (ej: "EL CORTE INGLES" con tilde en la É).
+Esto ocurría inconsistentemente, requiriendo normalización manual de caracteres.
+
+### Causa raíz
+
+Probable problema de normalización Unicode. Los caracteres acentuados pueden representarse
+en múltiples formas Unicode (NFD, NFC, NFKD, NFKC). Si el cliente (curl/Python) enviaba
+una forma y FastAPI/Pydantic esperaba otra, fallaba la validación.
+
+### Solución
+
+Añadido validador `@field_validator` en los modelos `MovimientoCrear` y `MovimientoActualizar`
+que normaliza automáticamente a NFC (Canonical Composition, estándar en plataformas modernas)
+en los campos `descripcion`, `descripcion_original` y `notas`. La normalización ocurre
+antes de cualquier otra validación de Pydantic.
+
+El cambio es transparente: las descripciones se guardan en BD con normalización estándar
+y la rutina `fido-gastos-drive` no necesita cambios.
+
+### Impacto
+
+- ✅ Ningún cambio en BD existentes
+- ✅ Las búsquedas siguen funcionando (LIKE ahora siempre compara strings normalizados)
+- ✅ Compatible con datos históricos (se normalizan al actualizar)
+
+---
+
 ## 2026-05-21 — Fix migración v5: 'drive' en CHECK de origen no se aplicaba en producción
 
 ### Incidencia
