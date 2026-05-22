@@ -3,8 +3,9 @@ FiDo — Modelos Pydantic (esquemas de request/response).
 Todas las entidades tienen variantes Crear, Actualizar y Respuesta.
 """
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Optional
+import unicodedata
 
 
 # ============================================================
@@ -125,6 +126,14 @@ class MovimientoCrear(BaseModel):
     notas: Optional[str] = None
     estado: str = 'ok'  # ok | revisar
 
+    @field_validator('descripcion', 'descripcion_original', 'notas', mode='before')
+    @classmethod
+    def normalizar_texto(cls, v):
+        """Normaliza texto a NFC para evitar problemas de encoding con caracteres acentuados."""
+        if v and isinstance(v, str):
+            return unicodedata.normalize('NFC', v).strip()
+        return v
+
 class MovimientoActualizar(BaseModel):
     fecha: Optional[str] = None
     fecha_valor: Optional[str] = None
@@ -134,6 +143,14 @@ class MovimientoActualizar(BaseModel):
     cuenta_id: Optional[int] = None
     notas: Optional[str] = None
     estado: Optional[str] = None  # ok | revisar
+
+    @field_validator('descripcion', 'notas', mode='before')
+    @classmethod
+    def normalizar_texto(cls, v):
+        """Normaliza texto a NFC para evitar problemas de encoding con caracteres acentuados."""
+        if v and isinstance(v, str):
+            return unicodedata.normalize('NFC', v).strip()
+        return v
 
 class MovimientoRespuesta(BaseModel):
     id: int
