@@ -4,6 +4,27 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-06-08 — Mejora UI: resumen de movimientos al pie
+
+### Cambios
+
+Rediseño de la presentación del resumen de movimientos en la pestaña "Movimientos":
+
+- **Removido**: sumatorio de gastos de la barra de filtros superior
+- **Añadido**: tarjetas de resumen al pie de la tabla (tras "Mostrando X de X"):
+  - 💸 **Gastos** — suma de movimientos negativos
+  - 📈 **Ingresos** — suma de movimientos positivos
+  - ⚖ **Diferencia** — suma total (verde si positivo, rojo si negativo)
+- **Diseño**: tarjetas con bordes de color, hover elevado, tipografía monoespaciada, responsive
+
+### Justificación
+
+La ubicación original (arriba a la derecha) ocupaba espacio valioso en los filtros. 
+Mover al pie permite mejor organización visual, mostrar tres métricas en lugar de una,
+y no interfiere con el flujo de búsqueda y filtrado.
+
+---
+
 ## 2026-05-22 — Arregla bug 400 con caracteres acentuados en descripciones
 
 ### Incidencia
