@@ -6,7 +6,7 @@
     <title>FiDo — Finanzas Domésticas</title>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="/static/hogar.css">
-    <link rel="stylesheet" href="estilos.css?v=7">
+    <link rel="stylesheet" href="estilos.css?v=8">
 </head>
 <body>
 <div id="fido-app" x-data="fidoApp()" x-init="init()">
@@ -329,9 +329,16 @@
                     </tbody>
                 </table>
             </div>
-            <!-- Paginación -->
+            <!-- Paginación y resumen -->
             <div class="fido-paginacion">
-                <span class="ck-stat" x-text="'Mostrando ' + movimientos.length + ' de ' + totalMovimientos"></span>
+                <div class="fido-paginacion__info">
+                    <span class="ck-stat" x-text="'Mostrando ' + movimientos.length + ' de ' + totalMovimientos"></span>
+                    <template x-if="movimientos.length > 0">
+                        <span class="ck-stat"
+                              style="color:var(--ck-on-variant);opacity:0.6"
+                              x-text="'· Σ Gastos: ' + formatoImporte(movimientos.filter(m => m.importe < 0).reduce((sum, m) => sum + m.importe, 0)) + ' | Ingresos: ' + formatoImporte(movimientos.filter(m => m.importe > 0).reduce((sum, m) => sum + m.importe, 0))"></span>
+                    </template>
+                </div>
                 <div class="fido-paginacion__botones">
                     <button @click="filtros.offset = Math.max(0, filtros.offset - 50); cargarMovimientos()"
                             :disabled="filtros.offset === 0"
@@ -339,41 +346,6 @@
                     <button @click="filtros.offset += 50; cargarMovimientos()"
                             :disabled="filtros.offset + 50 >= totalMovimientos"
                             class="ck-btn ck-btn--sm">Siguiente</button>
-                </div>
-            </div>
-
-            <!-- Resumen de movimientos -->
-            <div class="fido-resumen-movimientos" x-show="movimientos.length > 0">
-                <div class="fido-resumen-card fido-resumen-card--gastos">
-                    <div class="fido-resumen-icono">
-                        <span class="material-symbols-outlined">arrow_downward</span>
-                    </div>
-                    <div class="fido-resumen-content">
-                        <div class="fido-resumen-label">Gastos</div>
-                        <div class="fido-resumen-valor"
-                             x-text="formatoImporte(movimientos.filter(m => m.importe < 0).reduce((sum, m) => sum + m.importe, 0))"></div>
-                    </div>
-                </div>
-                <div class="fido-resumen-card fido-resumen-card--ingresos">
-                    <div class="fido-resumen-icono">
-                        <span class="material-symbols-outlined">arrow_upward</span>
-                    </div>
-                    <div class="fido-resumen-content">
-                        <div class="fido-resumen-label">Ingresos</div>
-                        <div class="fido-resumen-valor"
-                             x-text="formatoImporte(movimientos.filter(m => m.importe > 0).reduce((sum, m) => sum + m.importe, 0))"></div>
-                    </div>
-                </div>
-                <div class="fido-resumen-card fido-resumen-card--diferencia">
-                    <div class="fido-resumen-icono">
-                        <span class="material-symbols-outlined">balance</span>
-                    </div>
-                    <div class="fido-resumen-content">
-                        <div class="fido-resumen-label">Diferencia</div>
-                        <div class="fido-resumen-valor"
-                             :style="(movimientos.reduce((sum, m) => sum + m.importe, 0)) >= 0 ? 'color:var(--ck-success)' : 'color:var(--ck-danger)'"
-                             x-text="formatoImporte(movimientos.reduce((sum, m) => sum + m.importe, 0))"></div>
-                    </div>
                 </div>
             </div>
         </div>
