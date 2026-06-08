@@ -6,7 +6,7 @@
     <title>FiDo — Finanzas Domésticas</title>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="/static/hogar.css">
-    <link rel="stylesheet" href="estilos.css?v=8">
+    <link rel="stylesheet" href="estilos.css?v=9">
 </head>
 <body>
 <div id="fido-app" x-data="fidoApp()" x-init="init()">
@@ -329,16 +329,28 @@
                     </tbody>
                 </table>
             </div>
-            <!-- Paginación y resumen -->
+            <!-- Paginación y resumen en una línea -->
             <div class="fido-paginacion">
-                <div class="fido-paginacion__info">
-                    <span class="ck-stat" x-text="'Mostrando ' + movimientos.length + ' de ' + totalMovimientos"></span>
-                    <template x-if="movimientos.length > 0">
-                        <span class="ck-stat"
-                              style="color:var(--ck-on-variant);opacity:0.6"
-                              x-text="'· Σ Gastos: ' + formatoImporte(movimientos.filter(m => m.importe < 0).reduce((sum, m) => sum + m.importe, 0)) + ' | Ingresos: ' + formatoImporte(movimientos.filter(m => m.importe > 0).reduce((sum, m) => sum + m.importe, 0))"></span>
-                    </template>
-                </div>
+                <span class="ck-stat" x-text="'Mostrando ' + movimientos.length + ' de ' + totalMovimientos"></span>
+
+                <template x-if="movimientos.length > 0">
+                    <div class="fido-resumen-inline">
+                        <span class="fido-resumen-item fido-resumen-item--gastos">
+                            <span class="material-symbols-outlined" style="font-size:0.7rem">arrow_downward</span>
+                            <span x-text="'Gastos: ' + formatoImporte(movimientos.filter(m => m.importe < 0).reduce((sum, m) => sum + m.importe, 0))"></span>
+                        </span>
+                        <span class="fido-resumen-item fido-resumen-item--ingresos">
+                            <span class="material-symbols-outlined" style="font-size:0.7rem">arrow_upward</span>
+                            <span x-text="'Ingresos: ' + formatoImporte(movimientos.filter(m => m.importe > 0).reduce((sum, m) => sum + m.importe, 0))"></span>
+                        </span>
+                        <span class="fido-resumen-item fido-resumen-item--balance"
+                              :style="(movimientos.reduce((sum, m) => sum + m.importe, 0)) >= 0 ? 'color:var(--ck-success)' : 'color:var(--ck-danger)'">
+                            <span class="material-symbols-outlined" style="font-size:0.7rem">balance</span>
+                            <span x-text="'Balance: ' + formatoImporte(movimientos.reduce((sum, m) => sum + m.importe, 0))"></span>
+                        </span>
+                    </div>
+                </template>
+
                 <div class="fido-paginacion__botones">
                     <button @click="filtros.offset = Math.max(0, filtros.offset - 50); cargarMovimientos()"
                             :disabled="filtros.offset === 0"
