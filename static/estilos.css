@@ -1033,4 +1033,53 @@ body {
     .fido-regla-grid { grid-template-columns: 1fr; }
     .fido-tabla-wrap { overflow: auto; }
     .fido-modal-grid { grid-template-columns: 1fr; }
+
+    /* Tabla de movimientos → Cards en móvil */
+    .ck-tabla {
+        display: block;
+    }
+    .ck-tabla thead {
+        display: none;
+    }
+    .ck-tabla tbody {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    .ck-tabla tbody tr {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem 1rem;
+        padding: 1rem;
+        border: 1px solid var(--ck-line);
+        border-radius: 4px;
+        background: var(--ck-bg2);
+        align-content: start;
+    }
+    .ck-tabla tbody tr.fido-fila-seleccionada {
+        border-color: var(--ck-accent);
+        background: rgba(var(--ck-accent-rgb), 0.05);
+    }
+    .ck-tabla tbody tr td {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+    .ck-tabla tbody tr td::before {
+        content: attr(data-label);
+        font-size: 0.55rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--ck-on-variant);
+        opacity: 0.7;
+    }
+    /* Columnas especiales */
+    .ck-tabla tbody tr td:first-child { grid-column: 1 / -1; }  /* checkbox */
+    .ck-tabla tbody tr td:first-child::before { content: ''; }
+    .ck-tabla tbody tr td:last-child { grid-column: 1 / -1; }  /* acciones */
+    .ck-tabla tbody tr td:last-child::before { content: ''; }
+
+    /* Espacio para descripción */
+    .ck-tabla tbody tr td:nth-child(3) { grid-column: 1 / -1; }
 }

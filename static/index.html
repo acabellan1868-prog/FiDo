@@ -6,7 +6,7 @@
     <title>FiDo — Finanzas Domésticas</title>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="/static/hogar.css">
-    <link rel="stylesheet" href="estilos.css?v=9">
+    <link rel="stylesheet" href="estilos.css?v=10">
 </head>
 <body>
 <div id="fido-app" x-data="fidoApp()" x-init="init()">
@@ -273,18 +273,18 @@
                                            x-model="movSeleccionados"
                                            :value="String(mov.id)">
                                 </td>
-                                <td class="ck-nowrap" x-text="mov.fecha"></td>
-                                <td class="ck-truncate" x-text="mov.descripcion"></td>
-                                <td class="ck-muted ck-small" x-text="nombreCategoria(mov.categoria_id)"></td>
-                                <td class="ck-mono ck-nowrap"
+                                <td class="ck-nowrap" data-label="Fecha" x-text="mov.fecha"></td>
+                                <td class="ck-truncate" data-label="Descripción" x-text="mov.descripcion"></td>
+                                <td class="ck-muted ck-small" data-label="Categoría" x-text="nombreCategoria(mov.categoria_id)"></td>
+                                <td class="ck-mono ck-nowrap" data-label="Importe"
                                     style="text-align:right;font-weight:700"
                                     :style="mov.importe >= 0 ? 'color:var(--ck-success)' : 'color:var(--ck-danger)'"
                                     x-text="formatoImporte(mov.importe)"></td>
-                                <td class="ck-small" x-text="mov.nombre_cuenta"></td>
-                                <td style="text-align:center">
+                                <td class="ck-small" data-label="Cuenta" x-text="mov.nombre_cuenta"></td>
+                                <td style="text-align:center" data-label="Origen">
                                     <span class="ck-badge" x-text="mov.origen"></span>
                                 </td>
-                                <td style="text-align:center">
+                                <td style="text-align:center" data-label="Estado">
                                     <span x-show="mov.estado === 'revisar'" class="danger-pulse"
                                           style="color:var(--ck-warn)">⚠</span>
                                     <span x-show="mov.estado === 'ok'"
