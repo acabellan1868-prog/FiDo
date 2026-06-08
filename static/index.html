@@ -226,10 +226,6 @@
                        placeholder="buscar..."
                        class="ck-input ck-input--sm" style="width:9rem">
                 <div class="fido-filtros-bar__right">
-                    <span class="ck-stat" x-text="movimientos.length + ' mov.'"></span>
-                    <span class="ck-stat ck-stat--valor"
-                          :style="sumaMovimientos >= 0 ? 'color:var(--ck-success)' : 'color:var(--ck-danger)'"
-                          x-text="'Σ ' + formatoImporte(sumaMovimientos)"></span>
                     <button @click="mostrarFormularioMovimiento = true; editandoMovimiento = null"
                             class="ck-btn ck-btn--primary ck-btn--sm">
                         <span class="material-symbols-outlined" style="font-size:0.75rem">add</span> nuevo
@@ -343,6 +339,26 @@
                     <button @click="filtros.offset += 50; cargarMovimientos()"
                             :disabled="filtros.offset + 50 >= totalMovimientos"
                             class="ck-btn ck-btn--sm">Siguiente</button>
+                </div>
+            </div>
+
+            <!-- Resumen de movimientos -->
+            <div class="fido-resumen-movimientos" x-show="movimientos.length > 0">
+                <div class="fido-resumen-card fido-resumen-card--gastos">
+                    <div class="fido-resumen-label">💸 Gastos</div>
+                    <div class="fido-resumen-valor"
+                         x-text="formatoImporte(movimientos.filter(m => m.importe < 0).reduce((sum, m) => sum + m.importe, 0))"></div>
+                </div>
+                <div class="fido-resumen-card fido-resumen-card--ingresos">
+                    <div class="fido-resumen-label">📈 Ingresos</div>
+                    <div class="fido-resumen-valor"
+                         x-text="formatoImporte(movimientos.filter(m => m.importe > 0).reduce((sum, m) => sum + m.importe, 0))"></div>
+                </div>
+                <div class="fido-resumen-card fido-resumen-card--diferencia">
+                    <div class="fido-resumen-label">⚖ Diferencia</div>
+                    <div class="fido-resumen-valor"
+                         :style="(movimientos.reduce((sum, m) => sum + m.importe, 0)) >= 0 ? 'color:var(--ck-success)' : 'color:var(--ck-danger)'"
+                         x-text="formatoImporte(movimientos.reduce((sum, m) => sum + m.importe, 0))"></div>
                 </div>
             </div>
         </div>
