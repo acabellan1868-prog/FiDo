@@ -8,20 +8,30 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ### Cambios
 
-Rediseño de la presentación del resumen de movimientos en la pestaña "Movimientos":
+Rediseño completo de la presentación del resumen de movimientos en la pestaña "Movimientos":
 
 - **Removido**: sumatorio de gastos de la barra de filtros superior
 - **Añadido**: tarjetas de resumen al pie de la tabla (tras "Mostrando X de X"):
-  - 💸 **Gastos** — suma de movimientos negativos
-  - 📈 **Ingresos** — suma de movimientos positivos
-  - ⚖ **Diferencia** — suma total (verde si positivo, rojo si negativo)
-- **Diseño**: tarjetas con bordes de color, hover elevado, tipografía monoespaciada, responsive
+  - **Gastos** (↓ icon) — suma de movimientos negativos
+  - **Ingresos** (↑ icon) — suma de movimientos positivos
+  - **Diferencia** (⚖ icon) — suma total (verde si positivo, rojo si negativo)
+
+### Diseño
+
+- **Iconos**: Material Symbols en lugar de emojis (arrow_downward, arrow_upward, balance)
+- **Layout horizontal**: icono + etiqueta (pequeña, uppercase) + valor (monoespaciado)
+- **Tarjetas minimalistas**: bordes sutiles, barra de 3px en el lado izquierdo
+- **Colores**: paleta existente (danger, success, accent) — solo 2 colores por tarjeta
+- **Responsive**: grid adaptable que reorganiza en móvil
+- **Hover sutil**: resalta el borde con el color de la tarjeta
 
 ### Justificación
 
-La ubicación original (arriba a la derecha) ocupaba espacio valioso en los filtros. 
-Mover al pie permite mejor organización visual, mostrar tres métricas en lugar de una,
-y no interfiere con el flujo de búsqueda y filtrado.
+La ubicación original (arriba a la derecha) ocupaba espacio valioso. Mover al pie permite:
+- mejor organización visual y jerárquica
+- mostrar tres métricas en lugar de una
+- no interfiere con el flujo de búsqueda/filtrado
+- estética más fina y coherente con el diseño existente
 
 ---
 
