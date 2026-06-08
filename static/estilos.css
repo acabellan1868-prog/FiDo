@@ -456,66 +456,112 @@ body {
 /* Resumen de movimientos */
 .fido-resumen-movimientos {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    padding: 1.25rem 0.85rem;
-    background: var(--ck-bg2);
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.75rem;
+    padding: 1rem 0.85rem;
+    background: transparent;
     border-top: 1px solid var(--ck-line);
 }
 
 .fido-resumen-card {
     display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-    padding: 0.85rem;
-    border-radius: 4px;
-    border-left: 3px solid;
-    background: rgba(128, 128, 128, 0.05);
-    transition: all 0.2s ease;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.7rem 0.8rem;
+    border-radius: 3px;
+    border: 1px solid;
+    background: var(--ck-bg2);
+    transition: all 0.15s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.fido-resumen-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
 }
 
 .fido-resumen-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-color: currentColor;
 }
 
 .fido-resumen-card--gastos {
-    border-left-color: var(--ck-danger);
+    border-color: rgba(var(--ck-danger-rgb), 0.2);
+    color: var(--ck-danger);
 }
 
-.fido-resumen-card--gastos .fido-resumen-label {
+.fido-resumen-card--gastos::before {
+    background: var(--ck-danger);
+}
+
+.fido-resumen-card--gastos .fido-resumen-icono {
     color: var(--ck-danger);
 }
 
 .fido-resumen-card--ingresos {
-    border-left-color: var(--ck-success);
+    border-color: rgba(var(--ck-success-rgb), 0.2);
+    color: var(--ck-success);
 }
 
-.fido-resumen-card--ingresos .fido-resumen-label {
+.fido-resumen-card--ingresos::before {
+    background: var(--ck-success);
+}
+
+.fido-resumen-card--ingresos .fido-resumen-icono {
     color: var(--ck-success);
 }
 
 .fido-resumen-card--diferencia {
-    border-left-color: var(--ck-accent);
-}
-
-.fido-resumen-card--diferencia .fido-resumen-label {
+    border-color: rgba(var(--ck-accent-rgb), 0.2);
     color: var(--ck-accent);
 }
 
+.fido-resumen-card--diferencia::before {
+    background: var(--ck-accent);
+}
+
+.fido-resumen-card--diferencia .fido-resumen-icono {
+    color: var(--ck-accent);
+}
+
+.fido-resumen-icono {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.fido-resumen-icono span {
+    display: block;
+}
+
+.fido-resumen-content {
+    flex: 1;
+    min-width: 0;
+}
+
 .fido-resumen-label {
-    font-size: 0.7rem;
-    font-weight: 700;
+    font-size: 0.6rem;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--ck-on-variant);
+    letter-spacing: 0.06em;
+    color: inherit;
+    opacity: 0.8;
+    line-height: 1.2;
 }
 
 .fido-resumen-valor {
-    font-size: 1.2rem;
+    font-size: 0.95rem;
     font-weight: 700;
     font-family: 'JetBrains Mono', monospace;
-    color: var(--ck-on-surface);
+    color: inherit;
+    white-space: nowrap;
 }
 
 /* ============================================================

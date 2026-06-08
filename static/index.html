@@ -345,20 +345,35 @@
             <!-- Resumen de movimientos -->
             <div class="fido-resumen-movimientos" x-show="movimientos.length > 0">
                 <div class="fido-resumen-card fido-resumen-card--gastos">
-                    <div class="fido-resumen-label">💸 Gastos</div>
-                    <div class="fido-resumen-valor"
-                         x-text="formatoImporte(movimientos.filter(m => m.importe < 0).reduce((sum, m) => sum + m.importe, 0))"></div>
+                    <div class="fido-resumen-icono">
+                        <span class="material-symbols-outlined">arrow_downward</span>
+                    </div>
+                    <div class="fido-resumen-content">
+                        <div class="fido-resumen-label">Gastos</div>
+                        <div class="fido-resumen-valor"
+                             x-text="formatoImporte(movimientos.filter(m => m.importe < 0).reduce((sum, m) => sum + m.importe, 0))"></div>
+                    </div>
                 </div>
                 <div class="fido-resumen-card fido-resumen-card--ingresos">
-                    <div class="fido-resumen-label">📈 Ingresos</div>
-                    <div class="fido-resumen-valor"
-                         x-text="formatoImporte(movimientos.filter(m => m.importe > 0).reduce((sum, m) => sum + m.importe, 0))"></div>
+                    <div class="fido-resumen-icono">
+                        <span class="material-symbols-outlined">arrow_upward</span>
+                    </div>
+                    <div class="fido-resumen-content">
+                        <div class="fido-resumen-label">Ingresos</div>
+                        <div class="fido-resumen-valor"
+                             x-text="formatoImporte(movimientos.filter(m => m.importe > 0).reduce((sum, m) => sum + m.importe, 0))"></div>
+                    </div>
                 </div>
                 <div class="fido-resumen-card fido-resumen-card--diferencia">
-                    <div class="fido-resumen-label">⚖ Diferencia</div>
-                    <div class="fido-resumen-valor"
-                         :style="(movimientos.reduce((sum, m) => sum + m.importe, 0)) >= 0 ? 'color:var(--ck-success)' : 'color:var(--ck-danger)'"
-                         x-text="formatoImporte(movimientos.reduce((sum, m) => sum + m.importe, 0))"></div>
+                    <div class="fido-resumen-icono">
+                        <span class="material-symbols-outlined">balance</span>
+                    </div>
+                    <div class="fido-resumen-content">
+                        <div class="fido-resumen-label">Diferencia</div>
+                        <div class="fido-resumen-valor"
+                             :style="(movimientos.reduce((sum, m) => sum + m.importe, 0)) >= 0 ? 'color:var(--ck-success)' : 'color:var(--ck-danger)'"
+                             x-text="formatoImporte(movimientos.reduce((sum, m) => sum + m.importe, 0))"></div>
+                    </div>
                 </div>
             </div>
         </div>
