@@ -4,34 +4,110 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
-## 2026-06-10 — Compactación de cards en móvil: mejor aprovechamiento de espacio
+## 2026-06-10 — Compactación de cards en móvil: layout reorganizado
 
-### Cambios
+### Problema inicial
 
-Reorganización del layout de cards para móvil (≤767px) reduciendo altura y mejorando densidad visual:
+Las tarjetas de movimientos en móvil eran demasiado altas (8-9 filas por movimiento), con mucho espacio desperdiciado.
+Solo cabían 2 tarjetas en pantalla. Además, **fecha e importe se superponían** en el layout anterior.
 
-- **Fila 1:** Checkbox + Fecha + Importe (valores cortos agrupados)
-- **Fila 2:** Descripción (ancho completo, contenido principal destacado)
-- **Fila 3:** Categoría + Origen + Estado (información secundaria horizontal)
-- **Fila 4:** Acciones (editar, borrar, transferencia interna) (ancho completo)
-- **Oculto en móvil:** Columna Cuenta (ya está implícita en datos, no necesaria en vista mobile)
+### Solución implementada
 
-### Diferencias visuales
+Reorganización completa del layout de cards para móvil (≤767px) con 4 filas lógicas bien definidas:
 
-Antes: 8-9 filas por tarjeta, gap grande, padding generoso → solo 2 tarjetas por pantalla  
-Ahora: 4 filas lógicas por tarjeta, gaps y padding comprimidos → caben 3-4 tarjetas por pantalla
+**Fila 1: Datos principales (3 columnas)**
+```
+Fecha (izq) | Checkbox centrado | Importe (dcha)
+```
+- Coloca fecha, checkbox e importe en línea horizontal
+- Evita superposiciones
+- Checkbox centrado para mejor alineación visual
+- Importe alineado a la derecha
 
-**Detalles técnicos:**
-- Grid de 3 columnas (auto, 1fr, auto) para Fila 1 y 3
-- Eliminados `::before` labels en campos cortos (checkbox, fecha, importe, origen, estado, acciones)
-- Reducido padding de 1rem → 0.75rem
-- Reducido gap de 0.75rem → 0.5rem
-- Font-size comprimido a 0.85rem en celdas
-- Categoría con font-size 0.8rem para diferenciarla
+**Fila 2: Descripción (ancho completo)**
+```
+Descripción: Mercadona (destacada, font-weight: 600)
+```
+- Contenido principal del movimiento
+- Ancho completo para máxima legibilidad
+
+**Fila 3: Categoría (ancho completo)**
+```
+Categoría: 🛒 Compras
+```
+- Información de clasificación
+- Font-size reducido (0.8rem) para diferenciarla
+
+**Fila 4: Origen + Acciones (2 columnas)**
+```
+Badge NTFY/CSV | Botones: ⚠|✓ ↔ ✎ ✕
+```
+- Origen como badge a la izquierda
+- Acciones comprimidas a la derecha:
+  - ⚠/✓: Cambiar estado (revisar/confirmado)
+  - ↔: Toggle transferencia interna
+  - ✎: Editar
+  - ✕: Borrar
+
+### Cambios técnicos en `static/estilos.css`
+
+**Grid y layout:**
+- Grid de 3 columnas: `1fr auto 1fr` (izquierda flexible, centro comprimido, derecha flexible)
+- Gap: `0.4rem` vertical, `0.8rem` horizontal
+- Padding: reducido a `0.75rem` (era `1rem`)
+- Grid-auto-flow: `dense` para optimizar uso de espacio
+
+**Reposicionamiento nth-child:**
+- `td:nth-child(2)`: Fecha → grid-column 1
+- `td:nth-child(1)`: Checkbox → grid-column 2 (centrado)
+- `td:nth-child(5)`: Importe → grid-column 3
+- `td:nth-child(3)`: Descripción → ancho completo (1 / -1)
+- `td:nth-child(4)`: Categoría → ancho completo (1 / -1)
+- `td:nth-child(7)`: Origen → grid-column 1, fila 4
+- `td:nth-child(9)`: Acciones → grid-column 2 / -1, fila 4
+
+**Columnas ocultas en móvil:**
+- `td:nth-child(6)` (Cuenta): no necesaria, información implícita
+- `td:nth-child(8)` (Estado como fila): reemplazado por iconos en acciones
+
+**Estilos tipográficos:**
+- Font-size base células: `0.85rem`
+- Categoría: `0.8rem` (ligeramente más pequeña)
+- Labels `::before` removidos de campos cortos (checkbox, fecha, importe, origen, acciones)
+- Descripción: `font-weight: 600` para destacar
+
+### Resultado visual
+
+**Antes:**
+```
+┌─────────────────────────────────┐
+│ ☐                               │
+│ Fecha: 2026-06-09               │
+│ Descripción: Mercadona          │
+│ Categoría: 🛒 Compras           │
+│ Importe: -45,50€                │
+│ Cuenta: Antonio (Caixa)         │
+│ Origen: NTFY                    │
+│ Estado: ⚠ revisar               │
+│ Acciones: ⚠ ↔ ✎ ✕             │
+└─────────────────────────────────┘
+```
+→ 9 líneas, altura ~180px, solo 2 tarjetas/pantalla
+
+**Después:**
+```
+┌─ 2026-06-09 | ☐ | -45,50€ ─────┐
+│ Descripción: Mercadona          │
+│ Categoría: 🛒 Compras           │
+│ NTFY | ⚠ ✓ ↔ ✎ ✕             │
+└─────────────────────────────────┘
+```
+→ 4 líneas, altura ~110px, ahora caben 3-4 tarjetas/pantalla
 
 ### Desktop (≥768px)
 
-Sin cambios: tabla tradicional horizontal con todas las columnas.
+**Sin cambios:** tabla tradicional horizontal con todas las columnas visibles.
+Comportamiento idéntico a versiones anteriores.
 
 ## 2026-06-09 — Tabla de movimientos responsive: cards en móvil, tabla en desktop
 
