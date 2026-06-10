@@ -4,6 +4,46 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-06-10 — Compactación de cards en móvil: mejor aprovechamiento de espacio
+
+### Cambios
+
+Reorganización del layout de cards para móvil (≤767px) reduciendo altura y mejorando densidad visual:
+
+- **Fila 1:** Checkbox + Fecha + Importe (valores cortos agrupados)
+- **Fila 2:** Descripción (ancho completo, contenido principal destacado)
+- **Fila 3:** Categoría + Origen + Estado (información secundaria horizontal)
+- **Fila 4:** Acciones (editar, borrar, transferencia interna) (ancho completo)
+- **Oculto en móvil:** Columna Cuenta (ya está implícita en datos, no necesaria en vista mobile)
+
+### Diferencias visuales
+
+Antes: 8-9 filas por tarjeta, gap grande, padding generoso → solo 2 tarjetas por pantalla  
+Ahora: 4 filas lógicas por tarjeta, gaps y padding comprimidos → caben 3-4 tarjetas por pantalla
+
+**Detalles técnicos:**
+- Grid de 3 columnas (auto, 1fr, auto) para Fila 1 y 3
+- Eliminados `::before` labels en campos cortos (checkbox, fecha, importe, origen, estado, acciones)
+- Reducido padding de 1rem → 0.75rem
+- Reducido gap de 0.75rem → 0.5rem
+- Font-size comprimido a 0.85rem en celdas
+- Categoría con font-size 0.8rem para diferenciarla
+
+### Desktop (≥768px)
+
+Sin cambios: tabla tradicional horizontal con todas las columnas.
+
+## 2026-06-09 — Tabla de movimientos responsive: cards en móvil, tabla en desktop
+
+Adaptación completa del listado de movimientos para ser responsive a diferentes tamaños de pantalla:
+
+- **Móvil (≤767px):** tabla convertida a layout de cards vertical
+- **Desktop (≥768px):** tabla tradicional horizontal
+
+Cambio base que permitió la compactación posterior del 2026-06-10.
+
+---
+
 ## 2026-06-08 — Mejora UI: resumen de movimientos al pie
 
 ### Cambios
