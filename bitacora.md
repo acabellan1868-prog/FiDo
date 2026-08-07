@@ -4,6 +4,55 @@ Registro de todos los cambios del proyecto, ordenado de más reciente a más ant
 
 ---
 
+## 2026-08-07 — Importación de extractos en Excel + corrección de duplicados de movimientos
+
+### 1. Soporte de importación .xlsx y .xls
+
+**Problema:** solo se podían importar extractos bancarios en CSV/TSV; el usuario tenía un extracto en Excel preparado para probar.
+
+**Solución:**
+- `POST /importar/csv` detecta la extensión del fichero subido y, si es `.xlsx` o `.xls`, lo convierte a texto CSV en memoria antes de pasarlo al parser del banco correspondiente — los tres parsers (Santander, CaixaBank, Revolut) no necesitan cambios.
+- Fechas de Excel (`datetime`/`date`) se convierten a `YYYY-MM-DD`, formato que los tres parsers ya aceptaban.
+- Los importes se formatean con coma decimal para Santander/CaixaBank y punto decimal para Revolut, porque cada parser espera un formato distinto (Santander resta el punto de miles incondicionalmente sobre el texto; Revolut hace `float()` directo).
+- `.xlsx` se lee con `openpyxl`; `.xls` (formato binario antiguo, BIFF) con `xlrd`, ya que openpyxl no lo soporta.
+- Nuevas funciones en `app/rutas/importar.py`: `_xlsx_a_csv()`, `_xls_a_csv()`, `_celda_a_texto()`, `_formatear_numero()`.
+
+Ficheros modificados: `app/rutas/importar.py`, `requirements.txt` (añadidos `openpyxl==3.1.5`, `xlrd==2.0.1`), `static/index.html` (el input de fichero acepta `.xls`/`.xlsx`).
+
+### 2. Investigación y corrección de movimientos duplicados
+
+**Contexto:** duplicados recurrentes en la base de datos (el usuario los venía borrando a mano) al combinar varias fuentes de entrada: NTFY (captura en tiempo real desde el móvil), importación CSV/Excel del extracto bancario, sincronización desde la app Android.
+
+**Diagnóstico** — se consultó la API de producción en modo lectura (726 movimientos en el momento del análisis) y se cruzaron por fecha+importe+cuenta. Dos causas raíz distintas, no relacionadas entre sí:
+
+**a) Race condition en el listener NTFY** (19 grupos de duplicados exactos, 20 filas de más):
+- `escuchar()` en `app/servicios/ntfy_listener.py` reabre el stream con `?since=12h` en *cada* reconexión, no solo al arrancar — cualquier corte de red o redeploy del contenedor repite hasta 12h de histórico NTFY.
+- El chequeo `buscar_duplicados()` existente es "check-then-insert" (SELECT, si no existe → INSERT): dos procesos casi simultáneos (p.ej. el contenedor viejo y el nuevo solapándose durante un redeploy) pueden pasar el SELECT a la vez, sin que ninguno vea aún el INSERT del otro, y ambos insertan.
+- Todos los casos confirmados: mismo `origen=ntfy`, misma huella exacta (ej. dos filas idénticas de "EL RINCONCITO -2,50€").
+
+**b) Duplicado cruzado CSV↔NTFY** (5 casos confirmados):
+- El mismo movimiento real capturado dos veces: al instante por NTFY (descripción corta del comercio, ej. "EL JAMON 199") y semanas después al importar el extracto bancario (descripción larga del banco, ej. "Pago Movil En El Jamon 199, Huelva Es, Tarj. :*725155").
+- Como la huella incluye la descripción normalizada, dos textos distintos generan huellas distintas y nunca se detecta como duplicado.
+- Causa adicional: `/importar/csv` importaba `buscar_duplicados` pero nunca lo llamaba — solo comprobaba huella exacta. El fuzzy-matcher (mismo importe, fecha ±1 día) que sí usan NTFY y sincronización, en la importación CSV era código muerto.
+- **Pendiente para otra sesión:** el margen de ±1 día no sirve para este caso. Un pago con tarjeta de CaixaBank puede autorizarse un día y no liquidarse (aparecer en el extracto) hasta 2-3 días después — siempre hacia adelante, nunca hacia atrás. Hace falta un margen direccional configurable por cuenta/banco, y cualquier coincidencia cruzada debería marcarse `estado='revisar'` en vez de auto-fusionarse (riesgo de falso positivo con importes recurrentes habituales, ej. "EL RINCONCITO -2,50€", que aparece varias veces al mes).
+
+**Limpieza en producción** (vía API, sin tocar código):
+- Backup completo de los 726 movimientos guardado antes de borrar nada.
+- Borrados los 20 movimientos duplicados del caso (a), conservando siempre el id más bajo (el capturado primero) de cada grupo.
+- Total tras la limpieza: 706 movimientos.
+
+**Fix estructural — índice único sobre `huella`** (cierra el caso (a) de raíz):
+- Migración v6 en `app/bd.py`: convierte `idx_movimientos_huella` en `UNIQUE INDEX`. Antes de crearlo, limpia defensivamente cualquier huella repetida que pudiera quedar (conserva la fila con id más bajo; no toca filas con huella `NULL`, ya que SQLite no las considera iguales entre sí a efectos de un índice único). Se ejecuta sola en cada arranque, es idempotente.
+- `app/esquema.sql`: el índice ya nace `UNIQUE` en instalaciones nuevas.
+- Los 4 puntos de inserción de movimientos capturan ahora `sqlite3.IntegrityError` y lo tratan como "duplicado" en vez de dejarlo reventar como error 500: `app/rutas/movimientos.py` (`crear_movimiento`), `app/rutas/sincronizar.py`, `app/rutas/importar.py`, `app/servicios/ntfy_listener.py`.
+- Efecto secundario detectado de paso: `bd.ejecutar()` no cerraba la conexión SQLite si el INSERT lanzaba una excepción — inofensivo hasta ahora, pero con el índice único disparando duplicados de forma rutinaria habría ido dejando conexiones colgadas. Corregido con `try/finally`.
+
+Ficheros modificados: `app/bd.py`, `app/esquema.sql`, `app/rutas/importar.py`, `app/rutas/movimientos.py`, `app/rutas/sincronizar.py`, `app/servicios/ntfy_listener.py`.
+
+**Nota:** el índice único ya está en el código y pusheado, pero no se aplica hasta el próximo redeploy del contenedor (la migración v6 corre sola al arrancar).
+
+---
+
 ## 2026-06-10 — Compactación de cards en móvil: layout reorganizado
 
 ### Problema inicial

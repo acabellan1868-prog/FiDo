@@ -2,23 +2,19 @@
 
 ## Estado actual
 
-**Fecha:** 2026-05-15
+**Fecha:** 2026-08-07
 
-**Fase 4 completada ✅** — captura automática de gastos desde el móvil funcionando.
+**Fase 4 completada ✅** — captura automática de gastos desde el móvil funcionando (ver detalle del flujo Drive + Claude Vision en `capturaGastosIA.md`).
 
-**Flujo activo:**
-1. Usuario hace captura de pantalla de la notificación (Google Wallet, Revolut…)
-2. La sube a Google Drive: `Proyectos/Desarrollo/hogarOS/FiDo/gastosPendientes/`
-3. Tarea programada `fido-gastos-drive` en Cowork corre cada 30 min (:17 y :47)
-4. Claude lee la imagen directamente (multimodal), extrae importe/comercio/tarjeta
-5. Resuelve la cuenta por mapeo de tarjeta (ver CLAUDE.md) y llama a la API de FiDo
-6. Copia la imagen a la carpeta `procesadas/` para no reprocesar
+**Trabajo de hoy:**
+1. Importación de extractos ampliada a Excel (`.xlsx` y `.xls`), además de CSV/TSV — detección automática por extensión, sin tocar los parsers de banco.
+2. Investigadas y corregidas dos causas de movimientos duplicados: race condition en el listener NTFY durante redeploys (19 grupos, ya limpiados en producción) y duplicado cruzado CSV↔NTFY sin detectar (5 casos confirmados, sin limpiar aún). Añadido índice único sobre `huella` para bloquear la primera causa a nivel de base de datos.
 
-**Prueba end-to-end superada:** BAR CASA MIGUEL -7.10€ (Revolut 9625 → cuenta_id 8).
+Ver el detalle completo en `bitacora.md` (entrada 2026-08-07).
 
-**Próximo paso:** Fase 5 (resúmenes, exportación, presupuestos) o mejoras de usabilidad.
-
-Ver documentación detallada en `capturaGastosIA.md`.
+**Próximo paso concreto:**
+1. Redesplegar el contenedor para que la migración v6 (índice único) se aplique en producción — está en el código pero aún no activa.
+2. Diseñar la reconciliación de duplicados cruzados CSV↔NTFY: margen de días direccional y configurable por cuenta/banco (CaixaBank liquida con retraso, Revolut al instante), y siempre marcar como `estado='revisar'` en vez de auto-fusionar.
 
 ---
 
@@ -49,6 +45,8 @@ Ver documentación detallada en `capturaGastosIA.md`.
 - [x] Migración al design system Living Sanctuary (hogar.css) (2026-03-29)
 - [x] Drawer lateral con navegación entre apps (2026-03-22)
 - [x] Selección múltiple y borrado en bloque de movimientos (2026-05-14)
+- [x] Importación de extractos en Excel (.xlsx y .xls) (2026-08-07)
+- [x] Índice único sobre huella + limpieza de duplicados NTFY (2026-08-07)
 
 ### Fase 4 — Captura automática desde el móvil (rediseñada)
 
@@ -75,3 +73,4 @@ Ver documentación detallada en `capturaGastosIA.md`.
 - [ ] Resúmenes por período y comparativas
 - [ ] Exportación de datos
 - [ ] Presupuestos por categoría
+- [ ] Reconciliación de duplicados cruzados CSV↔NTFY (margen de liquidación configurable por cuenta/banco, siempre a revisión manual)
