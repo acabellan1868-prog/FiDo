@@ -1,10 +1,11 @@
-"""FiDo — Ruta de importación de extractos bancarios (CSV/TSV/XLSX)."""
+"""FiDo — Ruta de importación de extractos bancarios (CSV/TSV/XLS/XLSX)."""
 
 import csv
 import io
 from datetime import date, datetime
 
 import openpyxl
+import xlrd
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from app.parsers.santander import ParserSantander
 from app.parsers.caixabank import ParserCaixaBank
@@ -27,15 +28,19 @@ PARSERS = {
 _BANCOS_DECIMAL_PUNTO = {"revolut"}
 
 
+def _formatear_numero(valor: float, decimal_punto: bool) -> str:
+    texto = f"{valor:.2f}"
+    return texto if decimal_punto else texto.replace(".", ",")
+
+
 def _celda_a_texto(valor, decimal_punto: bool) -> str:
-    """Convierte el valor de una celda de Excel al texto que espera un parser CSV."""
+    """Convierte el valor de una celda de openpyxl (.xlsx) al texto que espera un parser CSV."""
     if valor is None:
         return ""
     if isinstance(valor, (datetime, date)):
         return valor.strftime("%Y-%m-%d")
     if isinstance(valor, float):
-        texto = f"{valor:.2f}"
-        return texto if decimal_punto else texto.replace(".", ",")
+        return _formatear_numero(valor, decimal_punto)
     return str(valor).strip()
 
 
@@ -54,13 +59,41 @@ def _xlsx_a_csv(contenido_bytes: bytes, banco: str) -> str:
     return salida.getvalue()
 
 
+def _xls_a_csv(contenido_bytes: bytes, banco: str) -> str:
+    """Convierte la primera hoja de un Excel antiguo (.xls) a texto CSV separado por comas."""
+    libro = xlrd.open_workbook(file_contents=contenido_bytes)
+    hoja = libro.sheet_by_index(0)
+    decimal_punto = banco in _BANCOS_DECIMAL_PUNTO
+
+    salida = io.StringIO()
+    escritor = csv.writer(salida)
+    for i in range(hoja.nrows):
+        fila = hoja.row(i)
+        if all(c.ctype == xlrd.XL_CELL_EMPTY for c in fila):
+            continue
+
+        valores = []
+        for c in fila:
+            if c.ctype == xlrd.XL_CELL_EMPTY:
+                valores.append("")
+            elif c.ctype == xlrd.XL_CELL_DATE:
+                dt = xlrd.xldate_as_datetime(c.value, libro.datemode)
+                valores.append(dt.strftime("%Y-%m-%d"))
+            elif c.ctype == xlrd.XL_CELL_NUMBER:
+                valores.append(_formatear_numero(c.value, decimal_punto))
+            else:
+                valores.append(str(c.value).strip())
+        escritor.writerow(valores)
+    return salida.getvalue()
+
+
 @ruta.post("/csv")
 async def importar_csv(
     fichero: UploadFile = File(...),
     cuenta_id: int = Form(...),
     banco: str = Form("santander"),
 ):
-    """Importa un fichero CSV/TSV o Excel (.xlsx) de extracto bancario.
+    """Importa un fichero CSV/TSV o Excel (.xls/.xlsx) de extracto bancario.
     Auto-categoriza y detecta duplicados.
     """
     banco = banco.lower()
@@ -80,6 +113,11 @@ async def importar_csv(
     if nombre.endswith(".xlsx"):
         try:
             contenido = _xlsx_a_csv(contenido_bytes, banco)
+        except Exception as e:
+            raise HTTPException(400, f"No se pudo leer el Excel: {e}")
+    elif nombre.endswith(".xls"):
+        try:
+            contenido = _xls_a_csv(contenido_bytes, banco)
         except Exception as e:
             raise HTTPException(400, f"No se pudo leer el Excel: {e}")
     else:
