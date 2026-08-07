@@ -1,5 +1,10 @@
-"""FiDo — Ruta de importación de extractos bancarios (CSV/TSV)."""
+"""FiDo — Ruta de importación de extractos bancarios (CSV/TSV/XLSX)."""
 
+import csv
+import io
+from datetime import date, datetime
+
+import openpyxl
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from app.parsers.santander import ParserSantander
 from app.parsers.caixabank import ParserCaixaBank
@@ -17,6 +22,37 @@ PARSERS = {
     "revolut": ParserRevolut(),
 }
 
+# Revolut exige importes con punto decimal (float() directo);
+# Santander y CaixaBank esperan formato español (coma decimal).
+_BANCOS_DECIMAL_PUNTO = {"revolut"}
+
+
+def _celda_a_texto(valor, decimal_punto: bool) -> str:
+    """Convierte el valor de una celda de Excel al texto que espera un parser CSV."""
+    if valor is None:
+        return ""
+    if isinstance(valor, (datetime, date)):
+        return valor.strftime("%Y-%m-%d")
+    if isinstance(valor, float):
+        texto = f"{valor:.2f}"
+        return texto if decimal_punto else texto.replace(".", ",")
+    return str(valor).strip()
+
+
+def _xlsx_a_csv(contenido_bytes: bytes, banco: str) -> str:
+    """Convierte la primera hoja de un Excel (.xlsx) a texto CSV separado por comas."""
+    libro = openpyxl.load_workbook(io.BytesIO(contenido_bytes), data_only=True, read_only=True)
+    hoja = libro.active
+    decimal_punto = banco in _BANCOS_DECIMAL_PUNTO
+
+    salida = io.StringIO()
+    escritor = csv.writer(salida)
+    for fila in hoja.iter_rows(values_only=True):
+        if fila is None or all(c is None for c in fila):
+            continue
+        escritor.writerow([_celda_a_texto(c, decimal_punto) for c in fila])
+    return salida.getvalue()
+
 
 @ruta.post("/csv")
 async def importar_csv(
@@ -24,10 +60,11 @@ async def importar_csv(
     cuenta_id: int = Form(...),
     banco: str = Form("santander"),
 ):
-    """Importa un fichero CSV/TSV de extracto bancario.
+    """Importa un fichero CSV/TSV o Excel (.xlsx) de extracto bancario.
     Auto-categoriza y detecta duplicados.
     """
-    parser = PARSERS.get(banco.lower())
+    banco = banco.lower()
+    parser = PARSERS.get(banco)
     if not parser:
         raise HTTPException(400, f"Banco no soportado: {banco}. Disponibles: {list(PARSERS.keys())}")
 
@@ -38,11 +75,19 @@ async def importar_csv(
 
     # Leer contenido del fichero
     contenido_bytes = await fichero.read()
-    # Intentar UTF-8, fallback a ISO-8859-1 (común en bancos españoles)
-    try:
-        contenido = contenido_bytes.decode("utf-8")
-    except UnicodeDecodeError:
-        contenido = contenido_bytes.decode("iso-8859-1")
+    nombre = (fichero.filename or "").lower()
+
+    if nombre.endswith(".xlsx"):
+        try:
+            contenido = _xlsx_a_csv(contenido_bytes, banco)
+        except Exception as e:
+            raise HTTPException(400, f"No se pudo leer el Excel: {e}")
+    else:
+        # Intentar UTF-8, fallback a ISO-8859-1 (común en bancos españoles)
+        try:
+            contenido = contenido_bytes.decode("utf-8")
+        except UnicodeDecodeError:
+            contenido = contenido_bytes.decode("iso-8859-1")
 
     importados = 0
     duplicados = 0
