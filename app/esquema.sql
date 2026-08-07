@@ -84,5 +84,5 @@ CREATE TABLE IF NOT EXISTS cuentas_vinculadas (
 CREATE INDEX IF NOT EXISTS idx_movimientos_fecha ON movimientos(fecha);
 CREATE INDEX IF NOT EXISTS idx_movimientos_cuenta ON movimientos(cuenta_id);
 CREATE INDEX IF NOT EXISTS idx_movimientos_categoria ON movimientos(categoria_id);
-CREATE INDEX IF NOT EXISTS idx_movimientos_huella ON movimientos(huella);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_movimientos_huella ON movimientos(huella);
 CREATE INDEX IF NOT EXISTS idx_reglas_patron ON reglas(patron);

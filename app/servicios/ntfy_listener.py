@@ -41,6 +41,7 @@ import asyncio
 import json
 import logging
 import os
+import sqlite3
 from datetime import date
 
 import httpx
@@ -125,25 +126,32 @@ def procesar_mensaje(mensaje_body: str) -> dict:
         logger.info(f"Movimiento duplicado ignorado: {descripcion} {importe}€ ({fecha})")
         return {"estado": "duplicado", "descripcion": descripcion, "importe": importe}
 
-    bd.ejecutar(
-        """INSERT INTO movimientos
-           (fecha, fecha_valor, importe, descripcion, descripcion_original,
-            categoria_id, cuenta_id, origen, origen_ref, huella, notas, estado)
-           VALUES (?, ?, ?, ?, ?, ?, ?, 'ntfy', ?, ?, ?, ?)""",
-        (
-            fecha,
-            datos.get("fecha_valor"),
-            importe,
-            descripcion,
-            datos.get("descripcion_original", descripcion),
-            categoria_id,
-            cuenta_id,
-            datos.get("origen_ref"),
-            huella,
-            datos.get("notas"),
-            estado,
+    try:
+        bd.ejecutar(
+            """INSERT INTO movimientos
+               (fecha, fecha_valor, importe, descripcion, descripcion_original,
+                categoria_id, cuenta_id, origen, origen_ref, huella, notas, estado)
+               VALUES (?, ?, ?, ?, ?, ?, ?, 'ntfy', ?, ?, ?, ?)""",
+            (
+                fecha,
+                datos.get("fecha_valor"),
+                importe,
+                descripcion,
+                datos.get("descripcion_original", descripcion),
+                categoria_id,
+                cuenta_id,
+                datos.get("origen_ref"),
+                huella,
+                datos.get("notas"),
+                estado,
+            )
         )
-    )
+    except sqlite3.IntegrityError:
+        # El chequeo de buscar_duplicados() de arriba puede perder una carrera
+        # (p.ej. reconexión NTFY que repite ?since=12h justo durante un redeploy).
+        # El índice único sobre 'huella' es quien realmente lo bloquea aquí.
+        logger.info(f"Movimiento duplicado ignorado (índice único): {descripcion} {importe}€ ({fecha})")
+        return {"estado": "duplicado", "descripcion": descripcion, "importe": importe}
 
     logger.info(f"Movimiento NTFY {'⚠ revisar' if estado == 'revisar' else '✓'}: {descripcion} {importe:+.2f}€ ({fecha})")
     return {"estado_proceso": "importado", "estado_revision": estado, "descripcion": descripcion, "importe": importe}

@@ -46,11 +46,12 @@ def consultar_uno(sql: str, parametros: tuple = ()) -> dict | None:
 def ejecutar(sql: str, parametros: tuple = ()) -> int:
     """Ejecuta INSERT/UPDATE/DELETE y devuelve el lastrowid."""
     conexion = obtener_conexion()
-    cursor = conexion.execute(sql, parametros)
-    conexion.commit()
-    ultimo_id = cursor.lastrowid
-    conexion.close()
-    return ultimo_id
+    try:
+        cursor = conexion.execute(sql, parametros)
+        conexion.commit()
+        return cursor.lastrowid
+    finally:
+        conexion.close()
 
 
 def ejecutar_varios(sql: str, lista_parametros: list[tuple]) -> None:
@@ -73,6 +74,14 @@ def migrar_bd():
       v5:    Añade 'drive' al CHECK de movimientos.origen. Necesaria porque la BD
              de producción puede tener 'ntfy' pero no 'drive' si la migración v1→v2
              se ejecutó antes de que se añadiera 'drive' al bloque inline.
+      v6:    Convierte el índice de 'huella' en UNIQUE, para que la propia base
+             de datos rechace duplicados aunque dos inserciones casi simultáneas
+             (p.ej. durante un redeploy que solapa el listener NTFY viejo y el
+             nuevo) pasen el chequeo previo de 'buscar_duplicados' a la vez.
+             Antes de crear el índice, elimina huellas repetidas que ya existan
+             (conserva la fila con el id más bajo de cada grupo); las filas sin
+             huella (NULL) no se tocan, ya que SQLite no las considera iguales
+             entre sí a efectos de un índice único.
     """
     conexion = obtener_conexion()
 
@@ -187,5 +196,21 @@ def migrar_bd():
             CREATE INDEX IF NOT EXISTS idx_movimientos_categoria ON movimientos(categoria_id);
             CREATE INDEX IF NOT EXISTS idx_movimientos_huella    ON movimientos(huella);
         """)
+
+    # Migración v6: índice único sobre 'huella'
+    indice = conexion.execute(
+        "SELECT sql FROM sqlite_master WHERE type='index' AND name='idx_movimientos_huella'"
+    ).fetchone()
+    if not indice or not indice[0] or "UNIQUE" not in indice[0]:
+        conexion.execute("""
+            DELETE FROM movimientos
+            WHERE huella IS NOT NULL
+            AND id NOT IN (
+                SELECT MIN(id) FROM movimientos WHERE huella IS NOT NULL GROUP BY huella
+            )
+        """)
+        conexion.execute("DROP INDEX IF EXISTS idx_movimientos_huella")
+        conexion.execute("CREATE UNIQUE INDEX idx_movimientos_huella ON movimientos(huella)")
+        conexion.commit()
 
     conexion.close()

@@ -2,6 +2,7 @@
 
 import csv
 import io
+import sqlite3
 from datetime import date, datetime
 
 import openpyxl
@@ -184,6 +185,18 @@ async def importar_csv(
                 "categoria_id": categoria_id,
             })
 
+        except sqlite3.IntegrityError:
+            # El chequeo de huella exacta de arriba puede perder una carrera
+            # (o la huella con sufijo _N puede coincidir con una ya existente
+            # de una importación anterior del mismo fichero). El índice único
+            # es quien lo bloquea aquí.
+            duplicados += 1
+            detalles.append({
+                "estado": "duplicado",
+                "descripcion": movimiento.descripcion,
+                "fecha": movimiento.fecha,
+                "importe": movimiento.importe,
+            })
         except Exception as e:
             errores += 1
             detalles.append({

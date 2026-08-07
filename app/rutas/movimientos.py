@@ -1,5 +1,7 @@
 """FiDo — Rutas CRUD para movimientos (gastos e ingresos)."""
 
+import sqlite3
+
 from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
 from pydantic import BaseModel
@@ -138,15 +140,18 @@ def crear_movimiento(datos: MovimientoCrear):
     from app.servicios.deduplicador import calcular_huella
     huella = calcular_huella(datos.fecha, datos.importe, datos.descripcion)
 
-    nuevo_id = bd.ejecutar(
-        """INSERT INTO movimientos
-           (fecha, fecha_valor, importe, descripcion, descripcion_original,
-            categoria_id, cuenta_id, origen, origen_ref, huella, notas, estado)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-        (datos.fecha, datos.fecha_valor, datos.importe, datos.descripcion,
-         datos.descripcion_original, categoria_id, datos.cuenta_id,
-         datos.origen, datos.origen_ref, huella, datos.notas, datos.estado)
-    )
+    try:
+        nuevo_id = bd.ejecutar(
+            """INSERT INTO movimientos
+               (fecha, fecha_valor, importe, descripcion, descripcion_original,
+                categoria_id, cuenta_id, origen, origen_ref, huella, notas, estado)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (datos.fecha, datos.fecha_valor, datos.importe, datos.descripcion,
+             datos.descripcion_original, categoria_id, datos.cuenta_id,
+             datos.origen, datos.origen_ref, huella, datos.notas, datos.estado)
+        )
+    except sqlite3.IntegrityError:
+        raise HTTPException(409, "Movimiento duplicado (misma fecha, importe y descripción ya registrados)")
     return obtener_movimiento(nuevo_id)
 
 
